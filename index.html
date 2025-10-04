@@ -1,56 +1,96 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أقرب شيء إليك الآن 🌍</title>
+  <title>🌍 أقرب شيء إليك الآن</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    body { font-family: "Tahoma", sans-serif; background: #f9fafb; color: #111; text-align: center; padding: 20px; }
-    button { padding: 10px 20px; margin: 10px; border: none; border-radius: 8px; background: #2563eb; color: white; cursor: pointer; }
-    #map { width: 100%; height: 400px; margin-top: 15px; border-radius: 12px; }
+    body {
+      font-family: "Tahoma", sans-serif;
+      background-color: #f9fafb;
+      color: #111;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #2563eb;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    #map {
+      width: 100%;
+      height: 400px;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
+
   <h1>🌍 أقرب شيء إليك الآن</h1>
   <p>اختر نوع المكان لمعرفة الأقرب إليك</p>
-  <button onclick="findPlaces('restaurant')">مطاعم 🍔</button>
-  <button onclick="findPlaces('pharmacy')">صيدليات 💊</button>
-  <button onclick="findPlaces('mosque')">مساجد 🕌</button>
+
+  <div>
+    <button onclick="findPlaces('restaurant')">🍔 مطاعم</button>
+    <button onclick="findPlaces('pharmacy')">💊 صيدليات</button>
+    <button onclick="findPlaces('mosque')">🕌 مساجد</button>
+  </div>
+
   <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let map;
-    let service;
 
-    function initMap() {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-        map = new google.maps.Map(document.getElementById("map"), { center: userLocation, zoom: 15 });
-        new google.maps.Marker({ position: userLocation, map: map, title: "موقعك الحالي 📍" });
-      });
+    function initMap(lat, lon) {
+      map = L.map('map').setView([lat, lon], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      L.marker([lat, lon]).addTo(map).bindPopup('📍 موقعك الحالي').openPopup();
     }
 
     function findPlaces(type) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-        map = new google.maps.Map(document.getElementById("map"), { center: userLocation, zoom: 15 });
-        const request = { location: userLocation, radius: 2000, type: [type] };
-        service = new google.maps.places.PlacesService(map);
-        service.nearbySearch(request, function(results, status) {
-          if (status === google.maps.places.PlacesServiceStatus.OK) {
-            results.forEach(place => {
-              new google.maps.Marker({ map: map, position: place.geometry.location, title: place.name });
+      if (!map) {
+        alert("الرجاء السماح بتحديد الموقع أولاً.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${type}&limit=10&viewbox=${lon-0.02},${lat+0.02},${lon+0.02},${lat-0.02}`)
+          .then(res => res.json())
+          .then(data => {
+            data.forEach(place => {
+              L.marker([place.lat, place.lon]).addTo(map)
+                .bindPopup(`${place.display_name}`);
             });
-          } else {
-            alert("لم يتم العثور على نتائج قريبة 😔");
-          }
-        });
+          });
       });
     }
+
+    // تحديد الموقع عند فتح الصفحة
+    navigator.geolocation.getCurrentPosition(
+      pos => initMap(pos.coords.latitude, pos.coords.longitude),
+      err => alert("يرجى السماح بالوصول إلى الموقع الجغرافي.")
+    );
   </script>
 
-  <!-- مفتاح Google Maps API -->
-  <script async src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"></script>
 </body>
 </html>
-
