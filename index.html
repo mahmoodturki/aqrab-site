@@ -1,178 +1,98 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌍 أقرب شيء إليك الآن</title>
-
-  <!-- خريطة OpenStreetMap -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أقرب شيء إليك الآن 🌍</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <style>
-    body { font-family: Tahoma, sans-serif; margin:0; padding:0; background:#f9fafb; }
-    header { background:#2563eb; color:#fff; text-align:center; padding:12px; font-weight:bold; font-size:18px; }
-
-    #buttons {
-      display:flex;
-      flex-wrap:nowrap;
-      overflow-x:auto;
-      gap:8px;
-      justify-content:flex-start;
-      background:#fff;
-      padding:10px;
-      border-bottom:1px solid #ddd;
-      white-space:nowrap;
-    }
-
-    button {
-      padding:8px 12px;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-size:14px;
-      background:#2563eb;
-      color:white;
-      flex-shrink:0;
-    }
-    button:hover { background:#1d4ed8; }
-
-    #map { height:80vh; width:100%; }
-
-    #form {
-      text-align:center;
-      margin:10px;
-      display:none;
-    }
-
-    input {
-      padding:6px;
-      width:60%;
-      border:1px solid #ccc;
-      border-radius:8px;
-      text-align:center;
-    }
-
-    @media (max-width:600px) {
-      button { font-size:13px; padding:6px 8px; }
-      input { width:80%; }
-    }
+    body { margin:0; font-family: 'Cairo', sans-serif; text-align:center; }
+    #map { height: 80vh; width: 100%; margin: 0 auto; }
+    #buttons { padding:10px; background:#f8f9fa; overflow-x:auto; white-space:nowrap; }
+    button { margin:4px; padding:8px 12px; border:none; border-radius:10px; background:#007bff; color:white; cursor:pointer; }
+    button:hover { background:#0056b3; }
   </style>
 </head>
+<body dir="rtl">
+  <h2>🌍 أقرب شيء إليك الآن</h2>
 
-<body>
-
-  <header>🌍 أقرب شيء إليك الآن</header>
+  <!-- 🔸 إعلان Adsterra أعلى الخريطة -->
+  <script type='text/javascript' src='//pl27783662.revenuecpmgate.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'></script>
 
   <div id="buttons">
-    <button onclick="findPlaces('amenity=school')">🏫 مدارس</button>
-    <button onclick="findPlaces('amenity=university')">🎓 جامعات</button>
-    <button onclick="findPlaces('shop=supermarket')">🛒 ماركت</button>
-    <button onclick="findPlaces('amenity=restaurant')">🍔 مطاعم</button>
-    <button onclick="findPlaces('amenity=place_of_worship')">🕌 دور عبادة</button>
-    <button onclick="findPlaces('amenity=pharmacy')">💊 صيدليات</button>
-    <button onclick="findPlaces('amenity=clinic')">🩺 عيادات</button>
-    <button onclick="findPlaces('amenity=hospital')">🏥 مستشفيات</button>
+    <button onclick="findPlaces('restaurant')">مطاعم 🍽️</button>
+    <button onclick="findPlaces('pharmacy')">صيدليات 💊</button>
+    <button onclick="findPlaces('hospital')">مستشفيات 🏥</button>
+    <button onclick="findPlaces('school')">مدارس 🎓</button>
+    <button onclick="findPlaces('university')">جامعات 🏛️</button>
+    <button onclick="findPlaces('supermarket')">سوبرماركت 🛒</button>
+    <button onclick="findPlaces('bank')">بنوك 🏦</button>
+    <button onclick="findPlaces('mosque')">مساجد 🕌</button>
     <button onclick="enableAddMode()">➕ إضافة موقع جديد</button>
-  </div>
-
-  <div id="form">
-    <input type="text" id="placeName" placeholder="اسم المكان"/>
-    <button onclick="savePlace()">💾 حفظ</button>
   </div>
 
   <div id="map"></div>
 
+  <!-- 🔸 إعلان Adsterra أسفل الخريطة -->
+  <script type='text/javascript' src='//pl27783662.revenuecpmgate.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'></script>
+
   <script>
-    let map, userMarker, addMode=false, tempMarker;
-    let savedPlaces = JSON.parse(localStorage.getItem("places") || "[]");
+    // إعداد الخريطة
+    var map = L.map('map').setView([0, 0], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    // أيقونات
-    const icons = {
-      school: "🏫", university: "🎓", supermarket:"🛒",
-      restaurant:"🍔", place_of_worship:"🕌", pharmacy:"💊",
-      clinic:"🩺", hospital:"🏥", custom:"📍"
-    };
+    let userMarker, tempMarker;
+    let addMode = false;
 
-    // إنشاء الخريطة
-    function initMap(lat, lon) {
-      map = L.map("map").setView([lat, lon], 15);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom:19, attribution:"&copy; OpenStreetMap"
-      }).addTo(map);
+    // تحديد موقع المستخدم
+    navigator.geolocation.getCurrentPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      map.setView([latitude, longitude], 14);
+      userMarker = L.marker([latitude, longitude]).addTo(map).bindPopup("📍 أنت هنا").openPopup();
+    });
 
-      userMarker = L.marker([lat, lon]).addTo(map).bindPopup("📍 موقعك الحالي").openPopup();
-
-      // عرض الأماكن المحفوظة يدويًا
-      savedPlaces.forEach(p=>{
-        L.marker([p.lat,p.lon]).addTo(map).bindPopup(`${icons.custom} ${p.name}`);
-      });
-
-      // تفعيل النقر واللمس
-      map.on("click", handleMapClick);
-      map.on("touchend", handleMapClick);
-    }
-
-    // عند النقر أو اللمس على الخريطة
-    function handleMapClick(e) {
-      if(addMode){
-        if(tempMarker) map.removeLayer(tempMarker);
-        tempMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 موقع جديد").openPopup();
-        localStorage.setItem("tempLat", e.latlng.lat);
-        localStorage.setItem("tempLon", e.latlng.lng);
-      }
-    }
-
-    // البحث عن الأماكن (Overpass API)
-    async function findPlaces(query){
-      navigator.geolocation.getCurrentPosition(async pos=>{
-        const lat=pos.coords.latitude, lon=pos.coords.longitude;
-        map.eachLayer(layer=>{
-          if(layer instanceof L.Marker && layer!==userMarker){ map.removeLayer(layer); }
+    // دالة البحث عن الأماكن القريبة (OpenStreetMap Nominatim)
+    function findPlaces(type) {
+      if (!map.getCenter()) return;
+      const { lat, lng } = map.getCenter();
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${type}&addressdetails=1&limit=20&countrycodes=SA&extratags=1&viewbox=${lng-0.05},${lat+0.05},${lng+0.05},${lat-0.05}`;
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          map.eachLayer(layer => {
+            if (layer instanceof L.Marker && layer !== userMarker) map.removeLayer(layer);
+          });
+          data.forEach(place => {
+            const marker = L.marker([place.lat, place.lon]).addTo(map);
+            marker.bindPopup(`<b>${place.display_name}</b><br>${type}`);
+          });
         });
-        const url=`https://overpass-api.de/api/interpreter?data=[out:json];node[${query}](${lat-0.02},${lon-0.02},${lat+0.02},${lon+0.02});out;`;
-        const res=await fetch(url); const data=await res.json();
-
-        if(data.elements.length===0){ alert("😔 لا توجد نتائج قريبة"); return; }
-
-        data.elements.forEach(el=>{
-          const type=query.split("=")[1];
-          const icon=icons[type]||"📍";
-          L.marker([el.lat,el.lon]).addTo(map)
-            .bindPopup(`${icon} <b>${el.tags.name||"موقع بدون اسم"}</b>`);
-        });
-        map.setView([lat,lon],14);
-      }, ()=>alert("يرجى السماح بتحديد الموقع."));
     }
 
     // تفعيل وضع الإضافة
-    function enableAddMode(){
-      addMode=true;
-      document.getElementById("form").style.display="block";
-      alert("اضغط على الخريطة لتحديد موقعك الجديد 📍");
+    function enableAddMode() {
+      addMode = true;
+      alert("انقر على الخريطة لتحديد موقعك الجديد 📍");
     }
 
-    // حفظ الموقع الجديد
-    function savePlace(){
-      const name=document.getElementById("placeName").value.trim();
-      const lat=localStorage.getItem("tempLat");
-      const lon=localStorage.getItem("tempLon");
-      if(!name||!lat||!lon){ alert("يرجى إدخال الاسم وتحديد الموقع."); return; }
-      savedPlaces.push({name,lat,lon});
-      localStorage.setItem("places",JSON.stringify(savedPlaces));
-      L.marker([lat,lon]).addTo(map).bindPopup(`${icons.custom} ${name}`);
-      document.getElementById("placeName").value="";
-      document.getElementById("form").style.display="none";
-      addMode=false;
-      alert("✅ تم حفظ الموقع بنجاح!");
+    // دعم النقر واللمس معاً لإضافة مواقع
+    function handleMapClick(e) {
+      if (addMode) {
+        if (tempMarker) map.removeLayer(tempMarker);
+        tempMarker = L.marker(e.latlng).addTo(map).bindPopup("📍 موقع جديد");
+        localStorage.setItem("tempLat", e.latlng.lat);
+        localStorage.setItem("tempLon", e.latlng.lng);
+        addMode = false;
+        alert("تم حفظ الموقع مؤقتاً ✅");
+      }
     }
 
-    // تهيئة الموقع
-    navigator.geolocation.getCurrentPosition(
-      pos=>initMap(pos.coords.latitude,pos.coords.longitude),
-      ()=>alert("يرجى السماح بتحديد الموقع.")
-    );
+    map.on("click", handleMapClick);
+    map.on("touchend", handleMapClick);
   </script>
-
 </body>
 </html>
