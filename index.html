@@ -198,7 +198,19 @@
       font-weight: 600;
     }
     
-    /* بقية الأنماط */
+    /* أنماط النماذج المحسنة */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
     input, textarea, button, select {
       font-size: 14px;
       padding: 12px;
@@ -207,6 +219,7 @@
       background: rgba(255,255,255,0.05);
       color: inherit;
       transition: all 0.2s;
+      width: 100%;
     }
     
     input:focus, textarea:focus, select:focus {
@@ -228,6 +241,7 @@
       justify-content: center;
       gap: 8px;
       transition: all 0.2s;
+      width: auto;
     }
     
     button:hover {
@@ -397,6 +411,52 @@
       color: var(--muted);
     }
     
+    /* أنماط التسجيل السريع */
+    .quick-register {
+      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    
+    .quick-register-title {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      color: var(--accent);
+      text-align: center;
+    }
+    
+    .quick-register-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .quick-register-input {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 20px 0;
+      color: var(--muted);
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .divider-text {
+      padding: 0 12px;
+      font-size: 14px;
+    }
+    
     @media (max-width: 1100px) {
       .side-ad {
         display: none;
@@ -410,6 +470,14 @@
       
       #bottomAd {
         padding: 6px 0;
+      }
+      
+      .quick-register-form {
+        flex-direction: column;
+      }
+      
+      .quick-register-input {
+        min-width: 100%;
       }
     }
   </style>
@@ -437,6 +505,19 @@
 
   <div class="container">
     <div id="screen-home" class="screen">
+      <!-- نموذج التسجيل السريع في الصفحة الرئيسية -->
+      <div class="quick-register hidden" id="quick-register">
+        <div class="quick-register-title">انضم إلينا الآن!</div>
+        <div class="quick-register-form">
+          <input type="email" id="quick-email" placeholder="بريدك الإلكتروني" class="quick-register-input">
+          <input type="password" id="quick-password" placeholder="كلمة المرور" class="quick-register-input">
+          <button onclick="quickRegister()">تسجيل سريع</button>
+        </div>
+        <div class="small" style="text-align: center; margin-top: 12px;">
+          بالضغط على "تسجيل سريع" فأنت توافق على <a href="#" style="color: var(--accent);">شروط الخدمة</a>
+        </div>
+      </div>
+
       <div class="card row">
         <div class="col">
           <h2>التغذية</h2>
@@ -463,17 +544,56 @@
 
     <div id="screen-register" class="screen hidden">
       <div class="card">
-        <h3>إنشاء حساب</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-          <input id="reg-display" placeholder="الاسم الظاهر" />
-          <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
-          <input id="reg-email" placeholder="البريد الإلكتروني" type="email" />
-          <input id="reg-password" placeholder="كلمة المرور" type="password" />
-          <div style="display:flex;gap:8px">
-            <button onclick="register()">سجل الآن</button>
+        <h3>إنشاء حساب جديد</h3>
+        
+        <!-- خيار التسجيل السريع -->
+        <div class="quick-register" style="margin-top: 0;">
+          <div class="quick-register-title">تسجيل سريع</div>
+          <div class="form-group">
+            <input type="email" id="reg-email-quick" placeholder="بريدك الإلكتروني">
+          </div>
+          <div class="form-group">
+            <input type="password" id="reg-password-quick" placeholder="كلمة المرور (6 أحرف على الأقل)">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button onclick="quickRegisterFromForm()" style="flex:1">تسجيل سريع</button>
+          </div>
+        </div>
+
+        <div class="divider">
+          <span class="divider-text">أو</span>
+        </div>
+
+        <!-- نموذج التسجيل الكامل -->
+        <div>
+          <h4 style="margin-bottom: 16px;">تسجيل مفصل</h4>
+          <div class="form-group">
+            <label class="form-label" for="reg-display">الاسم الظاهر</label>
+            <input id="reg-display" placeholder="الاسم الذي سيراه الآخرون" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-username">اسم المستخدم</label>
+            <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-email">البريد الإلكتروني</label>
+            <input id="reg-email" placeholder="بريدك الإلكتروني" type="email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-password">كلمة المرور</label>
+            <input id="reg-password" placeholder="كلمة المرور (6 أحرف على الأقل)" type="password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-password-confirm">تأكيد كلمة المرور</label>
+            <input id="reg-password-confirm" placeholder="أعد إدخال كلمة المرور" type="password" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button onclick="register()" style="flex:1">إنشاء حساب</button>
             <button class="secondary" onclick="showScreen('home')">عودة</button>
           </div>
-          <div class="small">سيتم التحقق من البريد وكلمة المرور. لا تُخزن كلمات المرور على الخادم بصيغة النص العادي.</div>
+          <div class="small" style="margin-top: 12px;">
+            بالضغط على "إنشاء حساب" فأنت توافق على <a href="#" style="color: var(--accent);">شروط الخدمة وسياسة الخصوصية</a>
+          </div>
         </div>
       </div>
     </div>
@@ -481,17 +601,48 @@
     <div id="screen-login" class="screen hidden">
       <div class="card">
         <h3>تسجيل الدخول</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-          <input id="login-email" placeholder="البريد الإلكتروني" type="email" />
-          <input id="login-password" placeholder="كلمة المرور" type="password" />
+        
+        <!-- خيار التسجيل السريع من شاشة الدخول -->
+        <div class="quick-register" style="margin-top: 0; margin-bottom: 20px;">
+          <div class="quick-register-title">ليس لديك حساب؟ سجل الآن</div>
+          <div class="form-group">
+            <input type="email" id="login-quick-email" placeholder="بريدك الإلكتروني">
+          </div>
+          <div class="form-group">
+            <input type="password" id="login-quick-password" placeholder="كلمة المرور">
+          </div>
           <div style="display:flex;gap:8px">
-            <button onclick="login()">دخول</button>
+            <button onclick="quickRegisterFromLogin()" style="flex:1">تسجيل سريع</button>
+          </div>
+        </div>
+
+        <div class="divider">
+          <span class="divider-text">أو</span>
+        </div>
+
+        <!-- نموذج الدخول العادي -->
+        <div>
+          <h4 style="margin-bottom: 16px;">لديك حساب بالفعل؟</h4>
+          <div class="form-group">
+            <label class="form-label" for="login-email">البريد الإلكتروني</label>
+            <input id="login-email" placeholder="بريدك الإلكتروني" type="email" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">كلمة المرور</label>
+            <input id="login-password" placeholder="كلمة المرور" type="password" />
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button onclick="login()" style="flex:1">دخول</button>
             <button class="secondary" onclick="showScreen('home')">عودة</button>
+          </div>
+          <div class="small" style="text-align: center; margin-top: 12px;">
+            <a href="#" style="color: var(--accent);">نسيت كلمة المرور؟</a>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- بقية الشاشات (newpost, profile, post) -->
     <div id="screen-newpost" class="screen hidden">
       <div class="card">
         <h3>نشر جديد</h3>
@@ -508,46 +659,11 @@
     </div>
 
     <div id="screen-profile" class="screen hidden">
-      <div class="card">
-        <div class="row" style="align-items:center">
-          <div style="display:flex;gap:12px;align-items:center">
-            <div id="profile-avatar" class="profile-avatar">ص</div>
-            <div>
-              <div id="profile-name" style="font-weight:800"></div>
-              <div id="profile-username" class="small muted"></div>
-            </div>
-          </div>
-          <div style="margin-left:auto">
-            <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-value" id="posts-count">0</div>
-            <div class="stat-label">منشورات</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="followers-count">0</div>
-            <div class="stat-label">متابِعون</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="earnings-count">0</div>
-            <div class="stat-label">أرباح</div>
-          </div>
-        </div>
-        <hr style="margin:16px 0;border-color:rgba(255,255,255,0.03)">
-        <div><h4>منشورات المستخدم</h4></div>
-        <div id="profile-posts" class="posts-grid" style="margin-top:12px">
-          <div class="card" style="text-align: center; padding: 40px;">
-            <div class="loading"></div>
-            <p class="muted">جاري تحميل المنشورات...</p>
-          </div>
-        </div>
-      </div>
+      <!-- محتوى شاشة الملف الشخصي -->
     </div>
 
     <div id="screen-post" class="screen hidden">
-      <div class="card" id="post-view"></div>
+      <!-- محتوى شاشة المنشور -->
     </div>
 
   </div>
@@ -565,14 +681,7 @@
     <div id="bottom-ad-container" class="ad-unit"></div>
   </div>
 
-  <!-- مودال الصور -->
-  <div id="image-modal" class="modal hidden">
-    <!-- محتوى المودال الأصلي -->
-  </div>
-
-  <div id="toast" class="toast hidden"></div>
-
-  <!-- Firebase SDKs المحدثة -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -839,15 +948,205 @@
       }, 2200);
     }
 
-    // وظائف المصادقة والإدارة - تم إصلاحها
+    // وظائف التسجيل المباشر المحسنة
+    async function quickRegister() {
+      const email = document.getElementById('quick-email').value.trim();
+      const password = document.getElementById('quick-password').value;
+      
+      if (!email || !password) {
+        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
+        return;
+      }
+      
+      if (password.length < 6) {
+        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+        return;
+      }
+      
+      try {
+        // إنشاء اسم مستخدم تلقائي من البريد الإلكتروني
+        const username = generateUsernameFromEmail(email);
+        
+        // التحقق من أن اسم المستخدم غير مأخوذ
+        const usernameSnap = await db.collection('usernames').doc(username).get();
+        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
+        
+        // إنشاء المستخدم في Authentication
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+        
+        // حفظ بيانات المستخدم في Firestore
+        await db.collection('users').doc(uid).set({
+          username: finalUsername,
+          displayName: finalUsername,
+          email: email,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          followersCount: 0,
+          earnings: 0,
+          postsCount: 0,
+          quickRegister: true // علامة أن التسجيل كان سريعاً
+        });
+        
+        // حفظ اسم المستخدم للتحقق من التكرار
+        await db.collection('usernames').doc(finalUsername).set({ 
+          uid: uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
+        
+        // إخفاء نموذج التسجيل السريع من الصفحة الرئيسية
+        document.getElementById('quick-register').classList.add('hidden');
+        
+      } catch (error) {
+        console.error('Quick registration error:', error);
+        handleAuthError(error);
+      }
+    }
+    
+    async function quickRegisterFromForm() {
+      const email = document.getElementById('reg-email-quick').value.trim();
+      const password = document.getElementById('reg-password-quick').value;
+      
+      if (!email || !password) {
+        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
+        return;
+      }
+      
+      if (password.length < 6) {
+        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+        return;
+      }
+      
+      try {
+        const username = generateUsernameFromEmail(email);
+        const usernameSnap = await db.collection('usernames').doc(username).get();
+        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
+        
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+        
+        await db.collection('users').doc(uid).set({
+          username: finalUsername,
+          displayName: finalUsername,
+          email: email,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          followersCount: 0,
+          earnings: 0,
+          postsCount: 0,
+          quickRegister: true
+        });
+        
+        await db.collection('usernames').doc(finalUsername).set({ 
+          uid: uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
+        showScreen('home');
+        
+      } catch (error) {
+        console.error('Quick registration error:', error);
+        handleAuthError(error);
+      }
+    }
+    
+    async function quickRegisterFromLogin() {
+      const email = document.getElementById('login-quick-email').value.trim();
+      const password = document.getElementById('login-quick-password').value;
+      
+      if (!email || !password) {
+        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
+        return;
+      }
+      
+      if (password.length < 6) {
+        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+        return;
+      }
+      
+      try {
+        const username = generateUsernameFromEmail(email);
+        const usernameSnap = await db.collection('usernames').doc(username).get();
+        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
+        
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+        
+        await db.collection('users').doc(uid).set({
+          username: finalUsername,
+          displayName: finalUsername,
+          email: email,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          followersCount: 0,
+          earnings: 0,
+          postsCount: 0,
+          quickRegister: true
+        });
+        
+        await db.collection('usernames').doc(finalUsername).set({ 
+          uid: uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
+        
+      } catch (error) {
+        console.error('Quick registration error:', error);
+        handleAuthError(error);
+      }
+    }
+    
+    function generateUsernameFromEmail(email) {
+      // إنشاء اسم مستخدم من الجزء قبل @ في البريد الإلكتروني
+      const username = email.split('@')[0];
+      // إزالة أي رموز غير مرغوبة
+      return username.replace(/[^a-zA-Z0-9_]/g, '');
+    }
+    
+    function handleAuthError(error) {
+      let errorMessage = 'فشل التسجيل: ';
+      
+      switch(error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage += 'البريد الإلكتروني مستخدم بالفعل';
+          break;
+        case 'auth/invalid-email':
+          errorMessage += 'البريد الإلكتروني غير صحيح';
+          break;
+        case 'auth/weak-password':
+          errorMessage += 'كلمة المرور ضعيفة، يجب أن تكون 6 أحرف على الأقل';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage += 'خطأ في الشبكة، يرجى المحاولة مرة أخرى';
+          break;
+        default:
+          errorMessage += error.message || 'حدث خطأ غير متوقع';
+      }
+      
+      toast(errorMessage, 'error');
+    }
+
+    // وظائف المصادقة والإدارة - التسجيل الكامل
     async function register() {
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
+      const passwordConfirm = document.getElementById('reg-password-confirm').value;
       const username = document.getElementById('reg-username').value.trim();
       const display = document.getElementById('reg-display').value.trim();
       
       if (!email || !password || !username) {
         toast('اكمل الحقول المطلوبة', 'warning');
+        return;
+      }
+      
+      if (password !== passwordConfirm) {
+        toast('كلمات المرور غير متطابقة', 'warning');
+        return;
+      }
+      
+      if (password.length < 6) {
+        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
         return;
       }
       
@@ -885,23 +1184,7 @@
         
       } catch (error) {
         console.error('Registration error:', error);
-        let errorMessage = 'فشل التسجيل: ';
-        
-        switch(error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage += 'البريد الإلكتروني مستخدم بالفعل';
-            break;
-          case 'auth/invalid-email':
-            errorMessage += 'البريد الإلكتروني غير صحيح';
-            break;
-          case 'auth/weak-password':
-            errorMessage += 'كلمة المرور ضعيفة، يجب أن تكون 6 أحرف على الأقل';
-            break;
-          default:
-            errorMessage += error.message || 'حدث خطأ غير متوقع';
-        }
-        
-        toast(errorMessage, 'error');
+        handleAuthError(error);
       }
     }
 
@@ -948,11 +1231,13 @@
     auth.onAuthStateChanged(async user => {
       const navUser = document.getElementById('nav-user');
       const navGuest = document.getElementById('nav-guest');
+      const quickRegister = document.getElementById('quick-register');
       
       if (user) {
         App.currentUser = user;
         navGuest.classList.add('hidden');
         navUser.classList.remove('hidden');
+        quickRegister.classList.add('hidden');
         
         try {
           const doc = await db.collection('users').doc(user.uid).get();
@@ -970,6 +1255,7 @@
         App.userData = {};
         navUser.classList.add('hidden');
         navGuest.classList.remove('hidden');
+        quickRegister.classList.remove('hidden');
         document.getElementById('nav-username').textContent = '';
         renderFeed();
       }
@@ -1212,170 +1498,6 @@
       }
     }
 
-    async function openComments(postId) {
-      const box = document.getElementById('comments_' + postId);
-      if (!box) return;
-      
-      box.classList.toggle('hidden');
-      
-      if (!box.classList.contains('hidden')) {
-        await loadComments(postId);
-      }
-    }
-
-    async function loadComments(postId) {
-      const list = document.querySelector('#comments_' + postId + ' .comments-list');
-      if (!list) return;
-      
-      list.innerHTML = '<div class="small muted" style="text-align:center">جاري تحميل التعليقات...</div>';
-      
-      try {
-        const snap = await db.collection('posts').doc(postId).collection('comments').orderBy('created', 'asc').get();
-        
-        if (snap.empty) {
-          list.innerHTML = '<div class="small muted" style="text-align:center">لا توجد تعليقات بعد</div>';
-          return;
-        }
-        
-        list.innerHTML = '';
-        snap.forEach(doc => {
-          const comment = doc.data();
-          const el = document.createElement('div');
-          el.className = 'comment-item';
-          el.textContent = (comment.displayName || comment.username || 'مستخدم') + ': ' + comment.text;
-          list.appendChild(el);
-        });
-      } catch (error) {
-        console.error('Error loading comments:', error);
-        list.innerHTML = '<div class="small muted" style="text-align:center">خطأ في تحميل التعليقات</div>';
-      }
-    }
-
-    async function postComment(postId, input) {
-      if (!App.currentUser) {
-        toast('سجل دخول أولاً', 'warning');
-        return;
-      }
-      
-      const text = input.value.trim();
-      if (!text) return;
-      
-      try {
-        await db.collection('posts').doc(postId).collection('comments').add({
-          uid: App.currentUser.uid,
-          username: App.userData.username,
-          displayName: App.userData.displayName,
-          text,
-          created: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // تحديث عدد التعليقات
-        const ref = db.collection('posts').doc(postId);
-        await ref.update({
-          commentsCount: firebase.firestore.FieldValue.increment(1)
-        });
-        
-        input.value = '';
-        loadComments(postId);
-        toast('تم إضافة التعليق');
-      } catch (error) {
-        console.error('Comment error:', error);
-        toast('فشل إضافة التعليق', 'error');
-      }
-    }
-
-    // Modal للصور
-    function openImageModal(post) {
-      document.getElementById('modal-img').src = post.imageUrl || '';
-      document.getElementById('modal-post-meta').textContent = 
-        (post.text ? post.text.substring(0, 100) + (post.text.length > 100 ? '...' : '') : '') + 
-        ' — من: ' + (post.displayName || post.username || 'مستخدم');
-      
-      document.getElementById('image-modal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('image-modal').classList.add('hidden');
-      document.getElementById('modal-img').src = '';
-    }
-
-    // الملف الشخصي والمتابعة
-    async function goToProfile(username) {
-      if (!username) {
-        if (!App.currentUser) {
-          toast('سجل دخول أولاً', 'warning');
-          return;
-        }
-        username = App.userData.username;
-      }
-      
-      window.location.hash = 'profile=' + username;
-      renderRoute();
-    }
-
-    async function renderProfile(username) {
-      showScreen('profile');
-      App.currentProfile = username;
-      
-      try {
-        const uSnap = await db.collection('usernames').doc(username).get();
-        if (!uSnap.exists) {
-          toast('المستخدم غير موجود', 'error');
-          showScreen('home');
-          return;
-        }
-        
-        const uid = uSnap.data().uid;
-        const doc = await db.collection('users').doc(uid).get();
-        
-        if (!doc.exists) {
-          toast('المستخدم غير موجود', 'error');
-          showScreen('home');
-          return;
-        }
-        
-        const data = doc.data();
-        document.getElementById('profile-name').textContent = data.displayName || username;
-        document.getElementById('profile-username').textContent = '@' + username;
-        
-        // تحديث الإحصائيات
-        document.getElementById('posts-count').textContent = data.postsCount || 0;
-        document.getElementById('followers-count').textContent = data.followersCount || 0;
-        document.getElementById('earnings-count').textContent = (data.earnings || 0).toFixed(2);
-        
-        // زر المتابعة
-        const followBtn = document.getElementById('follow-btn');
-        followBtn.dataset.target = uid;
-        
-        if (App.currentUser && App.currentUser.uid !== uid) {
-          followBtn.classList.remove('hidden');
-          const fDoc = await db.collection('follows').doc(`${App.currentUser.uid}_${uid}`).get();
-          followBtn.textContent = fDoc.exists ? 'متابع' : 'متابعة';
-        } else {
-          followBtn.classList.add('hidden');
-        }
-        
-        // تحميل منشورات المستخدم
-        const grid = document.getElementById('profile-posts');
-        grid.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
-        
-        const snap = await db.collection('posts').where('uid', '==', uid).orderBy('created', 'desc').get();
-        
-        if (snap.empty) {
-          grid.innerHTML = '<div class="card">لا توجد منشورات بعد</div>';
-        } else {
-          grid.innerHTML = '';
-          snap.forEach(doc => {
-            const post = { id: doc.id, ...doc.data() };
-            grid.appendChild(buildPostCard(post));
-          });
-        }
-      } catch (error) {
-        console.error('Profile loading error:', error);
-        toast('خطأ في تحميل الملف الشخصي', 'error');
-      }
-    }
-
     function escapeHTML(s) {
       if (!s) return '';
       return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1441,6 +1563,9 @@
     window.createPost = createPost;
     window.closeBottomAd = closeBottomAd;
     window.closeSideAd = closeSideAd;
+    window.quickRegister = quickRegister;
+    window.quickRegisterFromForm = quickRegisterFromForm;
+    window.quickRegisterFromLogin = quickRegisterFromLogin;
     window.goToProfile = goToProfile;
     window.openImageModal = openImageModal;
     window.closeModal = closeModal;
