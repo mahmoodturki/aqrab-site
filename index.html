@@ -1,73 +1,74 @@
 <!doctype html>
 <!--
-  social-ad-site - single-file demo (index.html)
+  سوشيال نايت - index.html
   ------------------------------------------------
-  What this is:
-  - A single-file static demo that simulates a small social site (client-side only)
-    where users can register/login, create image posts, follow other users, copy
-    profile/post links, and each page shows a small non-intrusive ad banner at the
-    bottom (loaded inside a sandboxed iframe using the ad snippet).
+  تحديث: اسم الموقع 'سوشيال نايت' | عرض الإعلانات أثناء تصفح الصور (داخل iframe معزول)
+  • ملاحظة قانونية/تقنية: الشفرات الإعلانية الخارجية مُضمَّنة داخل iframe مع sandbox لتقليل المخاطر.
+  • التخزين: Firebase (Auth, Firestore, Storage). لا تنسَ استبدال CONFIG_FIREBASE_PLACEHOLDER بقيم مشروعك.
 
-  Important notes / limitations:
-  - This is a client-side demo only (no server). All data is stored in localStorage
-    inside the visitor's browser. It's suitable for a demo / prototyping and for
-    hosting on GitHub Pages, but NOT for production use.
-  - Allowing users to paste arbitrary ad JS into the app is dangerous. To reduce
-    risk, the ad snippet is rendered inside an <iframe> using srcdoc plus sandbox.
-  - The provided default ad snippet (the one you gave me) is already embedded
-    as the "global" ad. Each user may also paste their own ad snippet which will
-    replace the global ad when viewing their profile (still sandboxed).
+  كيفية النشر:
+  1) أنشئ مشروع Firebase ومفاتيح التكوين.
+  2) ضع ملف index.html في repo على GitHub وفعّل GitHub Pages.
 
-  How to use on GitHub Pages:
-  1) Create a new GitHub repository.
-  2) Add this file as `index.html` in the repository root and commit.
-  3) Go to repository Settings -> Pages and enable GitHub Pages (use main branch root).
-  4) Visit https://<your-username>.github.io/<repo-name>/ to see the app.
-
-  If you want me to split this into multiple files or prepare a README/CI file,
-  tell me and I will provide them.
+  ملاحظة عن الأرباح:
+  - هذا النظام يسجّل "انطباعات" للإعلانات ويحسِب حصة تقريبية (30%) كمعلَمات حسابية فقط.
+  - التحويل المالي الفعلي والوصول إلى بيانات AdSense يجب أن يتم عبر تكامل رسمي مع واجهة AdSense أو عبر صفحة إدارية تستخرج تقارير الشبكة.
 -->
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>المزقع - demo</title>
+  <title>سوشيال نايت — شبكة مشاركة الصور</title>
   <style>
-    :root{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
-    body{margin:0;background:#f7fafc;color:#0f172a;line-height:1.4}
-    header{background:#0b1220;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-    header h1{margin:0;font-size:18px}
-    .container{max-width:980px;margin:18px auto;padding:0 12px}
-    .card{background:#fff;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(2,6,23,0.06)}
+    :root{--bg:#05060a;--card:#0b1220;--muted:#9aa8bf;--accent:#06b6d4}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;direction:rtl}
+    body{background:linear-gradient(180deg,#020312 0%,var(--bg) 100%);color:#e6eef6}
+    header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);backdrop-filter:blur(6px)}
+    .logo{font-weight:900;letter-spacing:0.6px}
+    .container{max-width:980px;margin:18px auto;padding:0 14px}
+    .card{background:linear-gradient(180deg,var(--card),#081023);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    input,textarea,button,select{font-size:14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    button{cursor:pointer;border:0;background:var(--accent);color:#001219;padding:10px 12px;border-radius:10px}
+    .small{font-size:13px;color:var(--muted)}
     .row{display:flex;gap:12px;align-items:center}
     .col{flex:1}
-    input,textarea,button,select{font-size:14px;padding:8px;border-radius:6px;border:1px solid #d1d5db}
-    button{cursor:pointer}
-    .logo{font-weight:700}
-    .small{font-size:13px;color:#6b7280}
-    .post-image{max-width:100%;border-radius:8px;margin-top:8px}
-    .profile-avatar{width:64px;height:64px;border-radius:10px;background:#e2e8f0;display:inline-block}
-    .follow-btn{background:#0ea5a4;color:white;border:0;padding:8px 10px;border-radius:8px}
-    .copy-btn{background:#efefef;border:0;padding:6px;border-radius:6px}
-    .muted{color:#6b7280}
-    .flex{display:flex;gap:8px}
-    .posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .ad-area{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:9999}
-    .ad-frame{width:320px;height:50px;border:0;border-radius:8px;box-shadow:0 4px 14px rgba(2,6,23,0.15)}
-    .toast{position:fixed;right:16px;bottom:80px;background:#111;color:white;padding:8px 12px;border-radius:8px}
-    a {color:#0369a1;text-decoration:none}
-    .nav {display:flex;gap:8px;align-items:center}
+    .muted{color:var(--muted)}
+    .posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .post-card{border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);position:relative}
+    .post-image{width:100%;border-radius:10px;margin-top:10px;cursor:pointer}
+    .profile-avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(180deg,#0a2230,#05202a);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+    .follow-btn{background:transparent;color:var(--accent);border:1px solid rgba(6,182,212,0.15);padding:8px 10px;border-radius:10px}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .like-btn{display:inline-flex;align-items:center;gap:8px;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
+    .comment-box{margin-top:10px}
+    .comments-list{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+    .comment-item{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
+    .heart{width:22px;height:22px;display:inline-block;position:relative}
+    .heart svg{width:100%;height:100%;transform-origin:center;transition:transform .25s ease}
+    .heart.animate svg{transform:scale(1.3);filter:drop-shadow(0 6px 10px rgba(6,182,212,0.25))}
+    .burst{position:absolute;pointer-events:none;left:50%;transform:translateX(-50%);bottom:50px}
+    @keyframes floatUp{0%{transform:translateY(0) scale(0.6);opacity:1}100%{transform:translateY(-80px) scale(1);opacity:0}}
+    .ad-area{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:9999}
+    .ad-frame{width:320px;height:50px;border:0;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    /* image modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:2000}
+    .modal-card{background:#071021;border-radius:12px;padding:14px;max-width:920px;display:flex;gap:12px;align-items:flex-start}
+    .modal-image{max-width:540px;max-height:80vh;border-radius:10px}
+    .modal-sidebar{width:300px}
+    .ad-300{width:300px;height:250px;border:0;border-radius:8px}
     .hidden{display:none}
-    .note{font-size:12px;color:#6b7280}
+    .toast{position:fixed;left:16px;bottom:120px;background:#0ea5a4;color:#001219;padding:8px 12px;border-radius:8px;z-index:3000}
   </style>
 </head>
 <body>
   <header>
     <div class="row">
-      <h1 class="logo">المزقع — Demo</h1>
-      <div class="small" style="margin-left:12px">نسخة تجريبية: تخزين محلي فقط</div>
+      <div>
+        <div class="logo">سوشيال نايت</div>
+        <div class="small">شبكة مشاركة الصور — نسختك التجريبية</div>
+      </div>
     </div>
-    <div class="nav" id="nav-right">
+    <div class="row" id="nav-right">
       <div id="nav-guest" class="row">
         <button onclick="showScreen('register')">تسجيل</button>
         <button onclick="showScreen('login')">دخول</button>
@@ -81,243 +82,255 @@
   </header>
 
   <div class="container">
-    <!-- Screens -->
-    <div id="screen-home">
-      <div class="card">
-        <div class="row">
-          <div class="col">
-            <h2>التغذية العامة</h2>
-            <div class="note">تستعرض منشورات من كل المستخدمين في هذه الصفحة.</div>
-          </div>
-          <div>
-            <button id="btn-new-post" onclick="showScreen('newpost')">نشر منشور جديد</button>
-          </div>
+    <div id="screen-home" class="screen">
+      <div class="card row">
+        <div class="col">
+          <h2>التغذية</h2>
+          <div class="small">منشورات المستخدمين. عند الضغط على الصورة سيظهر معاينتها مع إعلان غير مزعج.</div>
+        </div>
+        <div>
+          <button id="btn-new-post" onclick="showScreen('newpost')">نشر جديد</button>
         </div>
       </div>
 
       <div id="feed" class="posts-grid"></div>
     </div>
 
-    <div id="screen-register" class="hidden">
+    <div id="screen-register" class="screen hidden">
       <div class="card">
-        <h3>تسجيل حساب جديد</h3>
-        <div class="row">
-          <input id="reg-username" placeholder="اسم المستخدم" />
+        <h3>إنشاء حساب</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
           <input id="reg-display" placeholder="الاسم الظاهر" />
-        </div>
-        <div style="margin-top:8px">
+          <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
+          <input id="reg-email" placeholder="البريد الإلكتروني" type="email" />
           <input id="reg-password" placeholder="كلمة المرور" type="password" />
+          <div style="display:flex;gap:8px">
+            <button onclick="register()">سجل الآن</button>
+            <button onclick="showScreen('home')">عودة</button>
+          </div>
+          <div class="small">سيتم التحقق من البريد وكلمة المرور. لا تُخزن كلمات المرور على الخادم بصيغة النص العادي.</div>
         </div>
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <button onclick="register()">سجل الآن</button>
-          <button onclick="showScreen('home')">عودة</button>
-        </div>
-        <div class="note" style="margin-top:8px">البيانات تخزن محلياً فقط على متصفحك.</div>
       </div>
     </div>
 
-    <div id="screen-login" class="hidden">
+    <div id="screen-login" class="screen hidden">
       <div class="card">
         <h3>تسجيل الدخول</h3>
-        <input id="login-username" placeholder="اسم المستخدم" />
-        <input id="login-password" placeholder="كلمة المرور" type="password" style="margin-top:8px" />
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <button onclick="login()">دخول</button>
-          <button onclick="showScreen('home')">عودة</button>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <input id="login-email" placeholder="البريد الإلكتروني" type="email" />
+          <input id="login-password" placeholder="كلمة المرور" type="password" />
+          <div style="display:flex;gap:8px">
+            <button onclick="login()">دخول</button>
+            <button onclick="showScreen('home')">عودة</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="screen-newpost" class="hidden">
+    <div id="screen-newpost" class="screen hidden">
       <div class="card">
-        <h3>منشور جديد</h3>
+        <h3>نشر جديد</h3>
         <textarea id="post-text" rows="3" placeholder="نص المنشور (اختياري)"></textarea>
-        <div style="margin-top:8px">
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
           <input type="file" id="post-image" accept="image/*" />
+          <div class="small">سيتم فحص الصور تلقائياً وحجب الصور غير الملائمة.</div>
         </div>
-        <div style="margin-top:8px;display:flex;gap:8px">
+        <div style="margin-top:12px;display:flex;gap:8px">
           <button onclick="createPost()">نشر</button>
           <button onclick="showScreen('home')">إلغاء</button>
         </div>
       </div>
     </div>
 
-    <div id="screen-profile" class="hidden">
+    <div id="screen-profile" class="screen hidden">
       <div class="card">
-        <div class="row">
-          <div class="col">
-            <div style="display:flex;gap:12px;align-items:center">
-              <div id="profile-avatar" class="profile-avatar"></div>
-              <div>
-                <div id="profile-name" style="font-weight:700"></div>
-                <div id="profile-username" class="muted"></div>
-              </div>
+        <div class="row" style="align-items:center">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div id="profile-avatar" class="profile-avatar">ص</div>
+            <div>
+              <div id="profile-name" style="font-weight:800"></div>
+              <div id="profile-username" class="small muted"></div>
             </div>
           </div>
-          <div>
+          <div style="margin-left:auto">
             <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
           </div>
         </div>
-        <hr style="margin:12px 0">
-        <div>
-          <h4>منشورات</h4>
-          <div id="profile-posts" class="posts-grid"></div>
-        </div>
-
-        <div style="margin-top:12px">
-          <h4>إعدادات الإعلان (خاص بالملف)</h4>
-          <div class="note">يمكنك لصق شفرة الإعلان هنا. سيتم عرضها في أسفل الصفحة عند زيارة هذا الملف (معزولة داخل iframe).</div>
-          <textarea id="user-ad-snippet" rows="4" placeholder="ألصق شفرة الإعلان هنا (اختياري)"></textarea>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button onclick="saveAdSnippet()">حفظ الشفرة لهذا المستخدم</button>
-            <button onclick="clearAdSnippet()">مسح الشفرة</button>
-          </div>
-        </div>
+        <hr style="margin:12px 0;border-color:rgba(255,255,255,0.03)">
+        <div><h4>منشورات المستخدم</h4></div>
+        <div id="profile-posts" class="posts-grid" style="margin-top:8px"></div>
       </div>
     </div>
 
-    <div id="screen-post" class="hidden">
-      <div class="card">
-        <div id="post-view"></div>
-      </div>
+    <div id="screen-post" class="screen hidden">
+      <div class="card" id="post-view"></div>
     </div>
 
   </div>
 
-  <!-- Ad area (global by default, replaced by profile owner ad when available) -->
+  <!-- modal preview with ad -->
+  <div id="image-modal" class="modal hidden">
+    <div class="modal-card">
+      <img id="modal-img" class="modal-image" src="" alt="preview" />
+      <div class="modal-sidebar">
+        <div class="card" style="padding:10px;margin-bottom:10px">
+          <div class="small">إعلان مرتبط بالصورة</div>
+          <iframe id="modal-ad" class="ad-300" sandbox="allow-scripts allow-popups"></iframe>
+        </div>
+        <div class="card">
+          <div id="modal-post-meta" class="small muted"></div>
+          <div style="margin-top:8px"><button onclick="closeModal()">إغلاق</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- bottom ad area (non-intrusive) -->
   <div class="ad-area" id="ad-area">
     <iframe id="ad-iframe" class="ad-frame" sandbox="allow-scripts allow-popups" title="ad"></iframe>
   </div>
 
   <div id="toast" class="toast hidden"></div>
 
+  <!-- Firebase + TFJS + NSFWJS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8.0/dist/tf.min.js"></script>
+  <script src="https://unpkg.com/nsfwjs/dist/nsfwjs.min.js"></script>
+
   <script>
-    /***************************************************************************
-      Single-file client-side demo logic.
-      - Data structures saved in localStorage under keys: ss_users, ss_posts, ss_follows
-      - Everything is intentionally simple for demo/prototyping.
+    /**************************************************************************
+      Firebase config - ضع إعدادات مشروعك هنا
     ***************************************************************************/
+    const firebaseConfig = {
+      apiKey: "CONFIG_FIREBASE_PLACEHOLDER_APIKEY",
+      authDomain: "CONFIG_FIREBASE_PLACEHOLDER_AUTHDOMAIN",
+      projectId: "CONFIG_FIREBASE_PLACEHOLDER_PROJECTID",
+      storageBucket: "CONFIG_FIREBASE_PLACEHOLDER_STORAGEBUCKET",
+      messagingSenderId: "CONFIG_FIREBASE_PLACEHOLDER_MSGID",
+      appId: "CONFIG_FIREBASE_PLACEHOLDER_APPID"
+    };
 
-    // Default global ad snippet (the script you provided). It will be embedded inside iframe srcdoc.
-    const DEFAULT_GLOBAL_AD = `<!-- global ad snippet -->\n<script type="text/javascript">\n\tatOptions = {\n\t\t'key' : '2d5deaded3e62ebc9943db8d8b49f74e',\n\t\t'format' : 'iframe',\n\t\t'height' : 50,\n\t\t'width' : 320,\n\t\t'params' : {}\n\t};\n<\/script>\n<script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/script>`;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    // Helpers for storage
-    function load(key){try{return JSON.parse(localStorage.getItem(key) || 'null')}catch(e){return null}}
-    function save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+    // --- إعلانات: الشفرات التي زودتني بها (توضع داخل iframe آمن)
+    const AD_SNIPPET_VIEW_IMAGE = `<!-- ad for image view -->
+<script type="text/javascript">
+	atOptions = {
+		'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+		'format' : 'iframe',
+		'height' : 250,
+		'width' : 300,
+		'params' : {}
+	};
+<\/script>
+<script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/script>
+<script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'><\/script>`;
 
-    // Initialize stores
-    let users = load('ss_users') || {};
-    let posts = load('ss_posts') || {};
-    let follows = load('ss_follows') || {};
+    const AD_SNIPPET_BOTTOM = `<!-- bottom ad placeholder (small) -->
+<script type="text/javascript">
+	atOptions = {
+		'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+<\/script>
+<script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/script>`;
 
-    // session
-    let session = load('ss_session') || null;
+    // Load NSFW model
+    let nsfwModel = null;
+    nsfwjs.load().then(m=>{ nsfwModel = m; console.log('NSFW model loaded'); }).catch(e=>console.warn('NSFW load failed',e));
 
-    function persistAll(){ save('ss_users',users); save('ss_posts',posts); save('ss_follows',follows); save('ss_session',session); }
+    function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById('screen-'+id).classList.remove('hidden'); window.scrollTo(0,0); }
+    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2200); }
 
-    // UI helpers
-    function showScreen(id){ document.querySelectorAll('[id^=screen-]').forEach(el=>el.classList.add('hidden')); document.getElementById('screen-'+id).classList.remove('hidden'); window.scrollTo(0,0); }
+    // Auth: register/login
+    async function register(){ const email=document.getElementById('reg-email').value.trim(); const password=document.getElementById('reg-password').value; const username=document.getElementById('reg-username').value.trim(); const display=document.getElementById('reg-display').value.trim(); if(!email||!password||!username){ toast('اكمل الحقول المطلوبة'); return }
+      const uSnap = await db.collection('usernames').doc(username).get(); if(uSnap.exists){ toast('اسم المستخدم مأخوذ'); return }
+      try{ const cred = await auth.createUserWithEmailAndPassword(email,password); const uid = cred.user.uid; await db.collection('users').doc(uid).set({ username, displayName: display||username, created: firebase.firestore.FieldValue.serverTimestamp(), followersCount:0, earnings:0 }); await db.collection('usernames').doc(username).set({ uid }); toast('تم إنشاء الحساب'); }catch(e){ console.error(e); toast('فشل التسجيل: '+(e.message||e)); } }
 
-    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2500); }
+    async function login(){ const email=document.getElementById('login-email').value.trim(); const password=document.getElementById('login-password').value; if(!email||!password){ toast('ادخل البريد وكلمة المرور'); return } try{ await auth.signInWithEmailAndPassword(email,password); toast('تم تسجيل الدخول'); }catch(e){ console.error(e); toast('فشل الدخول: '+(e.message||e)); } }
+    function logout(){ auth.signOut(); }
 
-    // Registration / login
-    function register(){ const u=document.getElementById('reg-username').value.trim(); const d=document.getElementById('reg-display').value.trim(); const p=document.getElementById('reg-password').value; if(!u||!p){toast('املأ اسم المستخدم وكلمة المرور');return} if(users[u]){toast('اسم المستخدم موجود');return} users[u]={username:u,displayName:d||u,password:p,adSnippet:null,avatar:null,created:Date.now()}; session={username:u}; persistAll(); updateNav(); toast('تم التسجيل'); showScreen('home'); renderFeed(); }
+    auth.onAuthStateChanged(async user=>{ const navUser=document.getElementById('nav-user'); const navGuest=document.getElementById('nav-guest'); if(user){ navGuest.classList.add('hidden'); navUser.classList.remove('hidden'); const doc = await db.collection('users').doc(user.uid).get(); const data = doc.data()||{}; document.getElementById('nav-username').textContent = data.displayName || data.username || user.email; renderFeed(); } else { navUser.classList.add('hidden'); navGuest.classList.remove('hidden'); document.getElementById('nav-username').textContent=''; renderFeed(); } });
 
-    function login(){ const u=document.getElementById('login-username').value.trim(); const p=document.getElementById('login-password').value; if(!users[u]||users[u].password!==p){toast('اسم مستخدم أو كلمة مرور خاطئة');return} session={username:u}; persistAll(); updateNav(); showScreen('home'); renderFeed(); toast('مرحباً '+(users[u].displayName||u)); }
+    // Create post: image upload + NSFW check + save
+    async function createPost(){ const text=document.getElementById('post-text').value.trim(); const fileInput=document.getElementById('post-image'); if(!auth.currentUser){ toast('سجّل دخول أولاً'); return } if(fileInput.files.length===0 && !text){ toast('أضف نصاً أو صورة'); return }
+      let imageUrl=null;
+      if(fileInput.files.length>0){ const file=fileInput.files[0]; if(nsfwModel){ const img = await fileToImage(file); const preds = await nsfwModel.classify(img); const risky = preds.find(p=>['Porn','Hentai','Sexy'].includes(p.className)); if(risky && risky.probability>0.70){ toast('تم حجب الصورة لوجود محتوى غير ملائم'); return } }
+        const path = `posts/${auth.currentUser.uid}/${Date.now()}_${file.name}`; const ref = storage.ref().child(path); await ref.put(file); imageUrl = await ref.getDownloadURL(); }
+      await db.collection('posts').add({ uid: auth.currentUser.uid, text, imageUrl, created: firebase.firestore.FieldValue.serverTimestamp(), likes:0, commentsCount:0 }); toast('تم النشر'); document.getElementById('post-text').value=''; document.getElementById('post-image').value=''; showScreen('home'); renderFeed(); }
 
-    function logout(){ session=null; persistAll(); updateNav(); showScreen('home'); toast('تم تسجيل الخروج'); }
+    function fileToImage(file){ return new Promise((resolve,reject)=>{ const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; const reader=new FileReader(); reader.onload=e=>img.src=e.target.result; reader.readAsDataURL(file); }); }
 
-    function updateNav(){ const navUser=document.getElementById('nav-user'); const navGuest=document.getElementById('nav-guest'); if(session && users[session.username]){ navGuest.classList.add('hidden'); navUser.classList.remove('hidden'); document.getElementById('nav-username').textContent = users[session.username].displayName || session.username; } else { navUser.classList.add('hidden'); navGuest.classList.remove('hidden'); } }
+    // Render feed
+    async function renderFeed(){ const feed=document.getElementById('feed'); feed.innerHTML=''; const snapshot = await db.collection('posts').orderBy('created','desc').limit(50).get(); if(snapshot.empty){ feed.innerHTML='<div class="card">لا توجد منشورات بعد.</div>'; setBottomAd(); return } snapshot.forEach(doc=>{ const p={id:doc.id,...doc.data()}; const el = buildPostCard(p); feed.appendChild(el); }); setBottomAd(); }
 
-    // Simple post creation
-    function createPost(){ if(!session){toast('سجل دخول أولاً');return} const text=document.getElementById('post-text').value; const file=document.getElementById('post-image').files[0]; if(file){ const reader=new FileReader(); reader.onload=function(e){ savePost(session.username,text,e.target.result); } reader.readAsDataURL(file); } else { savePost(session.username,text,null); } }
+    function buildPostCard(p){ const div=document.createElement('div'); div.className='post-card card'; const header=document.createElement('div'); header.className='row'; const avatar=document.createElement('div'); avatar.className='profile-avatar'; avatar.textContent='م'; const meta=document.createElement('div'); meta.className='col'; const name=document.createElement('div'); name.textContent=p.uid; name.style.fontWeight='700'; const time=document.createElement('div'); time.className='small muted'; time.textContent = p.created ? new Date(p.created.seconds*1000).toLocaleString('ar-EG') : 'الآن'; meta.appendChild(name); meta.appendChild(time); header.appendChild(avatar); header.appendChild(meta); div.appendChild(header);
+      const content=document.createElement('div'); content.innerHTML=`<div style="margin-top:8px">${escapeHTML(p.text||'')}</div>`; if(p.imageUrl){ const img=document.createElement('img'); img.src=p.imageUrl; img.className='post-image'; img.onclick = ()=>openImageModal(p); content.appendChild(img); } div.appendChild(content);
+      const actions=document.createElement('div'); actions.className='actions'; const likeBtn=document.createElement('button'); likeBtn.className='like-btn'; likeBtn.innerHTML=`<span class="heart" data-id="${p.id}">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 20s-7-4.35-9.5-7.1C-1.33 8.58 3 4 7.5 6.5 10 8 12 10 12 10s2-2 4.5-3.5C21 4 24.33 8.58 21.5 12.9 19 15.65 12 20 12 20z" fill="#ff647c"/>
+  </svg>`; likeBtn.onclick = ()=>handleLike(p.id, likeBtn); const likeCount=document.createElement('div'); likeCount.className='small muted'; likeCount.textContent = p.likes || 0; const commentBtn=document.createElement('button'); commentBtn.className='comment-btn'; commentBtn.textContent='تعليق'; commentBtn.onclick = ()=>openComments(p.id); actions.appendChild(likeBtn); actions.appendChild(likeCount); actions.appendChild(commentBtn); div.appendChild(actions);
+      const commentsDiv=document.createElement('div'); commentsDiv.id='comments_'+p.id; commentsDiv.className='comment-box hidden'; const input=document.createElement('input'); input.placeholder='اكتب تعليقاً...'; input.style.width='100%'; const send=document.createElement('button'); send.textContent='أرسل'; send.onclick = ()=>postComment(p.id,input); commentsDiv.appendChild(input); commentsDiv.appendChild(send); const list=document.createElement('div'); list.className='comments-list'; commentsDiv.appendChild(list); div.appendChild(commentsDiv);
+      const burst=document.createElement('div'); burst.className='burst'; div.appendChild(burst);
+      return div; }
 
-    function savePost(username,text,imageData){ const id='p_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); posts[id]={id:id,user:username,text:text||'',image:imageData,created:Date.now()}; persistAll(); document.getElementById('post-text').value=''; document.getElementById('post-image').value=''; showScreen('home'); renderFeed(); toast('تم النشر'); }
+    async function handleLike(postId, btn){ const heart = btn.querySelector('.heart'); heart.classList.add('animate'); createBurst(btn.parentElement.parentElement.querySelector('.burst')); setTimeout(()=>heart.classList.remove('animate'),350);
+      const ref = db.collection('posts').doc(postId); try{ await db.runTransaction(async tx=>{ const doc = await tx.get(ref); if(!doc.exists) return; const current = doc.data().likes||0; tx.update(ref,{ likes: current+1 }); }); renderFeed(); }catch(e){ console.error(e); } }
 
-    // Rendering feed
-    function renderFeed(){ const feed=document.getElementById('feed'); feed.innerHTML=''; const arr=Object.values(posts).sort((a,b)=>b.created-a.created); if(arr.length===0){ feed.innerHTML='<div class="card">لا توجد منشورات بعد.</div>'; return} arr.forEach(p=>{ const el=document.createElement('div'); el.className='card'; el.innerHTML=`<div><strong>${escapeHTML(users[p.user]?.displayName||p.user)}</strong> <span class="muted">@${escapeHTML(p.user)}</span></div>
-          <div>${escapeHTML(p.text)}</div>
-        `; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; el.appendChild(img); }
-        const actions=document.createElement('div'); actions.style.marginTop='8px'; actions.className='flex';
-        const viewBtn=document.createElement('button'); viewBtn.textContent='عرض'; viewBtn.onclick=()=>openPost(p.id);
-        const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.className='copy-btn'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id);
-        actions.appendChild(viewBtn); actions.appendChild(copyBtn);
-        el.appendChild(actions); feed.appendChild(el);
-    }); }
+    function createBurst(container){ if(!container) return; const colors=['#ff6b6b','#ff9f43','#06b6d4']; for(let i=0;i<6;i++){ const s=document.createElement('span'); s.textContent='❤'; s.style.left=(10+i*20)+'px'; s.style.fontSize=(12+Math.random()*12)+'px'; s.style.color=colors[i%colors.length]; container.appendChild(s); setTimeout(()=>s.remove(),900); } }
 
-    function openPost(id){ const p=posts[id]; if(!p){toast('المنشور غير موجود');return} showScreen('post'); const view=document.getElementById('post-view'); view.innerHTML=''; const el=document.createElement('div'); el.className='card'; el.innerHTML=`<div><strong>${escapeHTML(users[p.user]?.displayName||p.user)}</strong> <span class="muted">@${escapeHTML(p.user)}</span></div>
-        <div>${escapeHTML(p.text)}</div>`; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; el.appendChild(img);} const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id);
-      el.appendChild(copyBtn); view.appendChild(el);
-    }
+    async function openComments(postId){ const box=document.getElementById('comments_'+postId); if(!box) return; box.classList.toggle('hidden'); if(!box.classList.contains('hidden')) await loadComments(postId); }
+    async function loadComments(postId){ const list=document.querySelector('#comments_'+postId+' .comments-list'); list.innerHTML=''; const snap = await db.collection('posts').doc(postId).collection('comments').orderBy('created','asc').get(); snap.forEach(d=>{ const c=d.data(); const el=document.createElement('div'); el.className='comment-item'; el.textContent=(c.displayName||c.username||'مستخدم')+': '+c.text; list.appendChild(el); }); }
+    async function postComment(postId,input){ if(!auth.currentUser){ toast('سجل دخول أولاً'); return } const text=input.value.trim(); if(!text) return; const userDoc = await db.collection('users').doc(auth.currentUser.uid).get(); const userdata = userDoc.data()||{}; await db.collection('posts').doc(postId).collection('comments').add({ uid: auth.currentUser.uid, username: userdata.username, displayName: userdata.displayName, text, created: firebase.firestore.FieldValue.serverTimestamp() }); const ref = db.collection('posts').doc(postId); await ref.update({ commentsCount: firebase.firestore.FieldValue.increment(1) }); input.value=''; loadComments(postId); }
 
-    // Profile view
-    function goToProfile(username){ if(!username){ if(!session){toast('سجل دخول أولاً');return} username=session.username } window.location.hash='profile='+username; renderRoute(); }
+    // Image modal + ad impression tracking + revenue share simulation
+    function openImageModal(post){ document.getElementById('modal-img').src = post.imageUrl || ''; document.getElementById('modal-post-meta').textContent = (post.text||'') + ' — من: ' + post.uid; document.getElementById('image-modal').classList.remove('hidden');
+      // load ad snippet into iframe (safe srcdoc)
+      const adFrame = document.getElementById('modal-ad'); const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent}</style></head><body>${AD_SNIPPET_VIEW_IMAGE}</body></html>`; adFrame.srcdoc = safe;
+      // record impression in Firestore
+      recordAdImpression({ adKey: '3fa8b00fc8159153c0596ee9ffb026ea', postId: post.id }); }
 
-    function renderProfile(username){ const profile=document.getElementById('screen-profile'); showScreen('profile'); const user=users[username]; if(!user){ toast('المستخدم غير موجود'); return } document.getElementById('profile-name').textContent = user.displayName||username; document.getElementById('profile-username').textContent = '@'+username; document.getElementById('profile-avatar').textContent = ''; // could show avatar
-      // posts
-      const grid=document.getElementById('profile-posts'); grid.innerHTML=''; const arr=Object.values(posts).filter(p=>p.user===username).sort((a,b)=>b.created-a.created);
-      if(arr.length===0) grid.innerHTML='<div class="card muted">لا توجد منشورات</div>';
-      arr.forEach(p=>{ const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div>${escapeHTML(p.text)}</div>`; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; c.appendChild(img);} const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.className='copy-btn'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id); c.appendChild(copyBtn); grid.appendChild(c); });
+    function closeModal(){ document.getElementById('image-modal').classList.add('hidden'); document.getElementById('modal-img').src=''; }
 
-      // follow button
-      const followBtn=document.getElementById('follow-btn'); if(session && session.username!==username){ followBtn.classList.remove('hidden'); const isFollowing = (follows[session.username]||[]).includes(username); followBtn.textContent = isFollowing ? 'متابع' : 'متابعة'; followBtn.dataset.target = username; } else { followBtn.classList.add('hidden'); }
+    async function recordAdImpression({ adKey, postId }){ try{ const uid = auth.currentUser ? auth.currentUser.uid : null; await db.collection('adImpressions').add({ adKey, postId, uid, ts: firebase.firestore.FieldValue.serverTimestamp() }); // increment counters (simple)
+        // increment per-post adImps
+        const metaRef = db.collection('adsMeta').doc(adKey);
+        await db.runTransaction(async tx=>{ const doc = await tx.get(metaRef); if(!doc.exists) tx.set(metaRef,{ impressions:1, revenueEstimate:0 }); else tx.update(metaRef,{ impressions: (doc.data().impressions||0)+1 }); });
+        // simulate revenue credit: assume eCPM = $0.5 per 1000 impressions (example) — this is only an estimate
+        const eCPM = 0.5; const revPerImp = eCPM/1000; const siteRevenue = revPerImp; const userShare = siteRevenue * 0.30; // 30%
+        if(auth.currentUser){ // credit to post owner
+          // retrieve post owner
+          const postDoc = await db.collection('posts').doc(postId).get(); if(postDoc.exists){ const owner = postDoc.data().uid; await db.collection('users').doc(owner).update({ earnings: firebase.firestore.FieldValue.increment(userShare) }); }
+        }
+      }catch(e){ console.error('recordAdImpression error',e); } }
 
-      // user ad snippet
-      document.getElementById('user-ad-snippet').value = user.adSnippet || '';
-      // show ad (user-specific if exists else global)
-      const adContent = user.adSnippet || localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD;
-      setAdIframe(adContent);
-    }
+    // bottom ad
+    function setBottomAd(){ const frame=document.getElementById('ad-iframe'); const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent}</style></head><body>${AD_SNIPPET_BOTTOM}</body></html>`; frame.srcdoc = safe; }
 
-    function toggleFollow(){ const target=document.getElementById('follow-btn').dataset.target; if(!session) return; follows[session.username]=follows[session.username]||[]; const idx=follows[session.username].indexOf(target); if(idx>-1){ follows[session.username].splice(idx,1); document.getElementById('follow-btn').textContent='متابعة'; } else { follows[session.username].push(target); document.getElementById('follow-btn').textContent='متابع'; } persistAll(); }
+    // Profile & follow
+    async function goToProfile(username){ if(!username){ if(!auth.currentUser){ toast('سجل دخول أولاً'); return } const doc = await db.collection('users').doc(auth.currentUser.uid).get(); username = doc.data().username; } window.location.hash = 'profile='+username; renderRoute(); }
+    async function renderProfile(username){ showScreen('profile'); const uSnap = await db.collection('usernames').doc(username).get(); if(!uSnap.exists){ toast('المستخدم غير موجود'); return } const uid = uSnap.data().uid; const doc = await db.collection('users').doc(uid).get(); const data = doc.data()||{}; document.getElementById('profile-name').textContent = data.displayName || username; document.getElementById('profile-username').textContent = '@'+username; const followBtn = document.getElementById('follow-btn'); followBtn.dataset.target = uid; if(auth.currentUser && auth.currentUser.uid!==uid){ followBtn.classList.remove('hidden'); const fDoc = await db.collection('follows').doc(`${auth.currentUser.uid}_${uid}`).get(); followBtn.textContent = fDoc.exists ? 'متابع' : 'متابعة'; } else followBtn.classList.add('hidden'); const grid=document.getElementById('profile-posts'); grid.innerHTML=''; const snap = await db.collection('posts').where('uid','==',uid).orderBy('created','desc').get(); snap.forEach(d=>{ const p={id:d.id,...d.data()}; grid.appendChild(buildPostCard(p)); }); setBottomAd(); }
+    async function toggleFollow(){ if(!auth.currentUser) return; const cur = auth.currentUser.uid; const target = document.getElementById('follow-btn').dataset.target; if(!target) return; const followRef = db.collection('follows').doc(`${cur}_${target}`); const doc = await followRef.get(); if(doc.exists){ await followRef.delete(); await db.collection('users').doc(target).update({ followersCount: firebase.firestore.FieldValue.increment(-1) }); document.getElementById('follow-btn').textContent='متابعة'; } else { await followRef.set({ follower:cur, followee:target, created: firebase.firestore.FieldValue.serverTimestamp() }); await db.collection('users').doc(target).update({ followersCount: firebase.firestore.FieldValue.increment(1) }); document.getElementById('follow-btn').textContent='متابع'; } }
 
-    function saveAdSnippet(){ if(!session){toast('سجل دخول أولاً');return} const s=document.getElementById('user-ad-snippet').value.trim(); users[session.username].adSnippet = s || null; persistAll(); toast('تم حفظ شفرة الإعلان لملفك'); // update ad shown
-      // if viewing your own profile, update
-      const cur = parseHash(); if(cur.type==='profile' && cur.id===session.username) setAdIframe(s || localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD);
-    }
-
-    function clearAdSnippet(){ if(!session){toast('سجل دخول أولاً');return} users[session.username].adSnippet=null; persistAll(); document.getElementById('user-ad-snippet').value=''; toast('تم المسح'); const cur = parseHash(); if(cur.type==='profile' && cur.id===session.username) setAdIframe(localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD);
-    }
-
-    // Global ad setter (owner of site can set default global ad snippet)
-    function setGlobalAdSnippet(snippet){ localStorage.setItem('ss_global_ad', snippet); setAdIframe(snippet); }
-
-    // Put HTML safely into the iframe using srcdoc
-    function setAdIframe(snippet){ const frame=document.getElementById('ad-iframe'); const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;}</style></head><body>${snippet}</body></html>`; frame.srcdoc = safe; }
-
-    // Copy link helper
-    function copyLink(url){ navigator.clipboard?.writeText(url).then(()=>toast('تم نسخ الرابط')) }
-
-    // simple router
-    function parseHash(){ const h=location.hash.slice(1); if(!h) return {type:'home'}; if(h.startsWith('profile=')){ return {type:'profile',id:h.split('=')[1]}; } if(h.startsWith('post=')){ return {type:'post',id:h.split('=')[1]}; } return {type:'home'} }
-
-    function renderRoute(){ const r=parseHash(); if(r.type==='home'){ showScreen('home'); renderFeed(); // global ad
-        const globalAd = localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD; setAdIframe(globalAd);
-      }
-      else if(r.type==='profile'){ renderProfile(r.id); }
-      else if(r.type==='post'){ openPost(r.id); }
-    }
-
+    // Router
+    function parseHash(){ const h=location.hash.slice(1); if(!h) return {type:'home'}; if(h.startsWith('profile=')) return {type:'profile',id:h.split('=')[1]}; return {type:'home'} }
     window.addEventListener('hashchange',renderRoute);
+    function renderRoute(){ const r=parseHash(); if(r.type==='home'){ showScreen('home'); renderFeed(); } else if(r.type==='profile'){ renderProfile(r.id); } }
 
-    // Utilities
-    function escapeHTML(s){ if(!s) return ''; return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function escapeHTML(s){ if(!s) return ''; return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-    function openPostById(id){ window.location.hash='post='+id; }
+    (function init(){ setBottomAd(); renderRoute(); })();
 
-    function goToProfile(){ if(!session) return; goToProfile(session.username); }
-
-    // Parse query from load
-    function parseInitial(){ // nothing special yet }
-
-    // Initial UI state
-    updateNav(); renderFeed(); renderRoute();
-
-    // If no global ad set yet, set the default to the provided snippet
-    if(!localStorage.getItem('ss_global_ad')) localStorage.setItem('ss_global_ad', DEFAULT_GLOBAL_AD);
-
-    // Expose some helpers for testing from console
-    window.SS = {users,posts,follows,save:persistAll,setGlobalAdSnippet};
+    window.app = { auth, db, storage };
   </script>
 </body>
 </html>
