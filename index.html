@@ -1,201 +1,323 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<!doctype html>
+<!--
+  social-ad-site - single-file demo (index.html)
+  ------------------------------------------------
+  What this is:
+  - A single-file static demo that simulates a small social site (client-side only)
+    where users can register/login, create image posts, follow other users, copy
+    profile/post links, and each page shows a small non-intrusive ad banner at the
+    bottom (loaded inside a sandboxed iframe using the ad snippet).
+
+  Important notes / limitations:
+  - This is a client-side demo only (no server). All data is stored in localStorage
+    inside the visitor's browser. It's suitable for a demo / prototyping and for
+    hosting on GitHub Pages, but NOT for production use.
+  - Allowing users to paste arbitrary ad JS into the app is dangerous. To reduce
+    risk, the ad snippet is rendered inside an <iframe> using srcdoc plus sandbox.
+  - The provided default ad snippet (the one you gave me) is already embedded
+    as the "global" ad. Each user may also paste their own ad snippet which will
+    replace the global ad when viewing their profile (still sandboxed).
+
+  How to use on GitHub Pages:
+  1) Create a new GitHub repository.
+  2) Add this file as `index.html` in the repository root and commit.
+  3) Go to repository Settings -> Pages and enable GitHub Pages (use main branch root).
+  4) Visit https://<your-username>.github.io/<repo-name>/ to see the app.
+
+  If you want me to split this into multiple files or prepare a README/CI file,
+  tell me and I will provide them.
+-->
+<html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌍 أقرب شيء إليك الآن</title>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GFYXDDTDYC"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-GFYXDDTDYC');
-  </script>
-
-  <!-- إعلان واحد أسفل الخريطة -->
-  <script type="text/javascript" src="//pl27783662.revenuecpmgate.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js"></script>
-
-  <!-- مكتبة الخرائط -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>المزقع - demo</title>
   <style>
-    body {
-      font-family: "Tahoma", sans-serif;
-      background: #f9fafb;
-      color: #111;
-      margin: 0;
-      text-align: center;
-    }
-
-    h1 {
-      margin-top: 20px;
-      font-size: 26px;
-    }
-
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 10px;
-      margin: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    #map {
-      width: 92%;
-      height: 420px;
-      margin: 20px auto;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    #addForm {
-      display: none;
-      margin: 15px auto;
-      width: 90%;
-      background: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-
-    input, select {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 80%;
-      margin: 5px;
-      text-align: center;
-    }
+    :root{font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:#f7fafc;color:#0f172a;line-height:1.4}
+    header{background:#0b1220;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    header h1{margin:0;font-size:18px}
+    .container{max-width:980px;margin:18px auto;padding:0 12px}
+    .card{background:#fff;border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(2,6,23,0.06)}
+    .row{display:flex;gap:12px;align-items:center}
+    .col{flex:1}
+    input,textarea,button,select{font-size:14px;padding:8px;border-radius:6px;border:1px solid #d1d5db}
+    button{cursor:pointer}
+    .logo{font-weight:700}
+    .small{font-size:13px;color:#6b7280}
+    .post-image{max-width:100%;border-radius:8px;margin-top:8px}
+    .profile-avatar{width:64px;height:64px;border-radius:10px;background:#e2e8f0;display:inline-block}
+    .follow-btn{background:#0ea5a4;color:white;border:0;padding:8px 10px;border-radius:8px}
+    .copy-btn{background:#efefef;border:0;padding:6px;border-radius:6px}
+    .muted{color:#6b7280}
+    .flex{display:flex;gap:8px}
+    .posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .ad-area{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:9999}
+    .ad-frame{width:320px;height:50px;border:0;border-radius:8px;box-shadow:0 4px 14px rgba(2,6,23,0.15)}
+    .toast{position:fixed;right:16px;bottom:80px;background:#111;color:white;padding:8px 12px;border-radius:8px}
+    a {color:#0369a1;text-decoration:none}
+    .nav {display:flex;gap:8px;align-items:center}
+    .hidden{display:none}
+    .note{font-size:12px;color:#6b7280}
   </style>
 </head>
-
 <body>
-  <h1>🌍 أقرب شيء إليك الآن</h1>
-  <p>اختر نوع المكان لمعرفة الأقرب إليك</p>
+  <header>
+    <div class="row">
+      <h1 class="logo">المزقع — Demo</h1>
+      <div class="small" style="margin-left:12px">نسخة تجريبية: تخزين محلي فقط</div>
+    </div>
+    <div class="nav" id="nav-right">
+      <div id="nav-guest" class="row">
+        <button onclick="showScreen('register')">تسجيل</button>
+        <button onclick="showScreen('login')">دخول</button>
+      </div>
+      <div id="nav-user" class="row hidden">
+        <span id="nav-username" class="muted"></span>
+        <button onclick="goToProfile()">ملفي</button>
+        <button onclick="logout()">خروج</button>
+      </div>
+    </div>
+  </header>
 
-  <div>
-    <button onclick="findPlaces('مطعم 🍔', 'restaurant')">مطاعم</button>
-    <button onclick="findPlaces('صيدلية 💊', 'pharmacy')">صيدليات</button>
-    <button onclick="findPlaces('مسجد 🕌', 'mosque')">مساجد</button>
-    <button onclick="findPlaces('مستشفى 🏥', 'hospital')">مستشفيات</button>
-    <button onclick="findPlaces('مدرسة 🎓', 'school')">مدارس</button>
+  <div class="container">
+    <!-- Screens -->
+    <div id="screen-home">
+      <div class="card">
+        <div class="row">
+          <div class="col">
+            <h2>التغذية العامة</h2>
+            <div class="note">تستعرض منشورات من كل المستخدمين في هذه الصفحة.</div>
+          </div>
+          <div>
+            <button id="btn-new-post" onclick="showScreen('newpost')">نشر منشور جديد</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="feed" class="posts-grid"></div>
+    </div>
+
+    <div id="screen-register" class="hidden">
+      <div class="card">
+        <h3>تسجيل حساب جديد</h3>
+        <div class="row">
+          <input id="reg-username" placeholder="اسم المستخدم" />
+          <input id="reg-display" placeholder="الاسم الظاهر" />
+        </div>
+        <div style="margin-top:8px">
+          <input id="reg-password" placeholder="كلمة المرور" type="password" />
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button onclick="register()">سجل الآن</button>
+          <button onclick="showScreen('home')">عودة</button>
+        </div>
+        <div class="note" style="margin-top:8px">البيانات تخزن محلياً فقط على متصفحك.</div>
+      </div>
+    </div>
+
+    <div id="screen-login" class="hidden">
+      <div class="card">
+        <h3>تسجيل الدخول</h3>
+        <input id="login-username" placeholder="اسم المستخدم" />
+        <input id="login-password" placeholder="كلمة المرور" type="password" style="margin-top:8px" />
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button onclick="login()">دخول</button>
+          <button onclick="showScreen('home')">عودة</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-newpost" class="hidden">
+      <div class="card">
+        <h3>منشور جديد</h3>
+        <textarea id="post-text" rows="3" placeholder="نص المنشور (اختياري)"></textarea>
+        <div style="margin-top:8px">
+          <input type="file" id="post-image" accept="image/*" />
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button onclick="createPost()">نشر</button>
+          <button onclick="showScreen('home')">إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-profile" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div class="col">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div id="profile-avatar" class="profile-avatar"></div>
+              <div>
+                <div id="profile-name" style="font-weight:700"></div>
+                <div id="profile-username" class="muted"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
+          </div>
+        </div>
+        <hr style="margin:12px 0">
+        <div>
+          <h4>منشورات</h4>
+          <div id="profile-posts" class="posts-grid"></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <h4>إعدادات الإعلان (خاص بالملف)</h4>
+          <div class="note">يمكنك لصق شفرة الإعلان هنا. سيتم عرضها في أسفل الصفحة عند زيارة هذا الملف (معزولة داخل iframe).</div>
+          <textarea id="user-ad-snippet" rows="4" placeholder="ألصق شفرة الإعلان هنا (اختياري)"></textarea>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button onclick="saveAdSnippet()">حفظ الشفرة لهذا المستخدم</button>
+            <button onclick="clearAdSnippet()">مسح الشفرة</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-post" class="hidden">
+      <div class="card">
+        <div id="post-view"></div>
+      </div>
+    </div>
+
   </div>
 
-  <button onclick="toggleAddForm()">📍 إضافة موقع جديد</button>
-
-  <div id="addForm">
-    <p>📌 أدخل اسم الموقع وحدد نوعه ثم اختر موقعك على الخريطة</p>
-    <input type="text" id="placeName" placeholder="اسم المكان" />
-    <select id="placeType">
-      <option value="restaurant">مطعم</option>
-      <option value="pharmacy">صيدلية</option>
-      <option value="mosque">مسجد</option>
-      <option value="hospital">مستشفى</option>
-      <option value="school">مدرسة</option>
-      <option value="other">آخر</option>
-    </select>
-    <br />
-    <button onclick="saveNewPlace()">✅ حفظ الموقع</button>
+  <!-- Ad area (global by default, replaced by profile owner ad when available) -->
+  <div class="ad-area" id="ad-area">
+    <iframe id="ad-iframe" class="ad-frame" sandbox="allow-scripts allow-popups" title="ad"></iframe>
   </div>
 
-  <div id="map"></div>
-
-  <!-- إعلان واحد أسفل الخريطة -->
-  <div class="ad">
-    <script type="text/javascript" src="//pl27783662.revenuecpmgate.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js"></script>
-  </div>
+  <div id="toast" class="toast hidden"></div>
 
   <script>
-    let map;
-    let markers = [];
-    let tempMarker = null;
-    let addingMode = false;
+    /***************************************************************************
+      Single-file client-side demo logic.
+      - Data structures saved in localStorage under keys: ss_users, ss_posts, ss_follows
+      - Everything is intentionally simple for demo/prototyping.
+    ***************************************************************************/
 
-    function initMap(lat, lng) {
-      if (map) {
-        map.setView([lat, lng], 14);
-        return;
+    // Default global ad snippet (the script you provided). It will be embedded inside iframe srcdoc.
+    const DEFAULT_GLOBAL_AD = `<!-- global ad snippet -->\n<script type="text/javascript">\n\tatOptions = {\n\t\t'key' : '2d5deaded3e62ebc9943db8d8b49f74e',\n\t\t'format' : 'iframe',\n\t\t'height' : 50,\n\t\t'width' : 320,\n\t\t'params' : {}\n\t};\n<\/script>\n<script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/script>`;
+
+    // Helpers for storage
+    function load(key){try{return JSON.parse(localStorage.getItem(key) || 'null')}catch(e){return null}}
+    function save(key,val){localStorage.setItem(key,JSON.stringify(val))}
+
+    // Initialize stores
+    let users = load('ss_users') || {};
+    let posts = load('ss_posts') || {};
+    let follows = load('ss_follows') || {};
+
+    // session
+    let session = load('ss_session') || null;
+
+    function persistAll(){ save('ss_users',users); save('ss_posts',posts); save('ss_follows',follows); save('ss_session',session); }
+
+    // UI helpers
+    function showScreen(id){ document.querySelectorAll('[id^=screen-]').forEach(el=>el.classList.add('hidden')); document.getElementById('screen-'+id).classList.remove('hidden'); window.scrollTo(0,0); }
+
+    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2500); }
+
+    // Registration / login
+    function register(){ const u=document.getElementById('reg-username').value.trim(); const d=document.getElementById('reg-display').value.trim(); const p=document.getElementById('reg-password').value; if(!u||!p){toast('املأ اسم المستخدم وكلمة المرور');return} if(users[u]){toast('اسم المستخدم موجود');return} users[u]={username:u,displayName:d||u,password:p,adSnippet:null,avatar:null,created:Date.now()}; session={username:u}; persistAll(); updateNav(); toast('تم التسجيل'); showScreen('home'); renderFeed(); }
+
+    function login(){ const u=document.getElementById('login-username').value.trim(); const p=document.getElementById('login-password').value; if(!users[u]||users[u].password!==p){toast('اسم مستخدم أو كلمة مرور خاطئة');return} session={username:u}; persistAll(); updateNav(); showScreen('home'); renderFeed(); toast('مرحباً '+(users[u].displayName||u)); }
+
+    function logout(){ session=null; persistAll(); updateNav(); showScreen('home'); toast('تم تسجيل الخروج'); }
+
+    function updateNav(){ const navUser=document.getElementById('nav-user'); const navGuest=document.getElementById('nav-guest'); if(session && users[session.username]){ navGuest.classList.add('hidden'); navUser.classList.remove('hidden'); document.getElementById('nav-username').textContent = users[session.username].displayName || session.username; } else { navUser.classList.add('hidden'); navGuest.classList.remove('hidden'); } }
+
+    // Simple post creation
+    function createPost(){ if(!session){toast('سجل دخول أولاً');return} const text=document.getElementById('post-text').value; const file=document.getElementById('post-image').files[0]; if(file){ const reader=new FileReader(); reader.onload=function(e){ savePost(session.username,text,e.target.result); } reader.readAsDataURL(file); } else { savePost(session.username,text,null); } }
+
+    function savePost(username,text,imageData){ const id='p_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); posts[id]={id:id,user:username,text:text||'',image:imageData,created:Date.now()}; persistAll(); document.getElementById('post-text').value=''; document.getElementById('post-image').value=''; showScreen('home'); renderFeed(); toast('تم النشر'); }
+
+    // Rendering feed
+    function renderFeed(){ const feed=document.getElementById('feed'); feed.innerHTML=''; const arr=Object.values(posts).sort((a,b)=>b.created-a.created); if(arr.length===0){ feed.innerHTML='<div class="card">لا توجد منشورات بعد.</div>'; return} arr.forEach(p=>{ const el=document.createElement('div'); el.className='card'; el.innerHTML=`<div><strong>${escapeHTML(users[p.user]?.displayName||p.user)}</strong> <span class="muted">@${escapeHTML(p.user)}</span></div>
+          <div>${escapeHTML(p.text)}</div>
+        `; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; el.appendChild(img); }
+        const actions=document.createElement('div'); actions.style.marginTop='8px'; actions.className='flex';
+        const viewBtn=document.createElement('button'); viewBtn.textContent='عرض'; viewBtn.onclick=()=>openPost(p.id);
+        const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.className='copy-btn'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id);
+        actions.appendChild(viewBtn); actions.appendChild(copyBtn);
+        el.appendChild(actions); feed.appendChild(el);
+    }); }
+
+    function openPost(id){ const p=posts[id]; if(!p){toast('المنشور غير موجود');return} showScreen('post'); const view=document.getElementById('post-view'); view.innerHTML=''; const el=document.createElement('div'); el.className='card'; el.innerHTML=`<div><strong>${escapeHTML(users[p.user]?.displayName||p.user)}</strong> <span class="muted">@${escapeHTML(p.user)}</span></div>
+        <div>${escapeHTML(p.text)}</div>`; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; el.appendChild(img);} const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id);
+      el.appendChild(copyBtn); view.appendChild(el);
+    }
+
+    // Profile view
+    function goToProfile(username){ if(!username){ if(!session){toast('سجل دخول أولاً');return} username=session.username } window.location.hash='profile='+username; renderRoute(); }
+
+    function renderProfile(username){ const profile=document.getElementById('screen-profile'); showScreen('profile'); const user=users[username]; if(!user){ toast('المستخدم غير موجود'); return } document.getElementById('profile-name').textContent = user.displayName||username; document.getElementById('profile-username').textContent = '@'+username; document.getElementById('profile-avatar').textContent = ''; // could show avatar
+      // posts
+      const grid=document.getElementById('profile-posts'); grid.innerHTML=''; const arr=Object.values(posts).filter(p=>p.user===username).sort((a,b)=>b.created-a.created);
+      if(arr.length===0) grid.innerHTML='<div class="card muted">لا توجد منشورات</div>';
+      arr.forEach(p=>{ const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div>${escapeHTML(p.text)}</div>`; if(p.image){ const img=document.createElement('img'); img.src=p.image; img.className='post-image'; c.appendChild(img);} const copyBtn=document.createElement('button'); copyBtn.textContent='نسخ رابط المنشور'; copyBtn.className='copy-btn'; copyBtn.onclick=()=>copyLink(window.location.origin+window.location.pathname+'#post='+p.id); c.appendChild(copyBtn); grid.appendChild(c); });
+
+      // follow button
+      const followBtn=document.getElementById('follow-btn'); if(session && session.username!==username){ followBtn.classList.remove('hidden'); const isFollowing = (follows[session.username]||[]).includes(username); followBtn.textContent = isFollowing ? 'متابع' : 'متابعة'; followBtn.dataset.target = username; } else { followBtn.classList.add('hidden'); }
+
+      // user ad snippet
+      document.getElementById('user-ad-snippet').value = user.adSnippet || '';
+      // show ad (user-specific if exists else global)
+      const adContent = user.adSnippet || localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD;
+      setAdIframe(adContent);
+    }
+
+    function toggleFollow(){ const target=document.getElementById('follow-btn').dataset.target; if(!session) return; follows[session.username]=follows[session.username]||[]; const idx=follows[session.username].indexOf(target); if(idx>-1){ follows[session.username].splice(idx,1); document.getElementById('follow-btn').textContent='متابعة'; } else { follows[session.username].push(target); document.getElementById('follow-btn').textContent='متابع'; } persistAll(); }
+
+    function saveAdSnippet(){ if(!session){toast('سجل دخول أولاً');return} const s=document.getElementById('user-ad-snippet').value.trim(); users[session.username].adSnippet = s || null; persistAll(); toast('تم حفظ شفرة الإعلان لملفك'); // update ad shown
+      // if viewing your own profile, update
+      const cur = parseHash(); if(cur.type==='profile' && cur.id===session.username) setAdIframe(s || localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD);
+    }
+
+    function clearAdSnippet(){ if(!session){toast('سجل دخول أولاً');return} users[session.username].adSnippet=null; persistAll(); document.getElementById('user-ad-snippet').value=''; toast('تم المسح'); const cur = parseHash(); if(cur.type==='profile' && cur.id===session.username) setAdIframe(localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD);
+    }
+
+    // Global ad setter (owner of site can set default global ad snippet)
+    function setGlobalAdSnippet(snippet){ localStorage.setItem('ss_global_ad', snippet); setAdIframe(snippet); }
+
+    // Put HTML safely into the iframe using srcdoc
+    function setAdIframe(snippet){ const frame=document.getElementById('ad-iframe'); const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;}</style></head><body>${snippet}</body></html>`; frame.srcdoc = safe; }
+
+    // Copy link helper
+    function copyLink(url){ navigator.clipboard?.writeText(url).then(()=>toast('تم نسخ الرابط')) }
+
+    // simple router
+    function parseHash(){ const h=location.hash.slice(1); if(!h) return {type:'home'}; if(h.startsWith('profile=')){ return {type:'profile',id:h.split('=')[1]}; } if(h.startsWith('post=')){ return {type:'post',id:h.split('=')[1]}; } return {type:'home'} }
+
+    function renderRoute(){ const r=parseHash(); if(r.type==='home'){ showScreen('home'); renderFeed(); // global ad
+        const globalAd = localStorage.getItem('ss_global_ad') || DEFAULT_GLOBAL_AD; setAdIframe(globalAd);
       }
-      map = L.map("map").setView([lat, lng], 14);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap"
-      }).addTo(map);
-
-      L.marker([lat, lng]).addTo(map).bindPopup("📍 موقعك الحالي").openPopup();
-
-      map.on("click", (e) => {
-        if (addingMode) {
-          if (tempMarker) map.removeLayer(tempMarker);
-          tempMarker = L.marker(e.latlng).addTo(map);
-        }
-      });
+      else if(r.type==='profile'){ renderProfile(r.id); }
+      else if(r.type==='post'){ openPost(r.id); }
     }
 
-    function findPlaces(typeName, query) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const { latitude, longitude } = pos.coords;
-        initMap(latitude, longitude);
-        markers.forEach((m) => map.removeLayer(m));
-        markers = [];
+    window.addEventListener('hashchange',renderRoute);
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=15&countrycodes=sa`;
-        fetch(url)
-          .then((r) => r.json())
-          .then((data) => {
-            if (!data.length) {
-              alert(`لم يتم العثور على ${typeName} قريبة`);
-              return;
-            }
-            data.forEach((place) => {
-              const marker = L.marker([place.lat, place.lon]).addTo(map);
-              marker.bindPopup(`<b>${typeName}</b><br>${place.display_name}`);
-              markers.push(marker);
-            });
-          });
-      });
-    }
+    // Utilities
+    function escapeHTML(s){ if(!s) return ''; return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-    function toggleAddForm() {
-      const form = document.getElementById("addForm");
-      form.style.display = form.style.display === "block" ? "none" : "block";
-      addingMode = form.style.display === "block";
-      if (addingMode) alert("اضغط على الخريطة لاختيار موقعك 📍");
-    }
+    function openPostById(id){ window.location.hash='post='+id; }
 
-    function saveNewPlace() {
-      if (!tempMarker) {
-        alert("الرجاء اختيار موقع على الخريطة أولاً");
-        return;
-      }
+    function goToProfile(){ if(!session) return; goToProfile(session.username); }
 
-      const name = document.getElementById("placeName").value.trim();
-      const type = document.getElementById("placeType").value;
-      if (!name) {
-        alert("يرجى إدخال اسم المكان");
-        return;
-      }
+    // Parse query from load
+    function parseInitial(){ // nothing special yet }
 
-      const { lat, lng } = tempMarker.getLatLng();
+    // Initial UI state
+    updateNav(); renderFeed(); renderRoute();
 
-      alert(`✅ تم حفظ الموقع:\nالاسم: ${name}\nالنوع: ${type}\nالإحداثيات: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+    // If no global ad set yet, set the default to the provided snippet
+    if(!localStorage.getItem('ss_global_ad')) localStorage.setItem('ss_global_ad', DEFAULT_GLOBAL_AD);
 
-      // لاحقاً يمكن ربطها بقاعدة بيانات Google Sheets أو Firebase
-      document.getElementById("addForm").style.display = "none";
-      addingMode = false;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => initMap(pos.coords.latitude, pos.coords.longitude),
-      () => initMap(24.7136, 46.6753) // الرياض كإفتراضي
-    );
+    // Expose some helpers for testing from console
+    window.SS = {users,posts,follows,save:persistAll,setGlobalAdSnippet};
   </script>
 </body>
 </html>
