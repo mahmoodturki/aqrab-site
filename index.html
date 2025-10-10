@@ -77,6 +77,8 @@
     .ad-container {
       margin: 20px 0;
       text-align: center;
+      display: flex;
+      justify-content: center;
     }
     
     .ad-label {
@@ -91,6 +93,9 @@
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     
     /* إعلان ثابت في الأسفل */
@@ -106,6 +111,9 @@
       z-index: 1000;
       text-align: center;
       box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     
     .ad-close-btn {
@@ -144,6 +152,9 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.4);
       border: 1px solid rgba(255,255,255,0.1);
       max-width: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     
     .floating-ad-close {
@@ -175,6 +186,9 @@
       padding: 15px;
       margin: 20px 0;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     
     .feed-ad-label {
@@ -433,13 +447,13 @@
   <div class="floating-ad hidden" id="floatingAd">
     <button class="floating-ad-close" onclick="closeFloatingAd()">×</button>
     <div class="small" style="margin-bottom: 8px;">إعلان</div>
-    <div id="floating-ad-container"></div>
+    <div id="floating-ad-container" class="ad-unit"></div>
   </div>
 
   <!-- إعلان ثابت في الأسفل -->
   <div id="bottomAd" class="hidden">
     <button class="ad-close-btn" onclick="closeBottomAd()">×</button>
-    <div id="bottom-ad-container"></div>
+    <div id="bottom-ad-container" class="ad-unit"></div>
   </div>
 
   <!-- مودال الصور -->
@@ -496,39 +510,6 @@
       }
     };
 
-    // أكواد الإعلانات
-    const AD_CODES = {
-      bottomAd: `
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-            'format' : 'iframe',
-            'height' : 50,
-            'width' : 320,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-      `,
-      
-      floatingAd: `
-        <script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'></script>
-      `,
-      
-      feedAd: `
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
-            'format' : 'iframe',
-            'height' : 250,
-            'width' : 300,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596e9ffb026ea/invoke.js"></script>
-      `
-    };
-
     // نظام الإعلانات
     const AdManager = {
       init() {
@@ -540,14 +521,14 @@
       loadAds() {
         // تحميل الإعلان الثابت في الأسفل
         if (App.adSettings.bottomAdEnabled) {
-          this.injectAd('bottom-ad-container', AD_CODES.bottomAd);
+          this.loadBottomAd();
           document.getElementById('bottomAd').classList.remove('hidden');
         }
         
         // تحميل الإعلان العائم بعد تأخير
         if (App.adSettings.floatingAdEnabled) {
           setTimeout(() => {
-            this.injectAd('floating-ad-container', AD_CODES.floatingAd);
+            this.loadFloatingAd();
             document.getElementById('floatingAd').classList.remove('hidden');
           }, 5000);
         }
@@ -555,39 +536,131 @@
         // تحميل إعلانات التغذية
         if (App.adSettings.feedAdsEnabled) {
           setTimeout(() => {
-            this.injectAd('feed-ad-container-1', AD_CODES.feedAd);
+            this.loadFeedAd();
             document.getElementById('feed-ad-1').classList.remove('hidden');
           }, 3000);
         }
       },
       
-      injectAd(containerId, adCode) {
-        const container = document.getElementById(containerId);
+      loadBottomAd() {
+        const container = document.getElementById('bottom-ad-container');
         if (!container) return;
         
-        // إنشاء iframe معزول للإعلان
+        // إنشاء iframe للإعلان
         const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
+        iframe.style.width = '320px';
+        iframe.style.height = '50px';
         iframe.style.border = 'none';
         iframe.style.borderRadius = '8px';
-        iframe.sandbox = 'allow-scripts allow-popups allow-forms';
+        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
         
-        const safeHTML = `
+        // كود الإعلان المباشر
+        const adHTML = `
           <!DOCTYPE html>
           <html>
             <head>
               <meta charset="utf-8">
               <meta name="referrer" content="no-referrer">
-              <style>body{margin:0;padding:0;background:transparent;}</style>
+              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              <\/script>
+              <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/script>
             </head>
-            <body>${adCode}</body>
+            <body>
+              <div id="ad-container"></div>
+              <script>
+                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/scr' + 'ipt>');
+              <\/script>
+            </body>
           </html>
         `;
         
         container.innerHTML = '';
         container.appendChild(iframe);
-        iframe.srcdoc = safeHTML;
+        iframe.srcdoc = adHTML;
+      },
+      
+      loadFloatingAd() {
+        const container = document.getElementById('floating-ad-container');
+        if (!container) return;
+        
+        // إنشاء iframe للإعلان العائم
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '160px';
+        iframe.style.height = '600px';
+        iframe.style.border = 'none';
+        iframe.style.borderRadius = '8px';
+        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
+        
+        // كود الإعلان العائم
+        const adHTML = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="referrer" content="no-referrer">
+              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;height:100%;}</style>
+            </head>
+            <body>
+              <script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'><\/script>
+            </body>
+          </html>
+        `;
+        
+        container.innerHTML = '';
+        container.appendChild(iframe);
+        iframe.srcdoc = adHTML;
+      },
+      
+      loadFeedAd() {
+        const container = document.getElementById('feed-ad-container-1');
+        if (!container) return;
+        
+        // إنشاء iframe لإعلان التغذية
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '300px';
+        iframe.style.height = '250px';
+        iframe.style.border = 'none';
+        iframe.style.borderRadius = '8px';
+        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
+        
+        // كود إعلان التغذية
+        const adHTML = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="referrer" content="no-referrer">
+              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;height:100%;}</style>
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              <\/script>
+            </head>
+            <body>
+              <div id="ad-container"></div>
+              <script>
+                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/scr' + 'ipt>');
+              <\/script>
+            </body>
+          </html>
+        `;
+        
+        container.innerHTML = '';
+        container.appendChild(iframe);
+        iframe.srcdoc = adHTML;
       },
       
       setupAdRefresh() {
@@ -598,13 +671,13 @@
       },
       
       refreshAds() {
-        // تحديث الإعلانات باستخدام JavaScript :cite[5]:cite[10]
+        // إعادة تحميل الإعلانات
         if (App.adSettings.bottomAdEnabled) {
-          this.injectAd('bottom-ad-container', AD_CODES.bottomAd);
+          this.loadBottomAd();
         }
         
         if (App.adSettings.feedAdsEnabled) {
-          this.injectAd('feed-ad-container-1', AD_CODES.feedAd);
+          this.loadFeedAd();
         }
       },
       
