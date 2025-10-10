@@ -55,7 +55,7 @@
       max-width: 980px;
       margin: 18px auto;
       padding: 0 14px;
-      padding-bottom: 80px; /* مساحة للإعلان الثابت */
+      padding-bottom: 80px;
     }
     
     .card {
@@ -139,7 +139,7 @@
       background: rgba(255,255,255,0.2);
     }
     
-    /* إعلان جانبي معدّل */
+    /* إعلان جانبي */
     .side-ad {
       position: fixed;
       top: 50%;
@@ -198,7 +198,7 @@
       font-weight: 600;
     }
     
-    /* بقية الأنماط الأصلية */
+    /* بقية الأنماط */
     input, textarea, button, select {
       font-size: 14px;
       padding: 12px;
@@ -399,7 +399,7 @@
     
     @media (max-width: 1100px) {
       .side-ad {
-        display: none; /* إخفاء الإعلان الجانبي في الشاشات المتوسطة والصغيرة */
+        display: none;
       }
     }
     
@@ -552,7 +552,7 @@
 
   </div>
 
-  <!-- إعلان جانبي معدّل -->
+  <!-- إعلان جانبي -->
   <div class="side-ad hidden" id="sideAd">
     <button class="side-ad-close" onclick="closeSideAd()">×</button>
     <div class="small" style="margin-bottom: 8px;">إعلان</div>
@@ -572,30 +572,34 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Firebase + TFJS + NSFWJS -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <!-- Firebase SDKs المحدثة -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+  <!-- TensorFlow و NSFWJS -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8.0/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/dist/nsfwjs.min.js"></script>
 
   <script>
     /**************************************************************************
-      Firebase config - ضع إعدادات مشروعك هنا
+      Firebase config - الإعدادات الجديدة لمشروعك
     ***************************************************************************/
     const firebaseConfig = {
-      apiKey: "your-api-key-here",
-      authDomain: "your-project.firebaseapp.com",
-      projectId: "your-project-id",
-      storageBucket: "your-project.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "your-app-id"
+      apiKey: "AIzaSyCwWu4uYybA2Vj_Zk2UF95MhLd0CB_z7z4",
+      authDomain: "social-night-f37bf.firebaseapp.com",
+      projectId: "social-night-f37bf",
+      storageBucket: "social-night-f37bf.firebasestorage.app",
+      messagingSenderId: "505583934849",
+      appId: "1:505583934849:web:62d594e8ba03238ad11c80",
+      measurementId: "G-D4J4GBRRNG"
     };
 
     // تهيئة Firebase
     try {
       firebase.initializeApp(firebaseConfig);
+      console.log("Firebase initialized successfully");
     } catch (error) {
       console.error("Firebase initialization error:", error);
     }
@@ -615,7 +619,7 @@
         bottomAdEnabled: true,
         sideAdEnabled: true,
         feedAdsEnabled: true,
-        adRefreshInterval: 30000 // 30 ثانية
+        adRefreshInterval: 30000
       }
     };
 
@@ -655,7 +659,6 @@
         const container = document.getElementById('bottom-ad-container');
         if (!container) return;
         
-        // إنشاء iframe للإعلان
         const iframe = document.createElement('iframe');
         iframe.style.width = '320px';
         iframe.style.height = '50px';
@@ -663,7 +666,6 @@
         iframe.style.borderRadius = '8px';
         iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
         
-        // كود الإعلان المباشر
         const adHTML = `
           <!DOCTYPE html>
           <html>
@@ -700,7 +702,6 @@
         const container = document.getElementById('side-ad-container');
         if (!container) return;
         
-        // إنشاء iframe للإعلان الجانبي
         const iframe = document.createElement('iframe');
         iframe.style.width = '160px';
         iframe.style.height = '600px';
@@ -708,7 +709,6 @@
         iframe.style.borderRadius = '8px';
         iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
         
-        // كود الإعلان الجانبي
         const adHTML = `
           <!DOCTYPE html>
           <html>
@@ -732,7 +732,6 @@
         const container = document.getElementById('feed-ad-container-1');
         if (!container) return;
         
-        // إنشاء iframe لإعلان التغذية
         const iframe = document.createElement('iframe');
         iframe.style.width = '300px';
         iframe.style.height = '250px';
@@ -740,7 +739,6 @@
         iframe.style.borderRadius = '8px';
         iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
         
-        // كود إعلان التغذية
         const adHTML = `
           <!DOCTYPE html>
           <html>
@@ -773,14 +771,12 @@
       },
       
       setupAdRefresh() {
-        // تحديث الإعلانات كل فترة
         setInterval(() => {
           this.refreshAds();
         }, App.adSettings.adRefreshInterval);
       },
       
       refreshAds() {
-        // إعادة تحميل الإعلانات
         if (App.adSettings.bottomAdEnabled) {
           this.loadBottomAd();
         }
@@ -791,7 +787,6 @@
       },
       
       setupAdEventListeners() {
-        // تسجيل ظهور الإعلانات
         document.addEventListener('click', (e) => {
           if (e.target.closest('.ad-unit, .side-ad, #bottomAd')) {
             this.recordAdInteraction('click');
@@ -800,7 +795,6 @@
       },
       
       recordAdInteraction(type) {
-        // تسجيل تفاعلات الإعلانات في Firebase
         if (!App.currentUser) return;
         
         try {
@@ -826,28 +820,6 @@
       document.getElementById('sideAd').classList.add('hidden');
       localStorage.setItem('sideAdClosed', 'true');
     }
-    
-    function showAd(type) {
-      switch(type) {
-        case 'bottom':
-          document.getElementById('bottomAd').classList.remove('hidden');
-          break;
-        case 'side':
-          document.getElementById('sideAd').classList.remove('hidden');
-          break;
-      }
-    }
-    
-    function hideAd(type) {
-      switch(type) {
-        case 'bottom':
-          document.getElementById('bottomAd').classList.add('hidden');
-          break;
-        case 'side':
-          document.getElementById('sideAd').classList.add('hidden');
-          break;
-      }
-    }
 
     // وظائف المساعدة
     function showScreen(id) { 
@@ -867,7 +839,7 @@
       }, 2200);
     }
 
-    // وظائف المصادقة والإدارة
+    // وظائف المصادقة والإدارة - تم إصلاحها
     async function register() {
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
@@ -887,28 +859,49 @@
           return;
         }
         
-        // إنشاء المستخدم
+        // إنشاء المستخدم في Authentication
         const cred = await auth.createUserWithEmailAndPassword(email, password);
         const uid = cred.user.uid;
         
-        // حفظ بيانات المستخدم
+        // حفظ بيانات المستخدم في Firestore
         await db.collection('users').doc(uid).set({
-          username,
+          username: username,
           displayName: display || username,
-          email,
+          email: email,
           created: firebase.firestore.FieldValue.serverTimestamp(),
           followersCount: 0,
-          earnings: 0
+          earnings: 0,
+          postsCount: 0
         });
         
-        // حفظ اسم المستخدم
-        await db.collection('usernames').doc(username).set({ uid });
+        // حفظ اسم المستخدم للتحقق من التكرار
+        await db.collection('usernames').doc(username).set({ 
+          uid: uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
         
-        toast('تم إنشاء الحساب بنجاح');
-        showScreen('home');
+        toast('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن');
+        showScreen('login');
+        
       } catch (error) {
         console.error('Registration error:', error);
-        toast('فشل التسجيل: ' + (error.message || error), 'error');
+        let errorMessage = 'فشل التسجيل: ';
+        
+        switch(error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage += 'البريد الإلكتروني مستخدم بالفعل';
+            break;
+          case 'auth/invalid-email':
+            errorMessage += 'البريد الإلكتروني غير صحيح';
+            break;
+          case 'auth/weak-password':
+            errorMessage += 'كلمة المرور ضعيفة، يجب أن تكون 6 أحرف على الأقل';
+            break;
+          default:
+            errorMessage += error.message || 'حدث خطأ غير متوقع';
+        }
+        
+        toast(errorMessage, 'error');
       }
     }
 
@@ -926,7 +919,23 @@
         toast('تم تسجيل الدخول بنجاح');
       } catch (error) {
         console.error('Login error:', error);
-        toast('فشل الدخول: ' + (error.message || error), 'error');
+        let errorMessage = 'فشل الدخول: ';
+        
+        switch(error.code) {
+          case 'auth/user-not-found':
+            errorMessage += 'المستخدم غير موجود';
+            break;
+          case 'auth/wrong-password':
+            errorMessage += 'كلمة المرور غير صحيحة';
+            break;
+          case 'auth/invalid-email':
+            errorMessage += 'البريد الإلكتروني غير صحيح';
+            break;
+          default:
+            errorMessage += error.message || 'حدث خطأ غير متوقع';
+        }
+        
+        toast(errorMessage, 'error');
       }
     }
 
@@ -1027,6 +1036,11 @@
           created: firebase.firestore.FieldValue.serverTimestamp(),
           likes: 0,
           commentsCount: 0
+        });
+        
+        // تحديث عدد منشورات المستخدم
+        await db.collection('users').doc(App.currentUser.uid).update({
+          postsCount: firebase.firestore.FieldValue.increment(1)
         });
         
         toast('تم النشر بنجاح');
@@ -1161,33 +1175,6 @@
       actions.appendChild(commentBtn);
       div.appendChild(actions);
       
-      // قسم التعليقات
-      const commentsDiv = document.createElement('div');
-      commentsDiv.id = 'comments_' + post.id;
-      commentsDiv.className = 'comment-box hidden';
-      
-      const input = document.createElement('input');
-      input.placeholder = 'اكتب تعليقاً...';
-      input.style.width = '100%';
-      
-      const send = document.createElement('button');
-      send.textContent = 'أرسل';
-      send.onclick = () => postComment(post.id, input);
-      
-      commentsDiv.appendChild(input);
-      commentsDiv.appendChild(send);
-      
-      const list = document.createElement('div');
-      list.className = 'comments-list';
-      commentsDiv.appendChild(list);
-      
-      div.appendChild(commentsDiv);
-      
-      // تأثيرات التفجير للإعجابات
-      const burst = document.createElement('div');
-      burst.className = 'burst';
-      div.appendChild(burst);
-      
       return div;
     }
 
@@ -1199,7 +1186,6 @@
       
       const heart = btn.querySelector('.heart');
       heart.classList.add('animate');
-      createBurst(btn.parentElement.parentElement.querySelector('.burst'));
       
       setTimeout(() => {
         heart.classList.remove('animate');
@@ -1223,25 +1209,6 @@
         }
       } catch (error) {
         console.error('Like error:', error);
-      }
-    }
-
-    function createBurst(container) {
-      if (!container) return;
-      
-      const colors = ['#ff6b6b', '#ff9f43', '#06b6d4'];
-      
-      for (let i = 0; i < 6; i++) {
-        const s = document.createElement('span');
-        s.textContent = '❤';
-        s.style.position = 'absolute';
-        s.style.left = (10 + i * 20) + 'px';
-        s.style.fontSize = (12 + Math.random() * 12) + 'px';
-        s.style.color = colors[i % colors.length];
-        s.style.animation = `floatUp 1s ease-out forwards`;
-        
-        container.appendChild(s);
-        setTimeout(() => s.remove(), 900);
       }
     }
 
@@ -1317,7 +1284,7 @@
       }
     }
 
-    // Modal للصور مع الإعلانات
+    // Modal للصور
     function openImageModal(post) {
       document.getElementById('modal-img').src = post.imageUrl || '';
       document.getElementById('modal-post-meta').textContent = 
@@ -1325,41 +1292,11 @@
         ' — من: ' + (post.displayName || post.username || 'مستخدم');
       
       document.getElementById('image-modal').classList.remove('hidden');
-      
-      // تسجيل ظهور الإعلان
-      recordAdImpression({ adKey: 'image_view_ad', postId: post.id });
     }
 
     function closeModal() {
       document.getElementById('image-modal').classList.add('hidden');
       document.getElementById('modal-img').src = '';
-    }
-
-    // تتبع ظهور الإعلانات
-    async function recordAdImpression({ adKey, postId }) {
-      try {
-        const uid = App.currentUser ? App.currentUser.uid : null;
-        
-        await db.collection('adImpressions').add({
-          adKey,
-          postId,
-          uid,
-          ts: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // زيادة العداد
-        const metaRef = db.collection('adsMeta').doc(adKey);
-        await db.runTransaction(async transaction => {
-          const doc = await transaction.get(metaRef);
-          if (!doc.exists) {
-            transaction.set(metaRef, { impressions: 1, revenueEstimate: 0 });
-          } else {
-            transaction.update(metaRef, { impressions: (doc.data().impressions || 0) + 1 });
-          }
-        });
-      } catch (error) {
-        console.error('Ad impression recording error:', error);
-      }
     }
 
     // الملف الشخصي والمتابعة
@@ -1439,47 +1376,6 @@
       }
     }
 
-    async function toggleFollow() {
-      if (!App.currentUser) return;
-      
-      const currentUserId = App.currentUser.uid;
-      const targetUserId = document.getElementById('follow-btn').dataset.target;
-      
-      if (!targetUserId) return;
-      
-      try {
-        const followRef = db.collection('follows').doc(`${currentUserId}_${targetUserId}`);
-        const doc = await followRef.get();
-        
-        if (doc.exists) {
-          await followRef.delete();
-          await db.collection('users').doc(targetUserId).update({
-            followersCount: firebase.firestore.FieldValue.increment(-1)
-          });
-          document.getElementById('follow-btn').textContent = 'متابعة';
-          document.getElementById('followers-count').textContent = 
-            parseInt(document.getElementById('followers-count').textContent) - 1;
-          toast('تم إلغاء المتابعة');
-        } else {
-          await followRef.set({
-            follower: currentUserId,
-            followee: targetUserId,
-            created: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          await db.collection('users').doc(targetUserId).update({
-            followersCount: firebase.firestore.FieldValue.increment(1)
-          });
-          document.getElementById('follow-btn').textContent = 'متابع';
-          document.getElementById('followers-count').textContent = 
-            parseInt(document.getElementById('followers-count').textContent) + 1;
-          toast('تمت المتابعة');
-        }
-      } catch (error) {
-        console.error('Follow error:', error);
-        toast('فشل عملية المتابعة', 'error');
-      }
-    }
-
     function escapeHTML(s) {
       if (!s) return '';
       return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1545,10 +1441,7 @@
     window.createPost = createPost;
     window.closeBottomAd = closeBottomAd;
     window.closeSideAd = closeSideAd;
-    window.showAd = showAd;
-    window.hideAd = hideAd;
     window.goToProfile = goToProfile;
-    window.toggleFollow = toggleFollow;
     window.openImageModal = openImageModal;
     window.closeModal = closeModal;
     window.openComments = openComments;
