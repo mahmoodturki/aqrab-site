@@ -38,7 +38,7 @@
       backdrop-filter: blur(6px);
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     
@@ -139,13 +139,13 @@
       background: rgba(255,255,255,0.2);
     }
     
-    /* إعلان عائم */
-    .floating-ad {
+    /* إعلان جانبي معدّل */
+    .side-ad {
       position: fixed;
       top: 50%;
-      left: 20px;
+      right: 20px;
       transform: translateY(-50%);
-      z-index: 999;
+      z-index: 900;
       background: rgba(11, 18, 32, 0.9);
       border-radius: 12px;
       padding: 15px;
@@ -157,7 +157,7 @@
       align-items: center;
     }
     
-    .floating-ad-close {
+    .side-ad-close {
       position: absolute;
       top: 5px;
       left: 5px;
@@ -174,7 +174,7 @@
       justify-content: center;
     }
     
-    .floating-ad-close:hover {
+    .side-ad-close:hover {
       background: rgba(255,255,255,0.1);
     }
     
@@ -234,6 +234,16 @@
       background: #0891b2;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(6,182,212,0.3);
+    }
+    
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(6,182,212,0.3);
+    }
+    
+    button.secondary:hover {
+      background: rgba(6,182,212,0.1);
     }
     
     .small {
@@ -363,11 +373,37 @@
       to { transform: rotate(360deg); }
     }
     
-    @media (max-width: 768px) {
-      .floating-ad {
-        display: none; /* إخفاء الإعلان العائم في الهواتف */
+    .stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    
+    .stat {
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+    }
+    
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    
+    @media (max-width: 1100px) {
+      .side-ad {
+        display: none; /* إخفاء الإعلان الجانبي في الشاشات المتوسطة والصغيرة */
       }
-      
+    }
+    
+    @media (max-width: 768px) {
       .container {
         padding-bottom: 70px;
       }
@@ -425,29 +461,102 @@
       </div>
     </div>
 
-    <!-- بقية الشاشات (التسجيل، الدخول، النشر، الملف الشخصي) -->
     <div id="screen-register" class="screen hidden">
-      <!-- محتوى شاشة التسجيل -->
+      <div class="card">
+        <h3>إنشاء حساب</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <input id="reg-display" placeholder="الاسم الظاهر" />
+          <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
+          <input id="reg-email" placeholder="البريد الإلكتروني" type="email" />
+          <input id="reg-password" placeholder="كلمة المرور" type="password" />
+          <div style="display:flex;gap:8px">
+            <button onclick="register()">سجل الآن</button>
+            <button class="secondary" onclick="showScreen('home')">عودة</button>
+          </div>
+          <div class="small">سيتم التحقق من البريد وكلمة المرور. لا تُخزن كلمات المرور على الخادم بصيغة النص العادي.</div>
+        </div>
+      </div>
     </div>
 
     <div id="screen-login" class="screen hidden">
-      <!-- محتوى شاشة الدخول -->
+      <div class="card">
+        <h3>تسجيل الدخول</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <input id="login-email" placeholder="البريد الإلكتروني" type="email" />
+          <input id="login-password" placeholder="كلمة المرور" type="password" />
+          <div style="display:flex;gap:8px">
+            <button onclick="login()">دخول</button>
+            <button class="secondary" onclick="showScreen('home')">عودة</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="screen-newpost" class="screen hidden">
-      <!-- محتوى شاشة النشر -->
+      <div class="card">
+        <h3>نشر جديد</h3>
+        <textarea id="post-text" rows="3" placeholder="نص المنشور (اختياري)"></textarea>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <input type="file" id="post-image" accept="image/*" />
+          <div class="small">سيتم فحص الصور تلقائياً وحجب الصور غير الملائمة.</div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button onclick="createPost()">نشر</button>
+          <button class="secondary" onclick="showScreen('home')">إلغاء</button>
+        </div>
+      </div>
     </div>
 
     <div id="screen-profile" class="screen hidden">
-      <!-- محتوى شاشة الملف الشخصي -->
+      <div class="card">
+        <div class="row" style="align-items:center">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div id="profile-avatar" class="profile-avatar">ص</div>
+            <div>
+              <div id="profile-name" style="font-weight:800"></div>
+              <div id="profile-username" class="small muted"></div>
+            </div>
+          </div>
+          <div style="margin-left:auto">
+            <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="posts-count">0</div>
+            <div class="stat-label">منشورات</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="followers-count">0</div>
+            <div class="stat-label">متابِعون</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="earnings-count">0</div>
+            <div class="stat-label">أرباح</div>
+          </div>
+        </div>
+        <hr style="margin:16px 0;border-color:rgba(255,255,255,0.03)">
+        <div><h4>منشورات المستخدم</h4></div>
+        <div id="profile-posts" class="posts-grid" style="margin-top:12px">
+          <div class="card" style="text-align: center; padding: 40px;">
+            <div class="loading"></div>
+            <p class="muted">جاري تحميل المنشورات...</p>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div id="screen-post" class="screen hidden">
+      <div class="card" id="post-view"></div>
+    </div>
+
   </div>
 
-  <!-- إعلان عائم -->
-  <div class="floating-ad hidden" id="floatingAd">
-    <button class="floating-ad-close" onclick="closeFloatingAd()">×</button>
+  <!-- إعلان جانبي معدّل -->
+  <div class="side-ad hidden" id="sideAd">
+    <button class="side-ad-close" onclick="closeSideAd()">×</button>
     <div class="small" style="margin-bottom: 8px;">إعلان</div>
-    <div id="floating-ad-container" class="ad-unit"></div>
+    <div id="side-ad-container" class="ad-unit"></div>
   </div>
 
   <!-- إعلان ثابت في الأسفل -->
@@ -504,7 +613,7 @@
       currentProfile: null,
       adSettings: {
         bottomAdEnabled: true,
-        floatingAdEnabled: true,
+        sideAdEnabled: true,
         feedAdsEnabled: true,
         adRefreshInterval: 30000 // 30 ثانية
       }
@@ -525,11 +634,11 @@
           document.getElementById('bottomAd').classList.remove('hidden');
         }
         
-        // تحميل الإعلان العائم بعد تأخير
-        if (App.adSettings.floatingAdEnabled) {
+        // تحميل الإعلان الجانبي بعد تأخير
+        if (App.adSettings.sideAdEnabled) {
           setTimeout(() => {
-            this.loadFloatingAd();
-            document.getElementById('floatingAd').classList.remove('hidden');
+            this.loadSideAd();
+            document.getElementById('sideAd').classList.remove('hidden');
           }, 5000);
         }
         
@@ -587,11 +696,11 @@
         iframe.srcdoc = adHTML;
       },
       
-      loadFloatingAd() {
-        const container = document.getElementById('floating-ad-container');
+      loadSideAd() {
+        const container = document.getElementById('side-ad-container');
         if (!container) return;
         
-        // إنشاء iframe للإعلان العائم
+        // إنشاء iframe للإعلان الجانبي
         const iframe = document.createElement('iframe');
         iframe.style.width = '160px';
         iframe.style.height = '600px';
@@ -599,7 +708,7 @@
         iframe.style.borderRadius = '8px';
         iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
         
-        // كود الإعلان العائم
+        // كود الإعلان الجانبي
         const adHTML = `
           <!DOCTYPE html>
           <html>
@@ -684,7 +793,7 @@
       setupAdEventListeners() {
         // تسجيل ظهور الإعلانات
         document.addEventListener('click', (e) => {
-          if (e.target.closest('.ad-unit, .floating-ad, #bottomAd')) {
+          if (e.target.closest('.ad-unit, .side-ad, #bottomAd')) {
             this.recordAdInteraction('click');
           }
         });
@@ -713,9 +822,9 @@
       localStorage.setItem('bottomAdClosed', 'true');
     }
     
-    function closeFloatingAd() {
-      document.getElementById('floatingAd').classList.add('hidden');
-      localStorage.setItem('floatingAdClosed', 'true');
+    function closeSideAd() {
+      document.getElementById('sideAd').classList.add('hidden');
+      localStorage.setItem('sideAdClosed', 'true');
     }
     
     function showAd(type) {
@@ -723,8 +832,8 @@
         case 'bottom':
           document.getElementById('bottomAd').classList.remove('hidden');
           break;
-        case 'floating':
-          document.getElementById('floatingAd').classList.remove('hidden');
+        case 'side':
+          document.getElementById('sideAd').classList.remove('hidden');
           break;
       }
     }
@@ -734,8 +843,8 @@
         case 'bottom':
           document.getElementById('bottomAd').classList.add('hidden');
           break;
-        case 'floating':
-          document.getElementById('floatingAd').classList.add('hidden');
+        case 'side':
+          document.getElementById('sideAd').classList.add('hidden');
           break;
       }
     }
@@ -760,11 +869,65 @@
 
     // وظائف المصادقة والإدارة
     async function register() {
-      // تطبيق وظيفة التسجيل
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const username = document.getElementById('reg-username').value.trim();
+      const display = document.getElementById('reg-display').value.trim();
+      
+      if (!email || !password || !username) {
+        toast('اكمل الحقول المطلوبة', 'warning');
+        return;
+      }
+      
+      try {
+        // التحقق من اسم المستخدم
+        const uSnap = await db.collection('usernames').doc(username).get();
+        if (uSnap.exists) {
+          toast('اسم المستخدم مأخوذ', 'error');
+          return;
+        }
+        
+        // إنشاء المستخدم
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = cred.user.uid;
+        
+        // حفظ بيانات المستخدم
+        await db.collection('users').doc(uid).set({
+          username,
+          displayName: display || username,
+          email,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          followersCount: 0,
+          earnings: 0
+        });
+        
+        // حفظ اسم المستخدم
+        await db.collection('usernames').doc(username).set({ uid });
+        
+        toast('تم إنشاء الحساب بنجاح');
+        showScreen('home');
+      } catch (error) {
+        console.error('Registration error:', error);
+        toast('فشل التسجيل: ' + (error.message || error), 'error');
+      }
     }
 
     async function login() {
-      // تطبيق وظيفة الدخول
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      if (!email || !password) {
+        toast('ادخل البريد وكلمة المرور', 'warning');
+        return;
+      }
+      
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+        toast('تم تسجيل الدخول بنجاح');
+      } catch (error) {
+        console.error('Login error:', error);
+        toast('فشل الدخول: ' + (error.message || error), 'error');
+      }
     }
 
     function logout() {
@@ -805,25 +968,521 @@
 
     // وظائف المنشورات
     async function createPost() {
-      // تطبيق وظيفة إنشاء المنشور
+      const text = document.getElementById('post-text').value.trim();
+      const fileInput = document.getElementById('post-image');
+      
+      if (!App.currentUser) {
+        toast('سجّل دخول أولاً', 'warning');
+        return;
+      }
+      
+      if (fileInput.files.length === 0 && !text) {
+        toast('أضف نصاً أو صورة', 'warning');
+        return;
+      }
+      
+      let imageUrl = null;
+      
+      // معالجة الصورة إذا تم تحميلها
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        
+        // فحص الصورة باستخدام NSFW إذا كان النموذج متاحاً
+        if (App.nsfwModel) {
+          try {
+            const img = await fileToImage(file);
+            const predictions = await App.nsfwModel.classify(img);
+            const risky = predictions.find(p => ['Porn', 'Hentai', 'Sexy'].includes(p.className));
+            
+            if (risky && risky.probability > 0.70) {
+              toast('تم حجب الصورة لوجود محتوى غير ملائم', 'error');
+              return;
+            }
+          } catch (error) {
+            console.error('NSFW check error:', error);
+          }
+        }
+        
+        // رفع الصورة إلى التخزين
+        try {
+          const path = `posts/${App.currentUser.uid}/${Date.now()}_${file.name}`;
+          const ref = storage.ref().child(path);
+          await ref.put(file);
+          imageUrl = await ref.getDownloadURL();
+        } catch (error) {
+          console.error('Image upload error:', error);
+          toast('فشل تحميل الصورة', 'error');
+          return;
+        }
+      }
+      
+      // حفظ المنشور في قاعدة البيانات
+      try {
+        await db.collection('posts').add({
+          uid: App.currentUser.uid,
+          username: App.userData.username,
+          displayName: App.userData.displayName,
+          text,
+          imageUrl,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          likes: 0,
+          commentsCount: 0
+        });
+        
+        toast('تم النشر بنجاح');
+        document.getElementById('post-text').value = '';
+        document.getElementById('post-image').value = '';
+        showScreen('home');
+        renderFeed();
+      } catch (error) {
+        console.error('Post creation error:', error);
+        toast('فشل نشر المنشور', 'error');
+      }
     }
 
+    function fileToImage(file) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        const reader = new FileReader();
+        reader.onload = e => img.src = e.target.result;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // عرض التغذية
     async function renderFeed() {
-      // تطبيق وظيفة عرض التغذية
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
+      
+      try {
+        const snapshot = await db.collection('posts').orderBy('created', 'desc').limit(50).get();
+        
+        if (snapshot.empty) {
+          feed.innerHTML = '<div class="card">لا توجد منشورات بعد. كن أول من ينشر!</div>';
+          return;
+        }
+        
+        App.posts = [];
+        feed.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+          const post = { id: doc.id, ...doc.data() };
+          App.posts.push(post);
+          const el = buildPostCard(post);
+          feed.appendChild(el);
+        });
+      } catch (error) {
+        console.error('Error loading feed:', error);
+        feed.innerHTML = '<div class="card">حدث خطأ في تحميل المنشورات</div>';
+      }
     }
 
     function buildPostCard(post) {
-      // تطبيق وظيفة بناء بطاقة المنشور
+      const div = document.createElement('div');
+      div.className = 'post-card card';
+      div.dataset.postId = post.id;
+      
+      // رأس المنشور
+      const header = document.createElement('div');
+      header.className = 'row';
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'profile-avatar';
+      avatar.textContent = (post.displayName || post.username || 'م').charAt(0);
+      
+      const meta = document.createElement('div');
+      meta.className = 'col';
+      
+      const name = document.createElement('div');
+      name.textContent = post.displayName || post.username || 'مستخدم';
+      name.style.fontWeight = '700';
+      
+      const time = document.createElement('div');
+      time.className = 'small muted';
+      time.textContent = post.created ? 
+        new Date(post.created.seconds * 1000).toLocaleString('ar-EG') : 
+        'الآن';
+      
+      meta.appendChild(name);
+      meta.appendChild(time);
+      header.appendChild(avatar);
+      header.appendChild(meta);
+      div.appendChild(header);
+      
+      // محتوى المنشور
+      const content = document.createElement('div');
+      if (post.text) {
+        const textDiv = document.createElement('div');
+        textDiv.style.marginTop = '8px';
+        textDiv.innerHTML = escapeHTML(post.text);
+        content.appendChild(textDiv);
+      }
+      
+      if (post.imageUrl) {
+        const img = document.createElement('img');
+        img.src = post.imageUrl;
+        img.className = 'post-image';
+        img.alt = 'صورة المنشور';
+        img.onclick = () => openImageModal(post);
+        content.appendChild(img);
+      }
+      
+      div.appendChild(content);
+      
+      // إجراءات المنشور
+      const actions = document.createElement('div');
+      actions.className = 'actions';
+      
+      const likeBtn = document.createElement('button');
+      likeBtn.className = 'like-btn';
+      likeBtn.innerHTML = `
+        <span class="heart" data-id="${post.id}">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 20s-7-4.35-9.5-7.1C-1.33 8.58 3 4 7.5 6.5 10 8 12 10 12 10s2-2 4.5-3.5C21 4 24.33 8.58 21.5 12.9 19 15.65 12 20 12 20z" fill="#ff647c"/>
+          </svg>
+        </span>
+      `;
+      likeBtn.onclick = () => handleLike(post.id, likeBtn);
+      
+      const likeCount = document.createElement('div');
+      likeCount.className = 'small muted';
+      likeCount.textContent = post.likes || 0;
+      likeCount.id = `likes-${post.id}`;
+      
+      const commentBtn = document.createElement('button');
+      commentBtn.className = 'comment-btn secondary';
+      commentBtn.textContent = 'تعليق';
+      commentBtn.onclick = () => openComments(post.id);
+      
+      actions.appendChild(likeBtn);
+      actions.appendChild(likeCount);
+      actions.appendChild(commentBtn);
+      div.appendChild(actions);
+      
+      // قسم التعليقات
+      const commentsDiv = document.createElement('div');
+      commentsDiv.id = 'comments_' + post.id;
+      commentsDiv.className = 'comment-box hidden';
+      
+      const input = document.createElement('input');
+      input.placeholder = 'اكتب تعليقاً...';
+      input.style.width = '100%';
+      
+      const send = document.createElement('button');
+      send.textContent = 'أرسل';
+      send.onclick = () => postComment(post.id, input);
+      
+      commentsDiv.appendChild(input);
+      commentsDiv.appendChild(send);
+      
+      const list = document.createElement('div');
+      list.className = 'comments-list';
+      commentsDiv.appendChild(list);
+      
+      div.appendChild(commentsDiv);
+      
+      // تأثيرات التفجير للإعجابات
+      const burst = document.createElement('div');
+      burst.className = 'burst';
+      div.appendChild(burst);
+      
+      return div;
     }
 
-    // تحميل نموذج NSFW
-    async function loadNSFWModel() {
-      try {
-        App.nsfwModel = await nsfwjs.load();
-        console.log('NSFW model loaded successfully');
-      } catch (error) {
-        console.warn('NSFW model failed to load:', error);
+    async function handleLike(postId, btn) {
+      if (!App.currentUser) {
+        toast('سجل دخول أولاً للإعجاب', 'warning');
+        return;
       }
+      
+      const heart = btn.querySelector('.heart');
+      heart.classList.add('animate');
+      createBurst(btn.parentElement.parentElement.querySelector('.burst'));
+      
+      setTimeout(() => {
+        heart.classList.remove('animate');
+      }, 350);
+      
+      try {
+        const ref = db.collection('posts').doc(postId);
+        await db.runTransaction(async transaction => {
+          const doc = await transaction.get(ref);
+          if (!doc.exists) return;
+          
+          const currentLikes = doc.data().likes || 0;
+          transaction.update(ref, { likes: currentLikes + 1 });
+        });
+        
+        // تحديث العدد المعروض
+        const likeCount = document.getElementById(`likes-${postId}`);
+        if (likeCount) {
+          const current = parseInt(likeCount.textContent) || 0;
+          likeCount.textContent = current + 1;
+        }
+      } catch (error) {
+        console.error('Like error:', error);
+      }
+    }
+
+    function createBurst(container) {
+      if (!container) return;
+      
+      const colors = ['#ff6b6b', '#ff9f43', '#06b6d4'];
+      
+      for (let i = 0; i < 6; i++) {
+        const s = document.createElement('span');
+        s.textContent = '❤';
+        s.style.position = 'absolute';
+        s.style.left = (10 + i * 20) + 'px';
+        s.style.fontSize = (12 + Math.random() * 12) + 'px';
+        s.style.color = colors[i % colors.length];
+        s.style.animation = `floatUp 1s ease-out forwards`;
+        
+        container.appendChild(s);
+        setTimeout(() => s.remove(), 900);
+      }
+    }
+
+    async function openComments(postId) {
+      const box = document.getElementById('comments_' + postId);
+      if (!box) return;
+      
+      box.classList.toggle('hidden');
+      
+      if (!box.classList.contains('hidden')) {
+        await loadComments(postId);
+      }
+    }
+
+    async function loadComments(postId) {
+      const list = document.querySelector('#comments_' + postId + ' .comments-list');
+      if (!list) return;
+      
+      list.innerHTML = '<div class="small muted" style="text-align:center">جاري تحميل التعليقات...</div>';
+      
+      try {
+        const snap = await db.collection('posts').doc(postId).collection('comments').orderBy('created', 'asc').get();
+        
+        if (snap.empty) {
+          list.innerHTML = '<div class="small muted" style="text-align:center">لا توجد تعليقات بعد</div>';
+          return;
+        }
+        
+        list.innerHTML = '';
+        snap.forEach(doc => {
+          const comment = doc.data();
+          const el = document.createElement('div');
+          el.className = 'comment-item';
+          el.textContent = (comment.displayName || comment.username || 'مستخدم') + ': ' + comment.text;
+          list.appendChild(el);
+        });
+      } catch (error) {
+        console.error('Error loading comments:', error);
+        list.innerHTML = '<div class="small muted" style="text-align:center">خطأ في تحميل التعليقات</div>';
+      }
+    }
+
+    async function postComment(postId, input) {
+      if (!App.currentUser) {
+        toast('سجل دخول أولاً', 'warning');
+        return;
+      }
+      
+      const text = input.value.trim();
+      if (!text) return;
+      
+      try {
+        await db.collection('posts').doc(postId).collection('comments').add({
+          uid: App.currentUser.uid,
+          username: App.userData.username,
+          displayName: App.userData.displayName,
+          text,
+          created: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // تحديث عدد التعليقات
+        const ref = db.collection('posts').doc(postId);
+        await ref.update({
+          commentsCount: firebase.firestore.FieldValue.increment(1)
+        });
+        
+        input.value = '';
+        loadComments(postId);
+        toast('تم إضافة التعليق');
+      } catch (error) {
+        console.error('Comment error:', error);
+        toast('فشل إضافة التعليق', 'error');
+      }
+    }
+
+    // Modal للصور مع الإعلانات
+    function openImageModal(post) {
+      document.getElementById('modal-img').src = post.imageUrl || '';
+      document.getElementById('modal-post-meta').textContent = 
+        (post.text ? post.text.substring(0, 100) + (post.text.length > 100 ? '...' : '') : '') + 
+        ' — من: ' + (post.displayName || post.username || 'مستخدم');
+      
+      document.getElementById('image-modal').classList.remove('hidden');
+      
+      // تسجيل ظهور الإعلان
+      recordAdImpression({ adKey: 'image_view_ad', postId: post.id });
+    }
+
+    function closeModal() {
+      document.getElementById('image-modal').classList.add('hidden');
+      document.getElementById('modal-img').src = '';
+    }
+
+    // تتبع ظهور الإعلانات
+    async function recordAdImpression({ adKey, postId }) {
+      try {
+        const uid = App.currentUser ? App.currentUser.uid : null;
+        
+        await db.collection('adImpressions').add({
+          adKey,
+          postId,
+          uid,
+          ts: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // زيادة العداد
+        const metaRef = db.collection('adsMeta').doc(adKey);
+        await db.runTransaction(async transaction => {
+          const doc = await transaction.get(metaRef);
+          if (!doc.exists) {
+            transaction.set(metaRef, { impressions: 1, revenueEstimate: 0 });
+          } else {
+            transaction.update(metaRef, { impressions: (doc.data().impressions || 0) + 1 });
+          }
+        });
+      } catch (error) {
+        console.error('Ad impression recording error:', error);
+      }
+    }
+
+    // الملف الشخصي والمتابعة
+    async function goToProfile(username) {
+      if (!username) {
+        if (!App.currentUser) {
+          toast('سجل دخول أولاً', 'warning');
+          return;
+        }
+        username = App.userData.username;
+      }
+      
+      window.location.hash = 'profile=' + username;
+      renderRoute();
+    }
+
+    async function renderProfile(username) {
+      showScreen('profile');
+      App.currentProfile = username;
+      
+      try {
+        const uSnap = await db.collection('usernames').doc(username).get();
+        if (!uSnap.exists) {
+          toast('المستخدم غير موجود', 'error');
+          showScreen('home');
+          return;
+        }
+        
+        const uid = uSnap.data().uid;
+        const doc = await db.collection('users').doc(uid).get();
+        
+        if (!doc.exists) {
+          toast('المستخدم غير موجود', 'error');
+          showScreen('home');
+          return;
+        }
+        
+        const data = doc.data();
+        document.getElementById('profile-name').textContent = data.displayName || username;
+        document.getElementById('profile-username').textContent = '@' + username;
+        
+        // تحديث الإحصائيات
+        document.getElementById('posts-count').textContent = data.postsCount || 0;
+        document.getElementById('followers-count').textContent = data.followersCount || 0;
+        document.getElementById('earnings-count').textContent = (data.earnings || 0).toFixed(2);
+        
+        // زر المتابعة
+        const followBtn = document.getElementById('follow-btn');
+        followBtn.dataset.target = uid;
+        
+        if (App.currentUser && App.currentUser.uid !== uid) {
+          followBtn.classList.remove('hidden');
+          const fDoc = await db.collection('follows').doc(`${App.currentUser.uid}_${uid}`).get();
+          followBtn.textContent = fDoc.exists ? 'متابع' : 'متابعة';
+        } else {
+          followBtn.classList.add('hidden');
+        }
+        
+        // تحميل منشورات المستخدم
+        const grid = document.getElementById('profile-posts');
+        grid.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
+        
+        const snap = await db.collection('posts').where('uid', '==', uid).orderBy('created', 'desc').get();
+        
+        if (snap.empty) {
+          grid.innerHTML = '<div class="card">لا توجد منشورات بعد</div>';
+        } else {
+          grid.innerHTML = '';
+          snap.forEach(doc => {
+            const post = { id: doc.id, ...doc.data() };
+            grid.appendChild(buildPostCard(post));
+          });
+        }
+      } catch (error) {
+        console.error('Profile loading error:', error);
+        toast('خطأ في تحميل الملف الشخصي', 'error');
+      }
+    }
+
+    async function toggleFollow() {
+      if (!App.currentUser) return;
+      
+      const currentUserId = App.currentUser.uid;
+      const targetUserId = document.getElementById('follow-btn').dataset.target;
+      
+      if (!targetUserId) return;
+      
+      try {
+        const followRef = db.collection('follows').doc(`${currentUserId}_${targetUserId}`);
+        const doc = await followRef.get();
+        
+        if (doc.exists) {
+          await followRef.delete();
+          await db.collection('users').doc(targetUserId).update({
+            followersCount: firebase.firestore.FieldValue.increment(-1)
+          });
+          document.getElementById('follow-btn').textContent = 'متابعة';
+          document.getElementById('followers-count').textContent = 
+            parseInt(document.getElementById('followers-count').textContent) - 1;
+          toast('تم إلغاء المتابعة');
+        } else {
+          await followRef.set({
+            follower: currentUserId,
+            followee: targetUserId,
+            created: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          await db.collection('users').doc(targetUserId).update({
+            followersCount: firebase.firestore.FieldValue.increment(1)
+          });
+          document.getElementById('follow-btn').textContent = 'متابع';
+          document.getElementById('followers-count').textContent = 
+            parseInt(document.getElementById('followers-count').textContent) + 1;
+          toast('تمت المتابعة');
+        }
+      } catch (error) {
+        console.error('Follow error:', error);
+        toast('فشل عملية المتابعة', 'error');
+      }
+    }
+
+    function escapeHTML(s) {
+      if (!s) return '';
+      return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     }
 
     // Router للتطبيق
@@ -851,6 +1510,16 @@
       }
     }
 
+    // تحميل نموذج NSFW
+    async function loadNSFWModel() {
+      try {
+        App.nsfwModel = await nsfwjs.load();
+        console.log('NSFW model loaded successfully');
+      } catch (error) {
+        console.warn('NSFW model failed to load:', error);
+      }
+    }
+
     // تهيئة التطبيق
     async function init() {
       await loadNSFWModel();
@@ -862,8 +1531,8 @@
         document.getElementById('bottomAd').classList.add('hidden');
       }
       
-      if (localStorage.getItem('floatingAdClosed') === 'true') {
-        document.getElementById('floatingAd').classList.add('hidden');
+      if (localStorage.getItem('sideAdClosed') === 'true') {
+        document.getElementById('sideAd').classList.add('hidden');
       }
     }
 
@@ -875,9 +1544,16 @@
     window.logout = logout;
     window.createPost = createPost;
     window.closeBottomAd = closeBottomAd;
-    window.closeFloatingAd = closeFloatingAd;
+    window.closeSideAd = closeSideAd;
     window.showAd = showAd;
     window.hideAd = hideAd;
+    window.goToProfile = goToProfile;
+    window.toggleFollow = toggleFollow;
+    window.openImageModal = openImageModal;
+    window.closeModal = closeModal;
+    window.openComments = openComments;
+    window.postComment = postComment;
+    window.handleLike = handleLike;
 
     // بدء التطبيق
     init();
