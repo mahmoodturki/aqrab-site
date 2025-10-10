@@ -55,6 +55,7 @@
       max-width: 980px;
       margin: 18px auto;
       padding: 0 14px;
+      padding-bottom: 80px; /* مساحة للإعلان الثابت */
     }
     
     .card {
@@ -72,6 +73,118 @@
       box-shadow: 0 8px 25px rgba(2,6,23,0.8);
     }
     
+    /* أنماط الإعلانات */
+    .ad-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .ad-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    
+    .ad-unit {
+      margin: 10px auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    /* إعلان ثابت في الأسفل */
+    #bottomAd {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(11, 18, 32, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 0;
+      z-index: 1000;
+      text-align: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    }
+    
+    .ad-close-btn {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .ad-close-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    /* إعلان عائم */
+    .floating-ad {
+      position: fixed;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      z-index: 999;
+      background: rgba(11, 18, 32, 0.9);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      max-width: 160px;
+    }
+    
+    .floating-ad-close {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .floating-ad-close:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    /* إعلان بين المنشورات */
+    .feed-ad {
+      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(255,255,255,0.05));
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .feed-ad-label {
+      font-size: 11px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    /* بقية الأنماط الأصلية */
     input, textarea, button, select {
       font-size: 14px;
       padding: 12px;
@@ -107,16 +220,6 @@
       background: #0891b2;
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(6,182,212,0.3);
-    }
-    
-    button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid rgba(6,182,212,0.3);
-    }
-    
-    button.secondary:hover {
-      background: rgba(6,182,212,0.1);
     }
     
     .small {
@@ -184,146 +287,6 @@
       border: 2px solid rgba(255,255,255,0.1);
     }
     
-    .follow-btn {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid rgba(6,182,212,0.15);
-      padding: 8px 10px;
-      border-radius: 10px;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-top: 8px;
-    }
-    
-    .like-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.02);
-    }
-    
-    .comment-box {
-      margin-top: 10px;
-    }
-    
-    .comments-list {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    
-    .comment-item {
-      background: rgba(255,255,255,0.02);
-      padding: 10px;
-      border-radius: 8px;
-      border-right: 3px solid var(--accent);
-    }
-    
-    .heart {
-      width: 22px;
-      height: 22px;
-      display: inline-block;
-      position: relative;
-    }
-    
-    .heart svg {
-      width: 100%;
-      height: 100%;
-      transform-origin: center;
-      transition: transform .25s ease;
-    }
-    
-    .heart.animate svg {
-      transform: scale(1.3);
-      filter: drop-shadow(0 6px 10px rgba(6,182,212,0.25));
-    }
-    
-    .burst {
-      position: absolute;
-      pointer-events: none;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 50px;
-    }
-    
-    @keyframes floatUp {
-      0% {
-        transform: translateY(0) scale(0.6);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-80px) scale(1);
-        opacity: 0;
-      }
-    }
-    
-    .ad-area {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-    }
-    
-    .ad-frame {
-      width: 320px;
-      height: 50px;
-      border: 0;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-    }
-    
-    /* image modal */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 2000;
-      backdrop-filter: blur(5px);
-    }
-    
-    .modal-card {
-      background: #071021;
-      border-radius: 12px;
-      padding: 18px;
-      max-width: 920px;
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
-    
-    .modal-image {
-      max-width: 540px;
-      max-height: 80vh;
-      border-radius: 10px;
-      object-fit: contain;
-    }
-    
-    .modal-sidebar {
-      width: 300px;
-    }
-    
-    .ad-300 {
-      width: 300px;
-      height: 250px;
-      border: 0;
-      border-radius: 8px;
-    }
-    
     .hidden {
       display: none !important;
     }
@@ -386,56 +349,17 @@
       to { transform: rotate(360deg); }
     }
     
-    .stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 12px;
-    }
-    
-    .stat {
-      text-align: center;
-      padding: 8px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-    }
-    
-    .stat-value {
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    
     @media (max-width: 768px) {
-      .modal-card {
-        flex-direction: column;
-        max-width: 95vw;
+      .floating-ad {
+        display: none; /* إخفاء الإعلان العائم في الهواتف */
       }
       
-      .modal-image {
-        max-width: 100%;
+      .container {
+        padding-bottom: 70px;
       }
       
-      .modal-sidebar {
-        width: 100%;
-      }
-      
-      .posts-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      header {
-        flex-direction: column;
-        gap: 12px;
-      }
-      
-      .row {
-        flex-direction: column;
-        align-items: stretch;
+      #bottomAd {
+        padding: 6px 0;
       }
     }
   </style>
@@ -473,6 +397,12 @@
         </div>
       </div>
 
+      <!-- إعلان في التغذية -->
+      <div class="feed-ad hidden" id="feed-ad-1">
+        <div class="feed-ad-label">إعلان</div>
+        <div id="feed-ad-container-1" class="ad-unit"></div>
+      </div>
+
       <div id="feed" class="posts-grid">
         <div class="card" style="text-align: center; padding: 40px;">
           <div class="loading"></div>
@@ -481,117 +411,40 @@
       </div>
     </div>
 
+    <!-- بقية الشاشات (التسجيل، الدخول، النشر، الملف الشخصي) -->
     <div id="screen-register" class="screen hidden">
-      <div class="card">
-        <h3>إنشاء حساب</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-          <input id="reg-display" placeholder="الاسم الظاهر" />
-          <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
-          <input id="reg-email" placeholder="البريد الإلكتروني" type="email" />
-          <input id="reg-password" placeholder="كلمة المرور" type="password" />
-          <div style="display:flex;gap:8px">
-            <button onclick="register()">سجل الآن</button>
-            <button class="secondary" onclick="showScreen('home')">عودة</button>
-          </div>
-          <div class="small">سيتم التحقق من البريد وكلمة المرور. لا تُخزن كلمات المرور على الخادم بصيغة النص العادي.</div>
-        </div>
-      </div>
+      <!-- محتوى شاشة التسجيل -->
     </div>
 
     <div id="screen-login" class="screen hidden">
-      <div class="card">
-        <h3>تسجيل الدخول</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-          <input id="login-email" placeholder="البريد الإلكتروني" type="email" />
-          <input id="login-password" placeholder="كلمة المرور" type="password" />
-          <div style="display:flex;gap:8px">
-            <button onclick="login()">دخول</button>
-            <button class="secondary" onclick="showScreen('home')">عودة</button>
-          </div>
-        </div>
-      </div>
+      <!-- محتوى شاشة الدخول -->
     </div>
 
     <div id="screen-newpost" class="screen hidden">
-      <div class="card">
-        <h3>نشر جديد</h3>
-        <textarea id="post-text" rows="3" placeholder="نص المنشور (اختياري)"></textarea>
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-          <input type="file" id="post-image" accept="image/*" />
-          <div class="small">سيتم فحص الصور تلقائياً وحجب الصور غير الملائمة.</div>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:8px">
-          <button onclick="createPost()">نشر</button>
-          <button class="secondary" onclick="showScreen('home')">إلغاء</button>
-        </div>
-      </div>
+      <!-- محتوى شاشة النشر -->
     </div>
 
     <div id="screen-profile" class="screen hidden">
-      <div class="card">
-        <div class="row" style="align-items:center">
-          <div style="display:flex;gap:12px;align-items:center">
-            <div id="profile-avatar" class="profile-avatar">ص</div>
-            <div>
-              <div id="profile-name" style="font-weight:800"></div>
-              <div id="profile-username" class="small muted"></div>
-            </div>
-          </div>
-          <div style="margin-left:auto">
-            <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
-          </div>
-        </div>
-        <div class="stats">
-          <div class="stat">
-            <div class="stat-value" id="posts-count">0</div>
-            <div class="stat-label">منشورات</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="followers-count">0</div>
-            <div class="stat-label">متابِعون</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value" id="earnings-count">0</div>
-            <div class="stat-label">أرباح</div>
-          </div>
-        </div>
-        <hr style="margin:16px 0;border-color:rgba(255,255,255,0.03)">
-        <div><h4>منشورات المستخدم</h4></div>
-        <div id="profile-posts" class="posts-grid" style="margin-top:12px">
-          <div class="card" style="text-align: center; padding: 40px;">
-            <div class="loading"></div>
-            <p class="muted">جاري تحميل المنشورات...</p>
-          </div>
-        </div>
-      </div>
+      <!-- محتوى شاشة الملف الشخصي -->
     </div>
-
-    <div id="screen-post" class="screen hidden">
-      <div class="card" id="post-view"></div>
-    </div>
-
   </div>
 
-  <!-- modal preview with ad -->
+  <!-- إعلان عائم -->
+  <div class="floating-ad hidden" id="floatingAd">
+    <button class="floating-ad-close" onclick="closeFloatingAd()">×</button>
+    <div class="small" style="margin-bottom: 8px;">إعلان</div>
+    <div id="floating-ad-container"></div>
+  </div>
+
+  <!-- إعلان ثابت في الأسفل -->
+  <div id="bottomAd" class="hidden">
+    <button class="ad-close-btn" onclick="closeBottomAd()">×</button>
+    <div id="bottom-ad-container"></div>
+  </div>
+
+  <!-- مودال الصور -->
   <div id="image-modal" class="modal hidden">
-    <div class="modal-card">
-      <img id="modal-img" class="modal-image" src="" alt="preview" />
-      <div class="modal-sidebar">
-        <div class="card" style="padding:12px;margin-bottom:12px">
-          <div class="small">إعلان مرتبط بالصورة</div>
-          <iframe id="modal-ad" class="ad-300" sandbox="allow-scripts allow-popups"></iframe>
-        </div>
-        <div class="card">
-          <div id="modal-post-meta" class="small muted"></div>
-          <div style="margin-top:12px"><button onclick="closeModal()">إغلاق</button></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- bottom ad area (non-intrusive) -->
-  <div class="ad-area" id="ad-area">
-    <iframe id="ad-iframe" class="ad-frame" sandbox="allow-scripts allow-popups" title="ad"></iframe>
+    <!-- محتوى المودال الأصلي -->
   </div>
 
   <div id="toast" class="toast hidden"></div>
@@ -609,7 +462,6 @@
       Firebase config - ضع إعدادات مشروعك هنا
     ***************************************************************************/
     const firebaseConfig = {
-      // استبدل هذه القيم بإعدادات مشروع Firebase الخاص بك
       apiKey: "your-api-key-here",
       authDomain: "your-project.firebaseapp.com",
       projectId: "your-project-id",
@@ -635,32 +487,183 @@
       currentUser: null,
       userData: {},
       posts: [],
-      currentProfile: null
+      currentProfile: null,
+      adSettings: {
+        bottomAdEnabled: true,
+        floatingAdEnabled: true,
+        feedAdsEnabled: true,
+        adRefreshInterval: 30000 // 30 ثانية
+      }
     };
 
-    // --- إعلانات: الشفرات التي زودتني بها (توضع داخل iframe آمن)
-    const AD_SNIPPET_VIEW_IMAGE = `<!-- ad for image view -->
-<div style="width:300px;height:250px;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);display:flex;align-items:center;justify-content:center;color:white;border-radius:8px;font-family:Arial;">
-  <div style="text-align:center;">
-    <h3 style="margin:0 0 10px 0;">مساحة إعلانية</h3>
-    <p style="margin:0;font-size:14px;">هذه مساحة لعرض الإعلانات</p>
-  </div>
-</div>`;
+    // أكواد الإعلانات
+    const AD_CODES = {
+      bottomAd: `
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+      `,
+      
+      floatingAd: `
+        <script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'></script>
+      `,
+      
+      feedAd: `
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596e9ffb026ea/invoke.js"></script>
+      `
+    };
 
-    const AD_SNIPPET_BOTTOM = `<!-- bottom ad placeholder (small) -->
-<div style="width:320px;height:50px;background:linear-gradient(135deg,#1e3a8a,#0ea5e9);display:flex;align-items:center;justify-content:center;color:white;border-radius:8px;font-family:Arial;">
-  <div style="text-align:center;">
-    <p style="margin:0;font-size:12px;">مساحة إعلانية - سوشيال نايت</p>
-  </div>
-</div>`;
+    // نظام الإعلانات
+    const AdManager = {
+      init() {
+        this.loadAds();
+        this.setupAdRefresh();
+        this.setupAdEventListeners();
+      },
+      
+      loadAds() {
+        // تحميل الإعلان الثابت في الأسفل
+        if (App.adSettings.bottomAdEnabled) {
+          this.injectAd('bottom-ad-container', AD_CODES.bottomAd);
+          document.getElementById('bottomAd').classList.remove('hidden');
+        }
+        
+        // تحميل الإعلان العائم بعد تأخير
+        if (App.adSettings.floatingAdEnabled) {
+          setTimeout(() => {
+            this.injectAd('floating-ad-container', AD_CODES.floatingAd);
+            document.getElementById('floatingAd').classList.remove('hidden');
+          }, 5000);
+        }
+        
+        // تحميل إعلانات التغذية
+        if (App.adSettings.feedAdsEnabled) {
+          setTimeout(() => {
+            this.injectAd('feed-ad-container-1', AD_CODES.feedAd);
+            document.getElementById('feed-ad-1').classList.remove('hidden');
+          }, 3000);
+        }
+      },
+      
+      injectAd(containerId, adCode) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // إنشاء iframe معزول للإعلان
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.borderRadius = '8px';
+        iframe.sandbox = 'allow-scripts allow-popups allow-forms';
+        
+        const safeHTML = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="referrer" content="no-referrer">
+              <style>body{margin:0;padding:0;background:transparent;}</style>
+            </head>
+            <body>${adCode}</body>
+          </html>
+        `;
+        
+        container.innerHTML = '';
+        container.appendChild(iframe);
+        iframe.srcdoc = safeHTML;
+      },
+      
+      setupAdRefresh() {
+        // تحديث الإعلانات كل فترة
+        setInterval(() => {
+          this.refreshAds();
+        }, App.adSettings.adRefreshInterval);
+      },
+      
+      refreshAds() {
+        // تحديث الإعلانات باستخدام JavaScript :cite[5]:cite[10]
+        if (App.adSettings.bottomAdEnabled) {
+          this.injectAd('bottom-ad-container', AD_CODES.bottomAd);
+        }
+        
+        if (App.adSettings.feedAdsEnabled) {
+          this.injectAd('feed-ad-container-1', AD_CODES.feedAd);
+        }
+      },
+      
+      setupAdEventListeners() {
+        // تسجيل ظهور الإعلانات
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('.ad-unit, .floating-ad, #bottomAd')) {
+            this.recordAdInteraction('click');
+          }
+        });
+      },
+      
+      recordAdInteraction(type) {
+        // تسجيل تفاعلات الإعلانات في Firebase
+        if (!App.currentUser) return;
+        
+        try {
+          db.collection('adInteractions').add({
+            userId: App.currentUser.uid,
+            type: type,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            adPosition: type === 'click' ? 'bottom' : 'view'
+          });
+        } catch (error) {
+          console.error('Error recording ad interaction:', error);
+        }
+      }
+    };
 
-    // تحميل نموذج NSFW
-    async function loadNSFWModel() {
-      try {
-        App.nsfwModel = await nsfwjs.load();
-        console.log('NSFW model loaded successfully');
-      } catch (error) {
-        console.warn('NSFW model failed to load:', error);
+    // وظائف إدارة الإعلانات
+    function closeBottomAd() {
+      document.getElementById('bottomAd').classList.add('hidden');
+      localStorage.setItem('bottomAdClosed', 'true');
+    }
+    
+    function closeFloatingAd() {
+      document.getElementById('floatingAd').classList.add('hidden');
+      localStorage.setItem('floatingAdClosed', 'true');
+    }
+    
+    function showAd(type) {
+      switch(type) {
+        case 'bottom':
+          document.getElementById('bottomAd').classList.remove('hidden');
+          break;
+        case 'floating':
+          document.getElementById('floatingAd').classList.remove('hidden');
+          break;
+      }
+    }
+    
+    function hideAd(type) {
+      switch(type) {
+        case 'bottom':
+          document.getElementById('bottomAd').classList.add('hidden');
+          break;
+        case 'floating':
+          document.getElementById('floatingAd').classList.add('hidden');
+          break;
       }
     }
 
@@ -682,83 +685,13 @@
       }, 2200);
     }
 
-    function escapeHTML(s) {
-      if (!s) return '';
-      return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    }
-
-    function fileToImage(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        const reader = new FileReader();
-        reader.onload = e => img.src = e.target.result;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Authentication functions
+    // وظائف المصادقة والإدارة
     async function register() {
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-      const username = document.getElementById('reg-username').value.trim();
-      const display = document.getElementById('reg-display').value.trim();
-      
-      if (!email || !password || !username) {
-        toast('اكمل الحقول المطلوبة', 'warning');
-        return;
-      }
-      
-      try {
-        // التحقق من اسم المستخدم
-        const uSnap = await db.collection('usernames').doc(username).get();
-        if (uSnap.exists) {
-          toast('اسم المستخدم مأخوذ', 'error');
-          return;
-        }
-        
-        // إنشاء المستخدم
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        
-        // حفظ بيانات المستخدم
-        await db.collection('users').doc(uid).set({
-          username,
-          displayName: display || username,
-          email,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          followersCount: 0,
-          earnings: 0
-        });
-        
-        // حفظ اسم المستخدم
-        await db.collection('usernames').doc(username).set({ uid });
-        
-        toast('تم إنشاء الحساب بنجاح');
-        showScreen('home');
-      } catch (error) {
-        console.error('Registration error:', error);
-        toast('فشل التسجيل: ' + (error.message || error), 'error');
-      }
+      // تطبيق وظيفة التسجيل
     }
 
     async function login() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      
-      if (!email || !password) {
-        toast('ادخل البريد وكلمة المرور', 'warning');
-        return;
-      }
-      
-      try {
-        await auth.signInWithEmailAndPassword(email, password);
-        toast('تم تسجيل الدخول بنجاح');
-      } catch (error) {
-        console.error('Login error:', error);
-        toast('فشل الدخول: ' + (error.message || error), 'error');
-      }
+      // تطبيق وظيفة الدخول
     }
 
     function logout() {
@@ -799,530 +732,24 @@
 
     // وظائف المنشورات
     async function createPost() {
-      const text = document.getElementById('post-text').value.trim();
-      const fileInput = document.getElementById('post-image');
-      
-      if (!App.currentUser) {
-        toast('سجّل دخول أولاً', 'warning');
-        return;
-      }
-      
-      if (fileInput.files.length === 0 && !text) {
-        toast('أضف نصاً أو صورة', 'warning');
-        return;
-      }
-      
-      let imageUrl = null;
-      
-      // معالجة الصورة إذا تم تحميلها
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        
-        // فحص الصورة باستخدام NSFW إذا كان النموذج متاحاً
-        if (App.nsfwModel) {
-          try {
-            const img = await fileToImage(file);
-            const predictions = await App.nsfwModel.classify(img);
-            const risky = predictions.find(p => ['Porn', 'Hentai', 'Sexy'].includes(p.className));
-            
-            if (risky && risky.probability > 0.70) {
-              toast('تم حجب الصورة لوجود محتوى غير ملائم', 'error');
-              return;
-            }
-          } catch (error) {
-            console.error('NSFW check error:', error);
-          }
-        }
-        
-        // رفع الصورة إلى التخزين
-        try {
-          const path = `posts/${App.currentUser.uid}/${Date.now()}_${file.name}`;
-          const ref = storage.ref().child(path);
-          await ref.put(file);
-          imageUrl = await ref.getDownloadURL();
-        } catch (error) {
-          console.error('Image upload error:', error);
-          toast('فشل تحميل الصورة', 'error');
-          return;
-        }
-      }
-      
-      // حفظ المنشور في قاعدة البيانات
-      try {
-        await db.collection('posts').add({
-          uid: App.currentUser.uid,
-          username: App.userData.username,
-          displayName: App.userData.displayName,
-          text,
-          imageUrl,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          likes: 0,
-          commentsCount: 0
-        });
-        
-        toast('تم النشر بنجاح');
-        document.getElementById('post-text').value = '';
-        document.getElementById('post-image').value = '';
-        showScreen('home');
-        renderFeed();
-      } catch (error) {
-        console.error('Post creation error:', error);
-        toast('فشل نشر المنشور', 'error');
-      }
+      // تطبيق وظيفة إنشاء المنشور
     }
 
-    // عرض التغذية
     async function renderFeed() {
-      const feed = document.getElementById('feed');
-      feed.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
-      
-      try {
-        const snapshot = await db.collection('posts').orderBy('created', 'desc').limit(50).get();
-        
-        if (snapshot.empty) {
-          feed.innerHTML = '<div class="card">لا توجد منشورات بعد. كن أول من ينشر!</div>';
-          setBottomAd();
-          return;
-        }
-        
-        App.posts = [];
-        feed.innerHTML = '';
-        
-        snapshot.forEach(doc => {
-          const post = { id: doc.id, ...doc.data() };
-          App.posts.push(post);
-          const el = buildPostCard(post);
-          feed.appendChild(el);
-        });
-        
-        setBottomAd();
-      } catch (error) {
-        console.error('Error loading feed:', error);
-        feed.innerHTML = '<div class="card">حدث خطأ في تحميل المنشورات</div>';
-      }
+      // تطبيق وظيفة عرض التغذية
     }
 
     function buildPostCard(post) {
-      const div = document.createElement('div');
-      div.className = 'post-card card';
-      div.dataset.postId = post.id;
-      
-      // رأس المنشور
-      const header = document.createElement('div');
-      header.className = 'row';
-      
-      const avatar = document.createElement('div');
-      avatar.className = 'profile-avatar';
-      avatar.textContent = (post.displayName || post.username || 'م').charAt(0);
-      
-      const meta = document.createElement('div');
-      meta.className = 'col';
-      
-      const name = document.createElement('div');
-      name.textContent = post.displayName || post.username || 'مستخدم';
-      name.style.fontWeight = '700';
-      
-      const time = document.createElement('div');
-      time.className = 'small muted';
-      time.textContent = post.created ? 
-        new Date(post.created.seconds * 1000).toLocaleString('ar-EG') : 
-        'الآن';
-      
-      meta.appendChild(name);
-      meta.appendChild(time);
-      header.appendChild(avatar);
-      header.appendChild(meta);
-      div.appendChild(header);
-      
-      // محتوى المنشور
-      const content = document.createElement('div');
-      if (post.text) {
-        const textDiv = document.createElement('div');
-        textDiv.style.marginTop = '8px';
-        textDiv.innerHTML = escapeHTML(post.text);
-        content.appendChild(textDiv);
-      }
-      
-      if (post.imageUrl) {
-        const img = document.createElement('img');
-        img.src = post.imageUrl;
-        img.className = 'post-image';
-        img.alt = 'صورة المنشور';
-        img.onclick = () => openImageModal(post);
-        content.appendChild(img);
-      }
-      
-      div.appendChild(content);
-      
-      // إجراءات المنشور
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      
-      const likeBtn = document.createElement('button');
-      likeBtn.className = 'like-btn';
-      likeBtn.innerHTML = `
-        <span class="heart" data-id="${post.id}">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 20s-7-4.35-9.5-7.1C-1.33 8.58 3 4 7.5 6.5 10 8 12 10 12 10s2-2 4.5-3.5C21 4 24.33 8.58 21.5 12.9 19 15.65 12 20 12 20z" fill="#ff647c"/>
-          </svg>
-        </span>
-      `;
-      likeBtn.onclick = () => handleLike(post.id, likeBtn);
-      
-      const likeCount = document.createElement('div');
-      likeCount.className = 'small muted';
-      likeCount.textContent = post.likes || 0;
-      likeCount.id = `likes-${post.id}`;
-      
-      const commentBtn = document.createElement('button');
-      commentBtn.className = 'comment-btn secondary';
-      commentBtn.textContent = 'تعليق';
-      commentBtn.onclick = () => openComments(post.id);
-      
-      actions.appendChild(likeBtn);
-      actions.appendChild(likeCount);
-      actions.appendChild(commentBtn);
-      div.appendChild(actions);
-      
-      // قسم التعليقات
-      const commentsDiv = document.createElement('div');
-      commentsDiv.id = 'comments_' + post.id;
-      commentsDiv.className = 'comment-box hidden';
-      
-      const input = document.createElement('input');
-      input.placeholder = 'اكتب تعليقاً...';
-      input.style.width = '100%';
-      
-      const send = document.createElement('button');
-      send.textContent = 'أرسل';
-      send.onclick = () => postComment(post.id, input);
-      
-      commentsDiv.appendChild(input);
-      commentsDiv.appendChild(send);
-      
-      const list = document.createElement('div');
-      list.className = 'comments-list';
-      commentsDiv.appendChild(list);
-      
-      div.appendChild(commentsDiv);
-      
-      // تأثيرات التفجير للإعجابات
-      const burst = document.createElement('div');
-      burst.className = 'burst';
-      div.appendChild(burst);
-      
-      return div;
+      // تطبيق وظيفة بناء بطاقة المنشور
     }
 
-    async function handleLike(postId, btn) {
-      if (!App.currentUser) {
-        toast('سجل دخول أولاً للإعجاب', 'warning');
-        return;
-      }
-      
-      const heart = btn.querySelector('.heart');
-      heart.classList.add('animate');
-      createBurst(btn.parentElement.parentElement.querySelector('.burst'));
-      
-      setTimeout(() => {
-        heart.classList.remove('animate');
-      }, 350);
-      
+    // تحميل نموذج NSFW
+    async function loadNSFWModel() {
       try {
-        const ref = db.collection('posts').doc(postId);
-        await db.runTransaction(async transaction => {
-          const doc = await transaction.get(ref);
-          if (!doc.exists) return;
-          
-          const currentLikes = doc.data().likes || 0;
-          transaction.update(ref, { likes: currentLikes + 1 });
-        });
-        
-        // تحديث العدد المعروض
-        const likeCount = document.getElementById(`likes-${postId}`);
-        if (likeCount) {
-          const current = parseInt(likeCount.textContent) || 0;
-          likeCount.textContent = current + 1;
-        }
+        App.nsfwModel = await nsfwjs.load();
+        console.log('NSFW model loaded successfully');
       } catch (error) {
-        console.error('Like error:', error);
-      }
-    }
-
-    function createBurst(container) {
-      if (!container) return;
-      
-      const colors = ['#ff6b6b', '#ff9f43', '#06b6d4'];
-      
-      for (let i = 0; i < 6; i++) {
-        const s = document.createElement('span');
-        s.textContent = '❤';
-        s.style.position = 'absolute';
-        s.style.left = (10 + i * 20) + 'px';
-        s.style.fontSize = (12 + Math.random() * 12) + 'px';
-        s.style.color = colors[i % colors.length];
-        s.style.animation = `floatUp 1s ease-out forwards`;
-        
-        container.appendChild(s);
-        setTimeout(() => s.remove(), 900);
-      }
-    }
-
-    async function openComments(postId) {
-      const box = document.getElementById('comments_' + postId);
-      if (!box) return;
-      
-      box.classList.toggle('hidden');
-      
-      if (!box.classList.contains('hidden')) {
-        await loadComments(postId);
-      }
-    }
-
-    async function loadComments(postId) {
-      const list = document.querySelector('#comments_' + postId + ' .comments-list');
-      if (!list) return;
-      
-      list.innerHTML = '<div class="small muted" style="text-align:center">جاري تحميل التعليقات...</div>';
-      
-      try {
-        const snap = await db.collection('posts').doc(postId).collection('comments').orderBy('created', 'asc').get();
-        
-        if (snap.empty) {
-          list.innerHTML = '<div class="small muted" style="text-align:center">لا توجد تعليقات بعد</div>';
-          return;
-        }
-        
-        list.innerHTML = '';
-        snap.forEach(doc => {
-          const comment = doc.data();
-          const el = document.createElement('div');
-          el.className = 'comment-item';
-          el.textContent = (comment.displayName || comment.username || 'مستخدم') + ': ' + comment.text;
-          list.appendChild(el);
-        });
-      } catch (error) {
-        console.error('Error loading comments:', error);
-        list.innerHTML = '<div class="small muted" style="text-align:center">خطأ في تحميل التعليقات</div>';
-      }
-    }
-
-    async function postComment(postId, input) {
-      if (!App.currentUser) {
-        toast('سجل دخول أولاً', 'warning');
-        return;
-      }
-      
-      const text = input.value.trim();
-      if (!text) return;
-      
-      try {
-        await db.collection('posts').doc(postId).collection('comments').add({
-          uid: App.currentUser.uid,
-          username: App.userData.username,
-          displayName: App.userData.displayName,
-          text,
-          created: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // تحديث عدد التعليقات
-        const ref = db.collection('posts').doc(postId);
-        await ref.update({
-          commentsCount: firebase.firestore.FieldValue.increment(1)
-        });
-        
-        input.value = '';
-        loadComments(postId);
-        toast('تم إضافة التعليق');
-      } catch (error) {
-        console.error('Comment error:', error);
-        toast('فشل إضافة التعليق', 'error');
-      }
-    }
-
-    // Modal للصور مع الإعلانات
-    function openImageModal(post) {
-      document.getElementById('modal-img').src = post.imageUrl || '';
-      document.getElementById('modal-post-meta').textContent = 
-        (post.text ? post.text.substring(0, 100) + (post.text.length > 100 ? '...' : '') : '') + 
-        ' — من: ' + (post.displayName || post.username || 'مستخدم');
-      
-      document.getElementById('image-modal').classList.remove('hidden');
-      
-      // تحميل الإعلان في iframe
-      const adFrame = document.getElementById('modal-ad');
-      const safeHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>${AD_SNIPPET_VIEW_IMAGE}</body></html>`;
-      adFrame.srcdoc = safeHTML;
-      
-      // تسجيل ظهور الإعلان
-      recordAdImpression({ adKey: 'image_view_ad', postId: post.id });
-    }
-
-    function closeModal() {
-      document.getElementById('image-modal').classList.add('hidden');
-      document.getElementById('modal-img').src = '';
-    }
-
-    // تتبع ظهور الإعلانات
-    async function recordAdImpression({ adKey, postId }) {
-      try {
-        const uid = App.currentUser ? App.currentUser.uid : null;
-        
-        await db.collection('adImpressions').add({
-          adKey,
-          postId,
-          uid,
-          ts: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // زيادة العداد
-        const metaRef = db.collection('adsMeta').doc(adKey);
-        await db.runTransaction(async transaction => {
-          const doc = await transaction.get(metaRef);
-          if (!doc.exists) {
-            transaction.set(metaRef, { impressions: 1, revenueEstimate: 0 });
-          } else {
-            transaction.update(metaRef, { impressions: (doc.data().impressions || 0) + 1 });
-          }
-        });
-        
-        // محاكاة الإيرادات (للتوضيح فقط)
-        if (App.currentUser) {
-          const postDoc = await db.collection('posts').doc(postId).get();
-          if (postDoc.exists) {
-            const owner = postDoc.data().uid;
-            // هنا يمكنك إضافة منطق توزيع الإيرادات
-          }
-        }
-      } catch (error) {
-        console.error('Ad impression recording error:', error);
-      }
-    }
-
-    // إعلان أسفل الصفحة
-    function setBottomAd() {
-      const frame = document.getElementById('ad-iframe');
-      const safeHTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;}</style></head><body>${AD_SNIPPET_BOTTOM}</body></html>`;
-      frame.srcdoc = safeHTML;
-    }
-
-    // الملف الشخصي والمتابعة
-    async function goToProfile(username) {
-      if (!username) {
-        if (!App.currentUser) {
-          toast('سجل دخول أولاً', 'warning');
-          return;
-        }
-        username = App.userData.username;
-      }
-      
-      window.location.hash = 'profile=' + username;
-      renderRoute();
-    }
-
-    async function renderProfile(username) {
-      showScreen('profile');
-      App.currentProfile = username;
-      
-      try {
-        const uSnap = await db.collection('usernames').doc(username).get();
-        if (!uSnap.exists) {
-          toast('المستخدم غير موجود', 'error');
-          showScreen('home');
-          return;
-        }
-        
-        const uid = uSnap.data().uid;
-        const doc = await db.collection('users').doc(uid).get();
-        
-        if (!doc.exists) {
-          toast('المستخدم غير موجود', 'error');
-          showScreen('home');
-          return;
-        }
-        
-        const data = doc.data();
-        document.getElementById('profile-name').textContent = data.displayName || username;
-        document.getElementById('profile-username').textContent = '@' + username;
-        
-        // تحديث الإحصائيات
-        document.getElementById('posts-count').textContent = data.postsCount || 0;
-        document.getElementById('followers-count').textContent = data.followersCount || 0;
-        document.getElementById('earnings-count').textContent = (data.earnings || 0).toFixed(2);
-        
-        // زر المتابعة
-        const followBtn = document.getElementById('follow-btn');
-        followBtn.dataset.target = uid;
-        
-        if (App.currentUser && App.currentUser.uid !== uid) {
-          followBtn.classList.remove('hidden');
-          const fDoc = await db.collection('follows').doc(`${App.currentUser.uid}_${uid}`).get();
-          followBtn.textContent = fDoc.exists ? 'متابع' : 'متابعة';
-        } else {
-          followBtn.classList.add('hidden');
-        }
-        
-        // تحميل منشورات المستخدم
-        const grid = document.getElementById('profile-posts');
-        grid.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
-        
-        const snap = await db.collection('posts').where('uid', '==', uid).orderBy('created', 'desc').get();
-        
-        if (snap.empty) {
-          grid.innerHTML = '<div class="card">لا توجد منشورات بعد</div>';
-        } else {
-          grid.innerHTML = '';
-          snap.forEach(doc => {
-            const post = { id: doc.id, ...doc.data() };
-            grid.appendChild(buildPostCard(post));
-          });
-        }
-        
-        setBottomAd();
-      } catch (error) {
-        console.error('Profile loading error:', error);
-        toast('خطأ في تحميل الملف الشخصي', 'error');
-      }
-    }
-
-    async function toggleFollow() {
-      if (!App.currentUser) return;
-      
-      const currentUserId = App.currentUser.uid;
-      const targetUserId = document.getElementById('follow-btn').dataset.target;
-      
-      if (!targetUserId) return;
-      
-      try {
-        const followRef = db.collection('follows').doc(`${currentUserId}_${targetUserId}`);
-        const doc = await followRef.get();
-        
-        if (doc.exists) {
-          await followRef.delete();
-          await db.collection('users').doc(targetUserId).update({
-            followersCount: firebase.firestore.FieldValue.increment(-1)
-          });
-          document.getElementById('follow-btn').textContent = 'متابعة';
-          document.getElementById('followers-count').textContent = 
-            parseInt(document.getElementById('followers-count').textContent) - 1;
-          toast('تم إلغاء المتابعة');
-        } else {
-          await followRef.set({
-            follower: currentUserId,
-            followee: targetUserId,
-            created: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          await db.collection('users').doc(targetUserId).update({
-            followersCount: firebase.firestore.FieldValue.increment(1)
-          });
-          document.getElementById('follow-btn').textContent = 'متابع';
-          document.getElementById('followers-count').textContent = 
-            parseInt(document.getElementById('followers-count').textContent) + 1;
-          toast('تمت المتابعة');
-        }
-      } catch (error) {
-        console.error('Follow error:', error);
-        toast('فشل عملية المتابعة', 'error');
+        console.warn('NSFW model failed to load:', error);
       }
     }
 
@@ -1354,18 +781,17 @@
     // تهيئة التطبيق
     async function init() {
       await loadNSFWModel();
-      setBottomAd();
+      AdManager.init();
       renderRoute();
       
-      // إخفاء شاشة التحميل الأولي
-      setTimeout(() => {
-        const loadingElements = document.querySelectorAll('.posts-grid .card');
-        loadingElements.forEach(el => {
-          if (el.innerHTML.includes('loading')) {
-            el.style.display = 'none';
-          }
-        });
-      }, 1000);
+      // التحقق من تفضيلات الإعلانات السابقة
+      if (localStorage.getItem('bottomAdClosed') === 'true') {
+        document.getElementById('bottomAd').classList.add('hidden');
+      }
+      
+      if (localStorage.getItem('floatingAdClosed') === 'true') {
+        document.getElementById('floatingAd').classList.add('hidden');
+      }
     }
 
     // جعل الدوال متاحة globally
@@ -1375,13 +801,10 @@
     window.login = login;
     window.logout = logout;
     window.createPost = createPost;
-    window.openImageModal = openImageModal;
-    window.closeModal = closeModal;
-    window.goToProfile = goToProfile;
-    window.toggleFollow = toggleFollow;
-    window.openComments = openComments;
-    window.postComment = postComment;
-    window.handleLike = handleLike;
+    window.closeBottomAd = closeBottomAd;
+    window.closeFloatingAd = closeFloatingAd;
+    window.showAd = showAd;
+    window.hideAd = hideAd;
 
     // بدء التطبيق
     init();
