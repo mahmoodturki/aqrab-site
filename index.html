@@ -1,485 +1,56 @@
 <!doctype html>
+<!--
+  index.html — سوشيال نايت (نسخة واحدة - واجهة كاملة)
+  تعليمات سريعة بعد الرفع:
+  1) افتح Firebase Console لمشروعك وتأكد أن Authentication Email/Password مفعل.
+  2) تأكد من إنشاء Firestore وStorage.
+  3) اضبط قواعد Firestore وStorage كما تود (أدنى الملف تلميحات لقواعد اختبار سريعة).
+  4) ارفع الملف لمستودع GitHub وفعل GitHub Pages أو استضفه على أي سيرفر HTTPS.
+-->
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>سوشيال نايت — شبكة مشاركة الصور</title>
+  <title>سوشيال نايت — مشاركة الصور</title>
   <style>
-    :root {
-      --bg: #05060a;
-      --card: #0b1220;
-      --muted: #9aa8bf;
-      --accent: #06b6d4;
-      --success: #10b981;
-      --error: #ef4444;
-      --warning: #f59e0b;
-    }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      direction: rtl;
-      background: linear-gradient(180deg, #020312 0%, var(--bg) 100%);
-      color: #e6eef6;
-      scroll-behavior: smooth;
-    }
-    
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 18px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
-      backdrop-filter: blur(6px);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .logo {
-      font-weight: 900;
-      letter-spacing: 0.6px;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, var(--accent), #3b82f6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .container {
-      max-width: 980px;
-      margin: 18px auto;
-      padding: 0 14px;
-      padding-bottom: 80px;
-    }
-    
-    .card {
-      background: linear-gradient(180deg, var(--card), #081023);
-      border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 18px;
-      box-shadow: 0 6px 20px rgba(2,6,23,0.6);
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(2,6,23,0.8);
-    }
-    
-    /* أنماط الإعلانات */
-    .ad-container {
-      margin: 20px 0;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-    }
-    
-    .ad-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-    
-    .ad-unit {
-      margin: 10px auto;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    /* إعلان ثابت في الأسفل */
-    #bottomAd {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(11, 18, 32, 0.95);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding: 8px 0;
-      z-index: 1000;
-      text-align: center;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .ad-close-btn {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    
-    .ad-close-btn:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    
-    /* إعلان جانبي */
-    .side-ad {
-      position: fixed;
-      top: 50%;
-      right: 20px;
-      transform: translateY(-50%);
-      z-index: 900;
-      background: rgba(11, 18, 32, 0.9);
-      border-radius: 12px;
-      padding: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
-      max-width: 160px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .side-ad-close {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      background: transparent;
-      color: var(--muted);
-      border: none;
-      cursor: pointer;
-      font-size: 12px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .side-ad-close:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    
-    /* إعلان بين المنشورات */
-    .feed-ad {
-      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(255,255,255,0.05));
-      border: 1px solid rgba(6,182,212,0.2);
-      border-radius: 12px;
-      padding: 15px;
-      margin: 20px 0;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .feed-ad-label {
-      font-size: 11px;
-      color: var(--accent);
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-    
-    /* أنماط النماذج المحسنة */
-    .form-group {
-      margin-bottom: 16px;
-    }
-    
-    .form-label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    
-    input, textarea, button, select {
-      font-size: 14px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-      color: inherit;
-      transition: all 0.2s;
-      width: 100%;
-    }
-    
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(6,182,212,0.2);
-    }
-    
-    button {
-      cursor: pointer;
-      border: 0;
-      background: var(--accent);
-      color: #001219;
-      padding: 12px 16px;
-      border-radius: 10px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-      width: auto;
-    }
-    
-    button:hover {
-      background: #0891b2;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(6,182,212,0.3);
-    }
-    
-    button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid rgba(6,182,212,0.3);
-    }
-    
-    button.secondary:hover {
-      background: rgba(6,182,212,0.1);
-    }
-    
-    .small {
-      font-size: 13px;
-      color: var(--muted);
-    }
-    
-    .row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    
-    .col {
-      flex: 1;
-    }
-    
-    .muted {
-      color: var(--muted);
-    }
-    
-    .posts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 18px;
-    }
-    
-    .post-card {
-      border-radius: 12px;
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-      position: relative;
-      transition: all 0.3s;
-    }
-    
-    .post-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    
-    .post-image {
-      width: 100%;
-      border-radius: 10px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: transform 0.3s;
-      aspect-ratio: 1/1;
-      object-fit: cover;
-    }
-    
-    .post-image:hover {
-      transform: scale(1.02);
-    }
-    
-    .profile-avatar {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      background: linear-gradient(180deg, #0a2230, #05202a);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-weight: 700;
-      border: 2px solid rgba(255,255,255,0.1);
-    }
-    
-    .hidden {
-      display: none !important;
-    }
-    
-    .toast {
-      position: fixed;
-      left: 16px;
-      bottom: 120px;
-      background: var(--success);
-      color: #001219;
-      padding: 12px 16px;
-      border-radius: 8px;
-      z-index: 3000;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      animation: slideIn 0.3s, slideOut 0.3s 1.9s;
-    }
-    
-    @keyframes slideIn {
-      from {
-        transform: translateX(-100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-    
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(-100%);
-        opacity: 0;
-      }
-    }
-    
-    .toast.error {
-      background: var(--error);
-    }
-    
-    .toast.warning {
-      background: var(--warning);
-    }
-    
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: var(--accent);
-      animation: spin 1s ease-in-out infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .stats {
-      display: flex;
-      gap: 16px;
-      margin-top: 12px;
-    }
-    
-    .stat {
-      text-align: center;
-      padding: 8px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.03);
-    }
-    
-    .stat-value {
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    
-    /* أنماط التسجيل السريع */
-    .quick-register {
-      background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(255,255,255,0.05));
-      border: 1px solid rgba(6,182,212,0.2);
-      border-radius: 12px;
-      padding: 20px;
-      margin: 20px 0;
-    }
-    
-    .quick-register-title {
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-      color: var(--accent);
-      text-align: center;
-    }
-    
-    .quick-register-form {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .quick-register-input {
-      flex: 1;
-      min-width: 200px;
-    }
-    
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 20px 0;
-      color: var(--muted);
-    }
-    
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .divider-text {
-      padding: 0 12px;
-      font-size: 14px;
-    }
-    
-    @media (max-width: 1100px) {
-      .side-ad {
-        display: none;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .container {
-        padding-bottom: 70px;
-      }
-      
-      #bottomAd {
-        padding: 6px 0;
-      }
-      
-      .quick-register-form {
-        flex-direction: column;
-      }
-      
-      .quick-register-input {
-        min-width: 100%;
-      }
-    }
+    :root{--bg:#05060a;--card:#0b1220;--muted:#9aa8bf;--accent:#06b6d4}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;direction:rtl}
+    body{background:linear-gradient(180deg,#020312 0%,var(--bg) 100%);color:#e6eef6}
+    header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:linear-gradient(90deg,rgba(255,255,255,0.02),transparent);backdrop-filter:blur(6px)}
+    .logo{font-weight:900;letter-spacing:0.6px}
+    .container{max-width:980px;margin:18px auto;padding:0 14px}
+    .card{background:linear-gradient(180deg,var(--card),#081023);border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    input,textarea,button,select{font-size:14px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    button{cursor:pointer;border:0;background:var(--accent);color:#001219;padding:10px 12px;border-radius:10px}
+    .small{font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:12px;align-items:center}
+    .col{flex:1}
+    .muted{color:var(--muted)}
+    .posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .post-card{border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);position:relative}
+    .post-image{width:100%;border-radius:10px;margin-top:10px;cursor:pointer}
+    .profile-avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(180deg,#0a2230,#05202a);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+    .follow-btn{background:transparent;color:var(--accent);border:1px solid rgba(6,182,212,0.15);padding:8px 10px;border-radius:10px}
+    .actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .like-btn{display:inline-flex;align-items:center;gap:8px;padding:8px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02)}
+    .comment-box{margin-top:10px}
+    .comments-list{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+    .comment-item{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px}
+    .heart{width:22px;height:22px;display:inline-block;position:relative}
+    .heart svg{width:100%;height:100%;transform-origin:center;transition:transform .25s ease}
+    .heart.animate svg{transform:scale(1.3);filter:drop-shadow(0 6px 10px rgba(6,182,212,0.25))}
+    .burst{position:absolute;pointer-events:none;left:50%;transform:translateX(-50%);bottom:50px}
+    @keyframes floatUp{0%{transform:translateY(0) scale(0.6);opacity:1}100%{transform:translateY(-80px) scale(1);opacity:0}}
+    .ad-area{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:9999}
+    .ad-frame{width:320px;height:50px;border:0;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:2000}
+    .modal-card{background:#071021;border-radius:12px;padding:14px;max-width:920px;display:flex;gap:12px;align-items:flex-start}
+    .modal-image{max-width:540px;max-height:80vh;border-radius:10px}
+    .modal-sidebar{width:300px}
+    .ad-300{width:300px;height:250px;border:0;border-radius:8px}
+    .hidden{display:none}
+    .toast{position:fixed;left:16px;bottom:120px;background:#0ea5a4;color:#001219;padding:8px 12px;border-radius:8px;z-index:3000}
+    @media (max-width:720px){ .posts-grid{grid-template-columns:1fr} .profile-avatar{width:48px;height:48px} }
   </style>
 </head>
 <body>
@@ -487,214 +58,147 @@
     <div class="row">
       <div>
         <div class="logo">سوشيال نايت</div>
-        <div class="small">شبكة مشاركة الصور — نسختك التجريبية</div>
+        <div class="small">شبكة مشاركة الصور — إصدار تجريبي</div>
       </div>
     </div>
     <div class="row" id="nav-right">
       <div id="nav-guest" class="row">
         <button onclick="showScreen('register')">تسجيل</button>
-        <button class="secondary" onclick="showScreen('login')">دخول</button>
+        <button onclick="showScreen('login')">دخول</button>
       </div>
       <div id="nav-user" class="row hidden">
         <span id="nav-username" class="muted"></span>
-        <button class="secondary" onclick="goToProfile()">ملفي</button>
-        <button class="secondary" onclick="logout()">خروج</button>
+        <button onclick="goToProfile()">ملفي</button>
+        <button onclick="logout()">خروج</button>
       </div>
     </div>
   </header>
 
   <div class="container">
+    <!-- Home -->
     <div id="screen-home" class="screen">
-      <!-- نموذج التسجيل السريع في الصفحة الرئيسية -->
-      <div class="quick-register hidden" id="quick-register">
-        <div class="quick-register-title">انضم إلينا الآن!</div>
-        <div class="quick-register-form">
-          <input type="email" id="quick-email" placeholder="بريدك الإلكتروني" class="quick-register-input">
-          <input type="password" id="quick-password" placeholder="كلمة المرور" class="quick-register-input">
-          <button onclick="quickRegister()">تسجيل سريع</button>
-        </div>
-        <div class="small" style="text-align: center; margin-top: 12px;">
-          بالضغط على "تسجيل سريع" فأنت توافق على <a href="#" style="color: var(--accent);">شروط الخدمة</a>
-        </div>
-      </div>
-
       <div class="card row">
         <div class="col">
           <h2>التغذية</h2>
-          <div class="small">منشورات المستخدمين. عند الضغط على الصورة سيظهر معاينتها مع إعلان غير مزعج.</div>
+          <div class="small">منشورات المستخدمين. اضغط على صورة لعرضها مع إعلان غير مزعج.</div>
         </div>
         <div>
-          <button id="btn-new-post" onclick="showScreen('newpost')">+ نشر جديد</button>
+          <button id="btn-new-post" onclick="showScreen('newpost')">نشر جديد</button>
         </div>
       </div>
 
-      <!-- إعلان في التغذية -->
-      <div class="feed-ad hidden" id="feed-ad-1">
-        <div class="feed-ad-label">إعلان</div>
-        <div id="feed-ad-container-1" class="ad-unit"></div>
-      </div>
-
-      <div id="feed" class="posts-grid">
-        <div class="card" style="text-align: center; padding: 40px;">
-          <div class="loading"></div>
-          <p class="muted">جاري تحميل المنشورات...</p>
-        </div>
-      </div>
+      <div id="feed" class="posts-grid"></div>
     </div>
 
+    <!-- Register -->
     <div id="screen-register" class="screen hidden">
       <div class="card">
-        <h3>إنشاء حساب جديد</h3>
-        
-        <!-- خيار التسجيل السريع -->
-        <div class="quick-register" style="margin-top: 0;">
-          <div class="quick-register-title">تسجيل سريع</div>
-          <div class="form-group">
-            <input type="email" id="reg-email-quick" placeholder="بريدك الإلكتروني">
+        <h3>إنشاء حساب</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <input id="reg-display" placeholder="الاسم الظاهر" />
+          <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
+          <input id="reg-email" placeholder="البريد الإلكتروني" type="email" />
+          <input id="reg-password" placeholder="كلمة المرور" type="password" />
+          <div style="display:flex;gap:8px">
+            <button onclick="register()">سجل الآن</button>
+            <button onclick="showScreen('home')">عودة</button>
           </div>
-          <div class="form-group">
-            <input type="password" id="reg-password-quick" placeholder="كلمة المرور (6 أحرف على الأقل)">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:16px">
-            <button onclick="quickRegisterFromForm()" style="flex:1">تسجيل سريع</button>
-          </div>
-        </div>
-
-        <div class="divider">
-          <span class="divider-text">أو</span>
-        </div>
-
-        <!-- نموذج التسجيل الكامل -->
-        <div>
-          <h4 style="margin-bottom: 16px;">تسجيل مفصل</h4>
-          <div class="form-group">
-            <label class="form-label" for="reg-display">الاسم الظاهر</label>
-            <input id="reg-display" placeholder="الاسم الذي سيراه الآخرون" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reg-username">اسم المستخدم</label>
-            <input id="reg-username" placeholder="اسم المستخدم (مميز)" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reg-email">البريد الإلكتروني</label>
-            <input id="reg-email" placeholder="بريدك الإلكتروني" type="email" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reg-password">كلمة المرور</label>
-            <input id="reg-password" placeholder="كلمة المرور (6 أحرف على الأقل)" type="password" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reg-password-confirm">تأكيد كلمة المرور</label>
-            <input id="reg-password-confirm" placeholder="أعد إدخال كلمة المرور" type="password" />
-          </div>
-          <div style="display:flex;gap:8px;margin-top:20px">
-            <button onclick="register()" style="flex:1">إنشاء حساب</button>
-            <button class="secondary" onclick="showScreen('home')">عودة</button>
-          </div>
-          <div class="small" style="margin-top: 12px;">
-            بالضغط على "إنشاء حساب" فأنت توافق على <a href="#" style="color: var(--accent);">شروط الخدمة وسياسة الخصوصية</a>
-          </div>
+          <div class="small">سيتم إنشاء الحساب ثم حجز اسم المستخدم (آمن).</div>
         </div>
       </div>
     </div>
 
+    <!-- Login -->
     <div id="screen-login" class="screen hidden">
       <div class="card">
         <h3>تسجيل الدخول</h3>
-        
-        <!-- خيار التسجيل السريع من شاشة الدخول -->
-        <div class="quick-register" style="margin-top: 0; margin-bottom: 20px;">
-          <div class="quick-register-title">ليس لديك حساب؟ سجل الآن</div>
-          <div class="form-group">
-            <input type="email" id="login-quick-email" placeholder="بريدك الإلكتروني">
-          </div>
-          <div class="form-group">
-            <input type="password" id="login-quick-password" placeholder="كلمة المرور">
-          </div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <input id="login-email" placeholder="البريد الإلكتروني" type="email" />
+          <input id="login-password" placeholder="كلمة المرور" type="password" />
           <div style="display:flex;gap:8px">
-            <button onclick="quickRegisterFromLogin()" style="flex:1">تسجيل سريع</button>
-          </div>
-        </div>
-
-        <div class="divider">
-          <span class="divider-text">أو</span>
-        </div>
-
-        <!-- نموذج الدخول العادي -->
-        <div>
-          <h4 style="margin-bottom: 16px;">لديك حساب بالفعل؟</h4>
-          <div class="form-group">
-            <label class="form-label" for="login-email">البريد الإلكتروني</label>
-            <input id="login-email" placeholder="بريدك الإلكتروني" type="email" />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="login-password">كلمة المرور</label>
-            <input id="login-password" placeholder="كلمة المرور" type="password" />
-          </div>
-          <div style="display:flex;gap:8px;margin-top:20px">
-            <button onclick="login()" style="flex:1">دخول</button>
-            <button class="secondary" onclick="showScreen('home')">عودة</button>
-          </div>
-          <div class="small" style="text-align: center; margin-top: 12px;">
-            <a href="#" style="color: var(--accent);">نسيت كلمة المرور؟</a>
+            <button onclick="login()">دخول</button>
+            <button onclick="showScreen('home')">عودة</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- بقية الشاشات (newpost, profile, post) -->
+    <!-- New Post -->
     <div id="screen-newpost" class="screen hidden">
       <div class="card">
         <h3>نشر جديد</h3>
         <textarea id="post-text" rows="3" placeholder="نص المنشور (اختياري)"></textarea>
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-          <input type="file" id="post-image" accept="image/*" />
-          <div class="small">سيتم فحص الصور تلقائياً وحجب الصور غير الملائمة.</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <input type="file" id="post-image" accept="image/*" multiple />
+          <div class="small">يمكنك اختيار صور متعددة. سيجري فحص الصور تلقائياً لحجب المحتوى غير الملائم.</div>
         </div>
-        <div style="margin-top:16px;display:flex;gap:8px">
+        <div style="margin-top:12px;display:flex;gap:8px">
           <button onclick="createPost()">نشر</button>
-          <button class="secondary" onclick="showScreen('home')">إلغاء</button>
+          <button onclick="showScreen('home')">إلغاء</button>
         </div>
       </div>
     </div>
 
+    <!-- Profile -->
     <div id="screen-profile" class="screen hidden">
-      <!-- محتوى شاشة الملف الشخصي -->
+      <div class="card">
+        <div class="row" style="align-items:center">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div id="profile-avatar" class="profile-avatar">ص</div>
+            <div>
+              <div id="profile-name" style="font-weight:800"></div>
+              <div id="profile-username" class="small muted"></div>
+            </div>
+          </div>
+          <div style="margin-left:auto">
+            <button id="follow-btn" class="follow-btn hidden" onclick="toggleFollow()">متابعة</button>
+          </div>
+        </div>
+        <hr style="margin:12px 0;border-color:rgba(255,255,255,0.03)">
+        <div><h4>منشورات المستخدم</h4></div>
+        <div id="profile-posts" class="posts-grid" style="margin-top:8px"></div>
+      </div>
     </div>
 
-    <div id="screen-post" class="screen hidden">
-      <!-- محتوى شاشة المنشور -->
+    <div id="screen-post" class="screen hidden"><div class="card" id="post-view"></div></div>
+
+  </div>
+
+  <!-- modal preview with ad -->
+  <div id="image-modal" class="modal hidden">
+    <div class="modal-card">
+      <img id="modal-img" class="modal-image" src="" alt="preview" />
+      <div class="modal-sidebar">
+        <div class="card" style="padding:10px;margin-bottom:10px">
+          <div class="small">إعلان مرتبط بالصورة</div>
+          <iframe id="modal-ad" class="ad-300" sandbox="allow-scripts allow-popups"></iframe>
+        </div>
+        <div class="card">
+          <div id="modal-post-meta" class="small muted"></div>
+          <div style="margin-top:8px"><button onclick="closeModal()">إغلاق</button></div>
+        </div>
+      </div>
     </div>
-
   </div>
 
-  <!-- إعلان جانبي -->
-  <div class="side-ad hidden" id="sideAd">
-    <button class="side-ad-close" onclick="closeSideAd()">×</button>
-    <div class="small" style="margin-bottom: 8px;">إعلان</div>
-    <div id="side-ad-container" class="ad-unit"></div>
+  <!-- bottom ad area (non-intrusive) -->
+  <div class="ad-area" id="ad-area">
+    <iframe id="ad-iframe" class="ad-frame" sandbox="allow-scripts allow-popups" title="ad"></iframe>
   </div>
 
-  <!-- إعلان ثابت في الأسفل -->
-  <div id="bottomAd" class="hidden">
-    <button class="ad-close-btn" onclick="closeBottomAd()">×</button>
-    <div id="bottom-ad-container" class="ad-unit"></div>
-  </div>
+  <div id="toast" class="toast hidden"></div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <!-- Firebase compat + TFJS + NSFWJS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-  <!-- TensorFlow و NSFWJS -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.8.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/nsfwjs@2.4.2/dist/nsfwjs.min.js"></script>
+  <script src="https://unpkg.com/nsfwjs/dist/nsfwjs.min.js"></script>
 
   <script>
-    /**************************************************************************
-      Firebase config - الإعدادات الجديدة لمشروعك
-    ***************************************************************************/
+    /* --- ضع هنا إعدادات Firebase التي زودتني بها (أو استبدلها إن أردت) --- */
     const firebaseConfig = {
       apiKey: "AIzaSyCwWu4uYybA2Vj_Zk2UF95MhLd0CB_z7z4",
       authDomain: "social-night-f37bf.firebaseapp.com",
@@ -705,876 +209,387 @@
       measurementId: "G-D4J4GBRRNG"
     };
 
-    // تهيئة Firebase
-    try {
-      firebase.initializeApp(firebaseConfig);
-      console.log("Firebase initialized successfully");
-    } catch (error) {
-      console.error("Firebase initialization error:", error);
-    }
-    
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // إعدادات التطبيق
-    const App = {
-      nsfwModel: null,
-      currentUser: null,
-      userData: {},
-      posts: [],
-      currentProfile: null,
-      adSettings: {
-        bottomAdEnabled: true,
-        sideAdEnabled: true,
-        feedAdsEnabled: true,
-        adRefreshInterval: 30000
-      }
-    };
+    /* --- إعلانات (مكان آمن داخل iframe). إن رغبت لاحقًا بلصق شفرة شبكة خارجية لديك، ضعها هنا داخل النصوص --- */
+    const AD_SNIPPET_VIEW_IMAGE = `<!-- ad for image view -->\n<script type="text/javascript">\n\tatOptions = {\n\t\t'key' : '3fa8b00fc8159153c0596ee9ffb026ea',\n\t\t'format' : 'iframe',\n\t\t'height' : 250,\n\t\t'width' : 300,\n\t\t'params' : {}\n\t};\n<\/script>\n<script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/script>\n<script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'><\/script>`;
 
-    // نظام الإعلانات
-    const AdManager = {
-      init() {
-        this.loadAds();
-        this.setupAdRefresh();
-        this.setupAdEventListeners();
-      },
-      
-      loadAds() {
-        // تحميل الإعلان الثابت في الأسفل
-        if (App.adSettings.bottomAdEnabled) {
-          this.loadBottomAd();
-          document.getElementById('bottomAd').classList.remove('hidden');
-        }
-        
-        // تحميل الإعلان الجانبي بعد تأخير
-        if (App.adSettings.sideAdEnabled) {
-          setTimeout(() => {
-            this.loadSideAd();
-            document.getElementById('sideAd').classList.remove('hidden');
-          }, 5000);
-        }
-        
-        // تحميل إعلانات التغذية
-        if (App.adSettings.feedAdsEnabled) {
-          setTimeout(() => {
-            this.loadFeedAd();
-            document.getElementById('feed-ad-1').classList.remove('hidden');
-          }, 3000);
-        }
-      },
-      
-      loadBottomAd() {
-        const container = document.getElementById('bottom-ad-container');
-        if (!container) return;
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '320px';
-        iframe.style.height = '50px';
-        iframe.style.border = 'none';
-        iframe.style.borderRadius = '8px';
-        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
-        
-        const adHTML = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <meta name="referrer" content="no-referrer">
-              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;}</style>
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                  'format' : 'iframe',
-                  'height' : 50,
-                  'width' : 320,
-                  'params' : {}
-                };
-              <\/script>
-              <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/script>
-            </head>
-            <body>
-              <div id="ad-container"></div>
-              <script>
-                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/scr' + 'ipt>');
-              <\/script>
-            </body>
-          </html>
-        `;
-        
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        iframe.srcdoc = adHTML;
-      },
-      
-      loadSideAd() {
-        const container = document.getElementById('side-ad-container');
-        if (!container) return;
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '160px';
-        iframe.style.height = '600px';
-        iframe.style.border = 'none';
-        iframe.style.borderRadius = '8px';
-        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
-        
-        const adHTML = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <meta name="referrer" content="no-referrer">
-              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;height:100%;}</style>
-            </head>
-            <body>
-              <script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'><\/script>
-            </body>
-          </html>
-        `;
-        
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        iframe.srcdoc = adHTML;
-      },
-      
-      loadFeedAd() {
-        const container = document.getElementById('feed-ad-container-1');
-        if (!container) return;
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '300px';
-        iframe.style.height = '250px';
-        iframe.style.border = 'none';
-        iframe.style.borderRadius = '8px';
-        iframe.sandbox = 'allow-scripts allow-popups allow-forms allow-same-origin';
-        
-        const adHTML = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <meta name="referrer" content="no-referrer">
-              <style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;height:100%;}</style>
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              <\/script>
-            </head>
-            <body>
-              <div id="ad-container"></div>
-              <script>
-                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/scr' + 'ipt>');
-              <\/script>
-            </body>
-          </html>
-        `;
-        
-        container.innerHTML = '';
-        container.appendChild(iframe);
-        iframe.srcdoc = adHTML;
-      },
-      
-      setupAdRefresh() {
-        setInterval(() => {
-          this.refreshAds();
-        }, App.adSettings.adRefreshInterval);
-      },
-      
-      refreshAds() {
-        if (App.adSettings.bottomAdEnabled) {
-          this.loadBottomAd();
-        }
-        
-        if (App.adSettings.feedAdsEnabled) {
-          this.loadFeedAd();
-        }
-      },
-      
-      setupAdEventListeners() {
-        document.addEventListener('click', (e) => {
-          if (e.target.closest('.ad-unit, .side-ad, #bottomAd')) {
-            this.recordAdInteraction('click');
-          }
-        });
-      },
-      
-      recordAdInteraction(type) {
-        if (!App.currentUser) return;
-        
-        try {
-          db.collection('adInteractions').add({
-            userId: App.currentUser.uid,
-            type: type,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            adPosition: type === 'click' ? 'bottom' : 'view'
-          });
-        } catch (error) {
-          console.error('Error recording ad interaction:', error);
-        }
-      }
-    };
+    const AD_SNIPPET_BOTTOM = `<!-- bottom ad placeholder (small) -->\n<script type="text/javascript">\n\tatOptions = {\n\t\t'key' : '3fa8b00fc8159153c0596ee9ffb026ea',\n\t\t'format' : 'iframe',\n\t\t'height' : 50,\n\t\t'width' : 320,\n\t\t'params' : {}\n\t};\n<\/script>\n<script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"><\/script>`;
 
-    // وظائف إدارة الإعلانات
-    function closeBottomAd() {
-      document.getElementById('bottomAd').classList.add('hidden');
-      localStorage.setItem('bottomAdClosed', 'true');
-    }
-    
-    function closeSideAd() {
-      document.getElementById('sideAd').classList.add('hidden');
-      localStorage.setItem('sideAdClosed', 'true');
-    }
+    /* Load NSFW model (client-side) */
+    let nsfwModel = null;
+    nsfwjs.load().then(m => { nsfwModel = m; console.log('NSFW model loaded'); }).catch(e => { console.warn('NSFW model load failed', e); });
 
-    // وظائف المساعدة
-    function showScreen(id) { 
-      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden')); 
-      document.getElementById('screen-' + id).classList.remove('hidden'); 
-      window.scrollTo(0, 0); 
-    }
+    /* UI helpers */
+    function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden')); document.getElementById('screen-'+id).classList.remove('hidden'); window.scrollTo(0,0); }
+    function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2500); }
 
-    function toast(msg, type = 'success') {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = `toast ${type}`;
-      t.classList.remove('hidden');
-      
-      setTimeout(() => {
-        t.classList.add('hidden');
-      }, 2200);
-    }
-
-    // وظائف التسجيل المباشر المحسنة
-    async function quickRegister() {
-      const email = document.getElementById('quick-email').value.trim();
-      const password = document.getElementById('quick-password').value;
-      
-      if (!email || !password) {
-        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
-        return;
-      }
-      
-      if (password.length < 6) {
-        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
-        return;
-      }
-      
-      try {
-        // إنشاء اسم مستخدم تلقائي من البريد الإلكتروني
-        const username = generateUsernameFromEmail(email);
-        
-        // التحقق من أن اسم المستخدم غير مأخوذ
-        const usernameSnap = await db.collection('usernames').doc(username).get();
-        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
-        
-        // إنشاء المستخدم في Authentication
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        
-        // حفظ بيانات المستخدم في Firestore
-        await db.collection('users').doc(uid).set({
-          username: finalUsername,
-          displayName: finalUsername,
-          email: email,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          followersCount: 0,
-          earnings: 0,
-          postsCount: 0,
-          quickRegister: true // علامة أن التسجيل كان سريعاً
-        });
-        
-        // حفظ اسم المستخدم للتحقق من التكرار
-        await db.collection('usernames').doc(finalUsername).set({ 
-          uid: uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
-        
-        // إخفاء نموذج التسجيل السريع من الصفحة الرئيسية
-        document.getElementById('quick-register').classList.add('hidden');
-        
-      } catch (error) {
-        console.error('Quick registration error:', error);
-        handleAuthError(error);
-      }
-    }
-    
-    async function quickRegisterFromForm() {
-      const email = document.getElementById('reg-email-quick').value.trim();
-      const password = document.getElementById('reg-password-quick').value;
-      
-      if (!email || !password) {
-        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
-        return;
-      }
-      
-      if (password.length < 6) {
-        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
-        return;
-      }
-      
-      try {
-        const username = generateUsernameFromEmail(email);
-        const usernameSnap = await db.collection('usernames').doc(username).get();
-        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
-        
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        
-        await db.collection('users').doc(uid).set({
-          username: finalUsername,
-          displayName: finalUsername,
-          email: email,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          followersCount: 0,
-          earnings: 0,
-          postsCount: 0,
-          quickRegister: true
-        });
-        
-        await db.collection('usernames').doc(finalUsername).set({ 
-          uid: uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
-        showScreen('home');
-        
-      } catch (error) {
-        console.error('Quick registration error:', error);
-        handleAuthError(error);
-      }
-    }
-    
-    async function quickRegisterFromLogin() {
-      const email = document.getElementById('login-quick-email').value.trim();
-      const password = document.getElementById('login-quick-password').value;
-      
-      if (!email || !password) {
-        toast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'warning');
-        return;
-      }
-      
-      if (password.length < 6) {
-        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
-        return;
-      }
-      
-      try {
-        const username = generateUsernameFromEmail(email);
-        const usernameSnap = await db.collection('usernames').doc(username).get();
-        const finalUsername = usernameSnap.exists ? `${username}${Math.floor(Math.random() * 1000)}` : username;
-        
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        const uid = cred.user.uid;
-        
-        await db.collection('users').doc(uid).set({
-          username: finalUsername,
-          displayName: finalUsername,
-          email: email,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          followersCount: 0,
-          earnings: 0,
-          postsCount: 0,
-          quickRegister: true
-        });
-        
-        await db.collection('usernames').doc(finalUsername).set({ 
-          uid: uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        toast(`مرحباً ${finalUsername}! تم إنشاء حسابك بنجاح`);
-        
-      } catch (error) {
-        console.error('Quick registration error:', error);
-        handleAuthError(error);
-      }
-    }
-    
-    function generateUsernameFromEmail(email) {
-      // إنشاء اسم مستخدم من الجزء قبل @ في البريد الإلكتروني
-      const username = email.split('@')[0];
-      // إزالة أي رموز غير مرغوبة
-      return username.replace(/[^a-zA-Z0-9_]/g, '');
-    }
-    
-    function handleAuthError(error) {
-      let errorMessage = 'فشل التسجيل: ';
-      
-      switch(error.code) {
-        case 'auth/email-already-in-use':
-          errorMessage += 'البريد الإلكتروني مستخدم بالفعل';
-          break;
-        case 'auth/invalid-email':
-          errorMessage += 'البريد الإلكتروني غير صحيح';
-          break;
-        case 'auth/weak-password':
-          errorMessage += 'كلمة المرور ضعيفة، يجب أن تكون 6 أحرف على الأقل';
-          break;
-        case 'auth/network-request-failed':
-          errorMessage += 'خطأ في الشبكة، يرجى المحاولة مرة أخرى';
-          break;
-        default:
-          errorMessage += error.message || 'حدث خطأ غير متوقع';
-      }
-      
-      toast(errorMessage, 'error');
-    }
-
-    // وظائف المصادقة والإدارة - التسجيل الكامل
-    async function register() {
+    /* --- Auth: تسجيل / تسجيل دخول --- */
+    async function register(){
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
-      const passwordConfirm = document.getElementById('reg-password-confirm').value;
       const username = document.getElementById('reg-username').value.trim();
       const display = document.getElementById('reg-display').value.trim();
-      
-      if (!email || !password || !username) {
-        toast('اكمل الحقول المطلوبة', 'warning');
-        return;
-      }
-      
-      if (password !== passwordConfirm) {
-        toast('كلمات المرور غير متطابقة', 'warning');
-        return;
-      }
-      
-      if (password.length < 6) {
-        toast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
-        return;
-      }
-      
-      try {
-        // التحقق من اسم المستخدم
-        const uSnap = await db.collection('usernames').doc(username).get();
-        if (uSnap.exists) {
-          toast('اسم المستخدم مأخوذ', 'error');
-          return;
-        }
-        
-        // إنشاء المستخدم في Authentication
+      if(!email || !password || !username){ toast('اكمل الحقول المطلوبة'); return; }
+
+      try{
+        // أولاً أنشئ مستخدم في Auth
         const cred = await auth.createUserWithEmailAndPassword(email, password);
         const uid = cred.user.uid;
-        
-        // حفظ بيانات المستخدم في Firestore
-        await db.collection('users').doc(uid).set({
-          username: username,
-          displayName: display || username,
-          email: email,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          followersCount: 0,
-          earnings: 0,
-          postsCount: 0
+
+        // بعد تسجيل الدخول مؤقتاً، احجز اسم المستخدم وبيانات الحساب في معاملة
+        await db.runTransaction(async tx => {
+          const uRef = db.collection('usernames').doc(username);
+          const uDoc = await tx.get(uRef);
+          if(uDoc.exists) throw new Error('USERNAME_TAKEN');
+          tx.set(uRef, { uid });
+          tx.set(db.collection('users').doc(uid), {
+            username,
+            displayName: display || username,
+            created: firebase.firestore.FieldValue.serverTimestamp(),
+            followersCount: 0,
+            earnings: 0
+          });
         });
-        
-        // حفظ اسم المستخدم للتحقق من التكرار
-        await db.collection('usernames').doc(username).set({ 
-          uid: uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        toast('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن');
-        showScreen('login');
-        
-      } catch (error) {
-        console.error('Registration error:', error);
-        handleAuthError(error);
+
+        toast('تم إنشاء الحساب بنجاح');
+      }catch(err){
+        console.error('register error', err);
+        if(err.message === 'USERNAME_TAKEN'){
+          // احذف حساب Auth الذي أنشئناه لتفادي حساب بدون ملف
+          try{ if(auth.currentUser) await auth.currentUser.delete(); }catch(e){ console.warn('failed to delete auth user', e); }
+          toast('اسم المستخدم مأخوذ، اختر اسماً آخر');
+        } else {
+          toast('فشل التسجيل: ' + (err.message || err));
+        }
       }
     }
 
-    async function login() {
+    async function login(){
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
-      
-      if (!email || !password) {
-        toast('ادخل البريد وكلمة المرور', 'warning');
-        return;
-      }
-      
-      try {
-        await auth.signInWithEmailAndPassword(email, password);
-        toast('تم تسجيل الدخول بنجاح');
-      } catch (error) {
-        console.error('Login error:', error);
-        let errorMessage = 'فشل الدخول: ';
-        
-        switch(error.code) {
-          case 'auth/user-not-found':
-            errorMessage += 'المستخدم غير موجود';
-            break;
-          case 'auth/wrong-password':
-            errorMessage += 'كلمة المرور غير صحيحة';
-            break;
-          case 'auth/invalid-email':
-            errorMessage += 'البريد الإلكتروني غير صحيح';
-            break;
-          default:
-            errorMessage += error.message || 'حدث خطأ غير متوقع';
-        }
-        
-        toast(errorMessage, 'error');
-      }
+      if(!email || !password){ toast('ادخل البريد وكلمة المرور'); return; }
+      try{ await auth.signInWithEmailAndPassword(email, password); toast('تم تسجيل الدخول'); }catch(err){ console.error(err); toast('فشل الدخول: '+(err.message||err)); }
     }
 
-    function logout() {
-      auth.signOut();
-      toast('تم تسجيل الخروج');
-    }
+    function logout(){ auth.signOut(); }
 
-    // إدارة حالة المستخدم
+    /* صفحة بعد تغير حالة المصادقة */
     auth.onAuthStateChanged(async user => {
-      const navUser = document.getElementById('nav-user');
-      const navGuest = document.getElementById('nav-guest');
-      const quickRegister = document.getElementById('quick-register');
-      
-      if (user) {
-        App.currentUser = user;
-        navGuest.classList.add('hidden');
-        navUser.classList.remove('hidden');
-        quickRegister.classList.add('hidden');
-        
-        try {
+      const navUser = document.getElementById('nav-user'), navGuest = document.getElementById('nav-guest');
+      if(user){
+        navGuest.classList.add('hidden'); navUser.classList.remove('hidden');
+        try{
           const doc = await db.collection('users').doc(user.uid).get();
-          if (doc.exists) {
-            App.userData = doc.data();
-            document.getElementById('nav-username').textContent = App.userData.displayName || App.userData.username || user.email;
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-        }
-        
+          const data = doc.data() || {};
+          document.getElementById('nav-username').textContent = data.displayName || data.username || user.email;
+        }catch(e){ console.warn('fetch profile failed', e); }
         renderFeed();
       } else {
-        App.currentUser = null;
-        App.userData = {};
-        navUser.classList.add('hidden');
-        navGuest.classList.remove('hidden');
-        quickRegister.classList.remove('hidden');
-        document.getElementById('nav-username').textContent = '';
+        navUser.classList.add('hidden'); navGuest.classList.remove('hidden'); document.getElementById('nav-username').textContent = '';
         renderFeed();
       }
     });
 
-    // وظائف المنشورات
-    async function createPost() {
+    /* --- Create post with multiple images + NSFW check --- */
+    async function createPost(){
+      if(!auth.currentUser){ toast('سجّل دخول أولاً'); return; }
       const text = document.getElementById('post-text').value.trim();
-      const fileInput = document.getElementById('post-image');
-      
-      if (!App.currentUser) {
-        toast('سجّل دخول أولاً', 'warning');
-        return;
-      }
-      
-      if (fileInput.files.length === 0 && !text) {
-        toast('أضف نصاً أو صورة', 'warning');
-        return;
-      }
-      
-      let imageUrl = null;
-      
-      // معالجة الصورة إذا تم تحميلها
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        
-        // فحص الصورة باستخدام NSFW إذا كان النموذج متاحاً
-        if (App.nsfwModel) {
-          try {
-            const img = await fileToImage(file);
-            const predictions = await App.nsfwModel.classify(img);
-            const risky = predictions.find(p => ['Porn', 'Hentai', 'Sexy'].includes(p.className));
-            
-            if (risky && risky.probability > 0.70) {
-              toast('تم حجب الصورة لوجود محتوى غير ملائم', 'error');
+      const files = Array.from(document.getElementById('post-image').files || []);
+      if(files.length === 0 && !text){ toast('أضف نصاً أو صورة'); return; }
+
+      // 1) NSFW check (client-side) — نتحقق من كل صورة قبل رفع أي منها
+      if(nsfwModel && files.length > 0){
+        for(const f of files){
+          try{
+            const img = await fileToImage(f);
+            const preds = await nsfwModel.classify(img);
+            const risky = preds.find(p => ['Porn','Hentai','Sexy'].includes(p.className));
+            if(risky && risky.probability > 0.70){
+              toast('حُظرت صورة لاحتوائها على محتوى غير مناسب');
               return;
             }
-          } catch (error) {
-            console.error('NSFW check error:', error);
-          }
-        }
-        
-        // رفع الصورة إلى التخزين
-        try {
-          const path = `posts/${App.currentUser.uid}/${Date.now()}_${file.name}`;
-          const ref = storage.ref().child(path);
-          await ref.put(file);
-          imageUrl = await ref.getDownloadURL();
-        } catch (error) {
-          console.error('Image upload error:', error);
-          toast('فشل تحميل الصورة', 'error');
-          return;
+          }catch(e){ console.warn('image classification failed', e); /* إن فشل التصنيف، نتابع الرفع*/ }
         }
       }
-      
-      // حفظ المنشور في قاعدة البيانات
-      try {
-        await db.collection('posts').add({
-          uid: App.currentUser.uid,
-          username: App.userData.username,
-          displayName: App.userData.displayName,
-          text,
-          imageUrl,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          likes: 0,
-          commentsCount: 0
-        });
-        
-        // تحديث عدد منشورات المستخدم
-        await db.collection('users').doc(App.currentUser.uid).update({
-          postsCount: firebase.firestore.FieldValue.increment(1)
-        });
-        
-        toast('تم النشر بنجاح');
-        document.getElementById('post-text').value = '';
-        document.getElementById('post-image').value = '';
-        showScreen('home');
-        renderFeed();
-      } catch (error) {
-        console.error('Post creation error:', error);
-        toast('فشل نشر المنشور', 'error');
-      }
-    }
 
-    function fileToImage(file) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        const reader = new FileReader();
-        reader.onload = e => img.src = e.target.result;
-        reader.readAsDataURL(file);
+      // 2) Upload images to Storage
+      const uid = auth.currentUser.uid;
+      const uploadedUrls = [];
+      for(let i=0;i<files.length;i++){
+        const f = files[i];
+        const path = `posts/${uid}/${Date.now()}_${i}_${safeFileName(f.name)}`;
+        const ref = storage.ref().child(path);
+        await ref.put(f);
+        const url = await ref.getDownloadURL();
+        uploadedUrls.push(url);
+      }
+
+      // 3) Save post document
+      await db.collection('posts').add({
+        uid,
+        text: text || '',
+        imageUrls: uploadedUrls,
+        likes: 0,
+        commentsCount: 0,
+        created: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      toast('تم النشر');
+      document.getElementById('post-text').value = '';
+      document.getElementById('post-image').value = '';
+      showScreen('home');
+      renderFeed();
     }
 
-    // عرض التغذية
-    async function renderFeed() {
-      const feed = document.getElementById('feed');
-      feed.innerHTML = '<div class="card" style="text-align: center; padding: 40px;"><div class="loading"></div><p class="muted">جاري تحميل المنشورات...</p></div>';
-      
-      try {
-        const snapshot = await db.collection('posts').orderBy('created', 'desc').limit(50).get();
-        
-        if (snapshot.empty) {
-          feed.innerHTML = '<div class="card">لا توجد منشورات بعد. كن أول من ينشر!</div>';
-          return;
-        }
-        
-        App.posts = [];
-        feed.innerHTML = '';
-        
+    function safeFileName(name){ return name.replace(/[^a-zA-Z0-9.\-_]/g,'_'); }
+    function fileToImage(file){ return new Promise((resolve,reject)=>{ const img = new Image(); img.onload = ()=>resolve(img); img.onerror = reject; const reader = new FileReader(); reader.onload = e => img.src = e.target.result; reader.readAsDataURL(file); }); }
+
+    /* --- Render feed --- */
+    async function renderFeed(){
+      const feed = document.getElementById('feed'); feed.innerHTML = '';
+      try{
+        const snapshot = await db.collection('posts').orderBy('created','desc').limit(50).get();
+        if(snapshot.empty){ feed.innerHTML = '<div class="card">لا توجد منشورات بعد.</div>'; setBottomAd(); return; }
         snapshot.forEach(doc => {
-          const post = { id: doc.id, ...doc.data() };
-          App.posts.push(post);
-          const el = buildPostCard(post);
-          feed.appendChild(el);
+          const p = { id: doc.id, ...doc.data() };
+          feed.appendChild(buildPostCard(p));
         });
-      } catch (error) {
-        console.error('Error loading feed:', error);
-        feed.innerHTML = '<div class="card">حدث خطأ في تحميل المنشورات</div>';
+        setBottomAd();
+      }catch(e){
+        console.error('renderFeed error', e);
+        feed.innerHTML = '<div class="card">فشل تحميل المنشورات. تأكد من إعداد Firebase وقواعد الوصول.</div>';
       }
     }
 
-    function buildPostCard(post) {
-      const div = document.createElement('div');
-      div.className = 'post-card card';
-      div.dataset.postId = post.id;
-      
-      // رأس المنشور
-      const header = document.createElement('div');
-      header.className = 'row';
-      
-      const avatar = document.createElement('div');
-      avatar.className = 'profile-avatar';
-      avatar.textContent = (post.displayName || post.username || 'م').charAt(0);
-      
-      const meta = document.createElement('div');
-      meta.className = 'col';
-      
-      const name = document.createElement('div');
-      name.textContent = post.displayName || post.username || 'مستخدم';
-      name.style.fontWeight = '700';
-      
-      const time = document.createElement('div');
-      time.className = 'small muted';
-      time.textContent = post.created ? 
-        new Date(post.created.seconds * 1000).toLocaleString('ar-EG') : 
-        'الآن';
-      
-      meta.appendChild(name);
-      meta.appendChild(time);
-      header.appendChild(avatar);
-      header.appendChild(meta);
+    function buildPostCard(p){
+      const div = document.createElement('div'); div.className = 'post-card card';
+      const header = document.createElement('div'); header.className = 'row';
+      const avatar = document.createElement('div'); avatar.className = 'profile-avatar'; avatar.textContent = 'ص';
+      const meta = document.createElement('div'); meta.className = 'col';
+      const name = document.createElement('div'); name.textContent = p.uid; name.style.fontWeight='700';
+      const time = document.createElement('div'); time.className='small muted'; time.textContent = p.created ? new Date(p.created.seconds*1000).toLocaleString('ar-EG') : 'الآن';
+      meta.appendChild(name); meta.appendChild(time); header.appendChild(avatar); header.appendChild(meta);
       div.appendChild(header);
-      
-      // محتوى المنشور
-      const content = document.createElement('div');
-      if (post.text) {
-        const textDiv = document.createElement('div');
-        textDiv.style.marginTop = '8px';
-        textDiv.innerHTML = escapeHTML(post.text);
-        content.appendChild(textDiv);
-      }
-      
-      if (post.imageUrl) {
-        const img = document.createElement('img');
-        img.src = post.imageUrl;
-        img.className = 'post-image';
-        img.alt = 'صورة المنشور';
-        img.onclick = () => openImageModal(post);
+
+      const content = document.createElement('div'); content.innerHTML = `<div style="margin-top:8px">${escapeHTML(p.text||'')}</div>`;
+      if(Array.isArray(p.imageUrls) && p.imageUrls.length>0){
+        // عرض أول صورة كمثال داخل البطاقة
+        const img = document.createElement('img'); img.src = p.imageUrls[0]; img.className = 'post-image';
+        img.onclick = ()=> openImageModal(p);
         content.appendChild(img);
       }
-      
       div.appendChild(content);
-      
-      // إجراءات المنشور
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      
-      const likeBtn = document.createElement('button');
-      likeBtn.className = 'like-btn';
-      likeBtn.innerHTML = `
-        <span class="heart" data-id="${post.id}">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 20s-7-4.35-9.5-7.1C-1.33 8.58 3 4 7.5 6.5 10 8 12 10 12 10s2-2 4.5-3.5C21 4 24.33 8.58 21.5 12.9 19 15.65 12 20 12 20z" fill="#ff647c"/>
-          </svg>
-        </span>
-      `;
-      likeBtn.onclick = () => handleLike(post.id, likeBtn);
-      
-      const likeCount = document.createElement('div');
-      likeCount.className = 'small muted';
-      likeCount.textContent = post.likes || 0;
-      likeCount.id = `likes-${post.id}`;
-      
-      const commentBtn = document.createElement('button');
-      commentBtn.className = 'comment-btn secondary';
-      commentBtn.textContent = 'تعليق';
-      commentBtn.onclick = () => openComments(post.id);
-      
-      actions.appendChild(likeBtn);
-      actions.appendChild(likeCount);
-      actions.appendChild(commentBtn);
-      div.appendChild(actions);
-      
+
+      // actions
+      const actions = document.createElement('div'); actions.className = 'actions';
+      const likeBtn = document.createElement('button'); likeBtn.className = 'like-btn';
+      likeBtn.innerHTML = `<span class="heart" data-id="${p.id}">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 20s-7-4.35-9.5-7.1C-1.33 8.58 3 4 7.5 6.5 10 8 12 10 12 10s2-2 4.5-3.5C21 4 24.33 8.58 21.5 12.9 19 15.65 12 20 12 20z" fill="#ff647c"/>
+  </svg></span>`;
+      likeBtn.onclick = ()=> handleLike(p.id, likeBtn);
+      const likeCount = document.createElement('div'); likeCount.className='small muted'; likeCount.textContent = p.likes || 0;
+      const commentBtn = document.createElement('button'); commentBtn.className='comment-btn'; commentBtn.textContent='تعليق'; commentBtn.onclick = ()=> openComments(p.id);
+      actions.appendChild(likeBtn); actions.appendChild(likeCount); actions.appendChild(commentBtn); div.appendChild(actions);
+
+      const commentsDiv = document.createElement('div'); commentsDiv.id = 'comments_'+p.id; commentsDiv.className = 'comment-box hidden';
+      const input = document.createElement('input'); input.placeholder = 'اكتب تعليقاً...'; input.style.width='100%';
+      const send = document.createElement('button'); send.textContent = 'أرسل'; send.onclick = ()=> postComment(p.id, input);
+      commentsDiv.appendChild(input); commentsDiv.appendChild(send);
+      const list = document.createElement('div'); list.className = 'comments-list'; commentsDiv.appendChild(list);
+      div.appendChild(commentsDiv);
+
+      const burst = document.createElement('div'); burst.className='burst'; div.appendChild(burst);
+
       return div;
     }
 
-    async function handleLike(postId, btn) {
-      if (!App.currentUser) {
-        toast('سجل دخول أولاً للإعجاب', 'warning');
-        return;
-      }
-      
-      const heart = btn.querySelector('.heart');
-      heart.classList.add('animate');
-      
-      setTimeout(() => {
-        heart.classList.remove('animate');
-      }, 350);
-      
-      try {
-        const ref = db.collection('posts').doc(postId);
-        await db.runTransaction(async transaction => {
-          const doc = await transaction.get(ref);
-          if (!doc.exists) return;
-          
-          const currentLikes = doc.data().likes || 0;
-          transaction.update(ref, { likes: currentLikes + 1 });
+    /* --- Likes: toggle per-user (prevent double likes) --- */
+    async function handleLike(postId, btn){
+      if(!auth.currentUser){ toast('سجّل دخول أولاً'); return; }
+      const uid = auth.currentUser.uid;
+      const likeRef = db.collection('posts').doc(postId).collection('likes').doc(uid);
+      const postRef = db.collection('posts').doc(postId);
+      try{
+        await db.runTransaction(async tx => {
+          const likeDoc = await tx.get(likeRef);
+          const postDoc = await tx.get(postRef);
+          if(!postDoc.exists) throw new Error('post_missing');
+          const currentLikes = postDoc.data().likes || 0;
+          if(likeDoc.exists){
+            tx.delete(likeRef);
+            tx.update(postRef, { likes: currentLikes > 0 ? currentLikes - 1 : 0 });
+          } else {
+            tx.set(likeRef, { uid, ts: firebase.firestore.FieldValue.serverTimestamp() });
+            tx.update(postRef, { likes: currentLikes + 1 });
+          }
         });
-        
-        // تحديث العدد المعروض
-        const likeCount = document.getElementById(`likes-${postId}`);
-        if (likeCount) {
-          const current = parseInt(likeCount.textContent) || 0;
-          likeCount.textContent = current + 1;
-        }
-      } catch (error) {
-        console.error('Like error:', error);
-      }
-    }
-
-    function escapeHTML(s) {
-      if (!s) return '';
-      return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    }
-
-    // Router للتطبيق
-    function parseHash() {
-      const hash = location.hash.slice(1);
-      if (!hash) return { type: 'home' };
-      
-      if (hash.startsWith('profile=')) {
-        return { type: 'profile', id: hash.split('=')[1] };
-      }
-      
-      return { type: 'home' };
-    }
-
-    window.addEventListener('hashchange', renderRoute);
-    
-    function renderRoute() {
-      const route = parseHash();
-      
-      if (route.type === 'home') {
-        showScreen('home');
+        // animation
+        const heart = btn.querySelector('.heart'); if(heart){ heart.classList.add('animate'); setTimeout(()=>heart.classList.remove('animate'),350); }
+        createBurst(btn.parentElement.parentElement.querySelector('.burst'));
         renderFeed();
-      } else if (route.type === 'profile') {
-        renderProfile(route.id);
-      }
+      }catch(e){ console.error('like error', e); }
     }
 
-    // تحميل نموذج NSFW
-    async function loadNSFWModel() {
-      try {
-        App.nsfwModel = await nsfwjs.load();
-        console.log('NSFW model loaded successfully');
-      } catch (error) {
-        console.warn('NSFW model failed to load:', error);
-      }
+    function createBurst(container){
+      if(!container) return; const colors=['#ff6b6b','#ff9f43','#06b6d4'];
+      for(let i=0;i<6;i++){ const s=document.createElement('span'); s.textContent='❤'; s.style.left=(10+i*20)+'px'; s.style.fontSize=(12+Math.random()*12)+'px'; s.style.color=colors[i%colors.length]; container.appendChild(s); setTimeout(()=>s.remove(),900); }
     }
 
-    // تهيئة التطبيق
-    async function init() {
-      await loadNSFWModel();
-      AdManager.init();
+    /* --- Comments --- */
+    async function openComments(postId){
+      const box = document.getElementById('comments_'+postId); if(!box) return;
+      box.classList.toggle('hidden');
+      if(!box.classList.contains('hidden')) await loadComments(postId);
+    }
+    async function loadComments(postId){
+      const list = document.querySelector('#comments_'+postId+' .comments-list'); list.innerHTML = '';
+      const snap = await db.collection('posts').doc(postId).collection('comments').orderBy('created','asc').get();
+      snap.forEach(d => { const c = d.data(); const el = document.createElement('div'); el.className = 'comment-item'; el.textContent = (c.displayName||c.username||'مستخدم') + ': ' + c.text; list.appendChild(el); });
+    }
+    async function postComment(postId, input){
+      if(!auth.currentUser){ toast('سجّل دخول أولاً'); return; }
+      const text = input.value.trim(); if(!text) return;
+      const userDoc = await db.collection('users').doc(auth.currentUser.uid).get(); const userdata = userDoc.data()||{};
+      await db.collection('posts').doc(postId).collection('comments').add({ uid: auth.currentUser.uid, username: userdata.username, displayName: userdata.displayName, text, created: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('posts').doc(postId).update({ commentsCount: firebase.firestore.FieldValue.increment(1) });
+      input.value = ''; loadComments(postId);
+    }
+
+    /* --- Image modal + ad impression recording + simple revenue share estimate --- */
+    function openImageModal(post){
+      document.getElementById('modal-img').src = post.imageUrls && post.imageUrls[0] ? post.imageUrls[0] : '';
+      document.getElementById('modal-post-meta').textContent = (post.text||'') + ' — من: ' + (post.uid||'مستخدم');
+      document.getElementById('image-modal').classList.remove('hidden');
+
+      // load ad snippet into iframe (safe srcdoc)
+      const adFrame = document.getElementById('modal-ad');
+      const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent}</style></head><body>${AD_SNIPPET_VIEW_IMAGE}</body></html>`;
+      adFrame.srcdoc = safe;
+
+      // record impression (simple)
+      recordAdImpression({ adKey: '3fa8b00fc8159153c0596ee9ffb026ea', postId: post.id });
+    }
+    function closeModal(){ document.getElementById('image-modal').classList.add('hidden'); document.getElementById('modal-img').src = ''; }
+
+    async function recordAdImpression({ adKey, postId }){
+      try{
+        const uid = auth.currentUser ? auth.currentUser.uid : null;
+        await db.collection('adImpressions').add({ adKey, postId, uid, ts: firebase.firestore.FieldValue.serverTimestamp() });
+        const metaRef = db.collection('adsMeta').doc(adKey);
+        await db.runTransaction(async tx => {
+          const doc = await tx.get(metaRef);
+          if(!doc.exists) tx.set(metaRef, { impressions: 1, revenueEstimate: 0 });
+          else tx.update(metaRef, { impressions: (doc.data().impressions||0) + 1 });
+        });
+        // simulate revenue credit (مثال افتراضي)
+        const eCPM = 0.5; const revPerImp = eCPM / 1000; const userShare = revPerImp * 0.30;
+        if(auth.currentUser){
+          const postDoc = await db.collection('posts').doc(postId).get();
+          if(postDoc.exists){
+            const owner = postDoc.data().uid;
+            await db.collection('users').doc(owner).update({ earnings: firebase.firestore.FieldValue.increment(userShare) });
+          }
+        }
+      }catch(e){ console.error('recordImpression error', e); }
+    }
+
+    /* --- bottom ad --- */
+    function setBottomAd(){
+      const frame = document.getElementById('ad-iframe');
+      const safe = `<!doctype html><html><head><meta charset="utf-8"><meta name="referrer" content="no-referrer"><style>body{margin:0;padding:0;background:transparent}</style></head><body>${AD_SNIPPET_BOTTOM}</body></html>`;
+      frame.srcdoc = safe;
+    }
+
+    /* --- Profile & follow --- */
+    async function goToProfile(username){
+      if(!username){
+        if(!auth.currentUser){ toast('سجل دخول أولاً'); return; }
+        const doc = await db.collection('users').doc(auth.currentUser.uid).get(); username = doc.data().username;
+      }
+      window.location.hash = 'profile=' + username;
       renderRoute();
-      
-      // التحقق من تفضيلات الإعلانات السابقة
-      if (localStorage.getItem('bottomAdClosed') === 'true') {
-        document.getElementById('bottomAd').classList.add('hidden');
-      }
-      
-      if (localStorage.getItem('sideAdClosed') === 'true') {
-        document.getElementById('sideAd').classList.add('hidden');
+    }
+
+    async function renderProfile(username){
+      showScreen('profile');
+      const uSnap = await db.collection('usernames').doc(username).get();
+      if(!uSnap.exists){ toast('المستخدم غير موجود'); return; }
+      const uid = uSnap.data().uid;
+      const doc = await db.collection('users').doc(uid).get(); const data = doc.data()||{};
+      document.getElementById('profile-name').textContent = data.displayName || username;
+      document.getElementById('profile-username').textContent = '@' + username;
+      const followBtn = document.getElementById('follow-btn'); followBtn.dataset.target = uid;
+      if(auth.currentUser && auth.currentUser.uid !== uid){
+        followBtn.classList.remove('hidden');
+        const fDoc = await db.collection('follows').doc(`${auth.currentUser.uid}_${uid}`).get();
+        followBtn.textContent = fDoc.exists ? 'متابع' : 'متابعة';
+      } else followBtn.classList.add('hidden');
+
+      const grid = document.getElementById('profile-posts'); grid.innerHTML = '';
+      const snap = await db.collection('posts').where('uid','==',uid).orderBy('created','desc').get();
+      snap.forEach(d => { const p = { id: d.id, ...d.data() }; grid.appendChild(buildPostCard(p)); });
+      setBottomAd();
+    }
+
+    async function toggleFollow(){
+      if(!auth.currentUser) return;
+      const cur = auth.currentUser.uid; const target = document.getElementById('follow-btn').dataset.target; if(!target) return;
+      const followRef = db.collection('follows').doc(`${cur}_${target}`);
+      const doc = await followRef.get();
+      if(doc.exists){
+        await followRef.delete();
+        await db.collection('users').doc(target).update({ followersCount: firebase.firestore.FieldValue.increment(-1) });
+        document.getElementById('follow-btn').textContent = 'متابعة';
+      } else {
+        await followRef.set({ follower: cur, followee: target, created: firebase.firestore.FieldValue.serverTimestamp() });
+        await db.collection('users').doc(target).update({ followersCount: firebase.firestore.FieldValue.increment(1) });
+        document.getElementById('follow-btn').textContent = 'متابع';
       }
     }
 
-    // جعل الدوال متاحة globally
-    window.showScreen = showScreen;
-    window.toast = toast;
-    window.register = register;
-    window.login = login;
-    window.logout = logout;
-    window.createPost = createPost;
-    window.closeBottomAd = closeBottomAd;
-    window.closeSideAd = closeSideAd;
-    window.quickRegister = quickRegister;
-    window.quickRegisterFromForm = quickRegisterFromForm;
-    window.quickRegisterFromLogin = quickRegisterFromLogin;
-    window.goToProfile = goToProfile;
-    window.openImageModal = openImageModal;
-    window.closeModal = closeModal;
-    window.openComments = openComments;
-    window.postComment = postComment;
-    window.handleLike = handleLike;
+    /* --- Router --- */
+    function parseHash(){ const h = location.hash.slice(1); if(!h) return { type: 'home' }; if(h.startsWith('profile=')) return { type: 'profile', id: h.split('=')[1] }; return { type: 'home' } }
+    window.addEventListener('hashchange', renderRoute);
+    function renderRoute(){ const r = parseHash(); if(r.type === 'home'){ showScreen('home'); renderFeed(); } else if(r.type === 'profile'){ renderProfile(r.id); } }
 
-    // بدء التطبيق
-    init();
+    function escapeHTML(s){ if(!s) return ''; return s.replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+    // init
+    (function init(){ setBottomAd(); renderRoute(); })();
+
+    // debug exposure
+    window.app = { auth, db, storage };
   </script>
+
+  <!--
+    نصائح قواعد Firebase (تجريبية) — انسخها إلى صفحة Rules داخل Console:
+    ------------------------------------------------
+    Firestore rules (تجربة): يمنح القراءة/الكتابة للمستخدمين المصادق عليهم فقط
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /{document=**} {
+          allow read, write: if request.auth != null;
+        }
+      }
+    }
+
+    Storage rules (تجربة): السماح بالمصادقة فقط
+    rules_version = '2';
+    service firebase.storage {
+      match /b/{bucket}/o {
+        match /{allPaths=**} {
+          allow read, write: if request.auth != null;
+        }
+      }
+    }
+
+    ملاحظة: هذه القواعد مناسبة للاختبار. عند فتح الموقع للعامة، من الأفضل تقييد العمليات (مثلاً: السماح بكتابة ملفات فقط إلى مجلد posts/{request.auth.uid}/**).
+  -->
 </body>
 </html>
