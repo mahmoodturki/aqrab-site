@@ -737,6 +737,20 @@
                     userAvatarHtml = `<span>${post.username.charAt(0).toUpperCase()}</span>`;
                 }
                 
+                // التحقق مما إذا كان المنشور للمستخدم الحالي
+                const isCurrentUserPost = userProfile && post.username === userProfile.username;
+                
+                // إنشاء أزرار الإجراءات (إضافة رابط وصورة) فقط إذا كان المنشور للمستخدم الحالي
+                let actionsHtml = '';
+                if (isCurrentUserPost) {
+                    actionsHtml = `
+                        <div class="post-actions">
+                            <button class="add-link-btn" data-id="${post.id}">إضافة رابط</button>
+                            <button class="add-image-btn" data-id="${post.id}">إضافة صورة</button>
+                        </div>
+                    `;
+                }
+                
                 // إنشاء قسم التعليقات
                 let commentsHtml = '';
                 if (post.comments && post.comments.length > 0) {
@@ -794,10 +808,7 @@
                     </div>
                     ${imagesHtml}
                     ${linksHtml}
-                    <div class="post-actions">
-                        <button class="add-link-btn" data-id="${post.id}">إضافة رابط</button>
-                        <button class="add-image-btn" data-id="${post.id}">إضافة صورة</button>
-                    </div>
+                    ${actionsHtml}
                     <div class="post-interactions">
                         <button class="interaction-btn like-btn ${post.likes && post.likes.includes(userProfile?.username) ? 'liked' : ''}" data-id="${post.id}">
                             <span class="interaction-count">${post.likes ? post.likes.length : 0}</span>
@@ -821,7 +832,7 @@
                 postsContainer.appendChild(postElement);
             });
             
-            // إضافة مستمعي الأحداث لأزرار إضافة الروابط والصور
+            // إضافة مستمعي الأحداث لأزرار إضافة الروابط والصور (فقط إذا كانت موجودة)
             document.querySelectorAll('.add-link-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     currentPostId = this.dataset.id;
