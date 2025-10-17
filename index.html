@@ -951,8 +951,14 @@
             }
         }
 
-        // إضافة منشور جديد
+        // إضافة منشور جديد - الإصدار المصحح
         function addPost() {
+            // التحقق من وجود ملف شخصي للمستخدم
+            if (!userProfile) {
+                alert('يجب إنشاء ملف شخصي أولاً');
+                return;
+            }
+            
             const content = postContentInput.value.trim();
             const link = postLinkInput.value.trim();
             
@@ -967,46 +973,40 @@
                 userAvatar: userProfile.avatar,
                 content: content,
                 timestamp: new Date().toISOString(),
-                links: [],
+                links: link ? [link] : [],
                 images: [],
                 likes: [],
                 comments: [],
                 retweets: []
             };
             
-            if (link) {
-                newPost.links.push(link);
-            }
-            
             // إذا تم اختيار صورة للمنشور
             if (postImageInput.files && postImageInput.files[0]) {
                 imageToBase64(postImageInput.files[0], function(base64Image) {
                     newPost.images.push(base64Image);
-                    posts.push(newPost);
-                    localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                    
-                    // إعادة تعيين الحقول
-                    postContentInput.value = '';
-                    postLinkInput.value = '';
-                    postImageInput.value = '';
-                    postImagePreview.style.display = 'none';
-                    
-                    // تحديث العرض
-                    displayPosts();
+                    savePostToStorage(newPost);
                 });
             } else {
-                posts.push(newPost);
-                localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                
-                // إعادة تعيين الحقول
-                postContentInput.value = '';
-                postLinkInput.value = '';
-                postImageInput.value = '';
-                postImagePreview.style.display = 'none';
-                
-                // تحديث العرض
-                displayPosts();
+                savePostToStorage(newPost);
             }
+        }
+
+        // دالة مساعدة لحفظ المنشور في التخزين
+        function savePostToStorage(newPost) {
+            posts.push(newPost);
+            localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
+            
+            // إعادة تعيين الحقول
+            postContentInput.value = '';
+            postLinkInput.value = '';
+            postImageInput.value = '';
+            postImagePreview.style.display = 'none';
+            
+            // تحديث العرض
+            displayPosts();
+            
+            // إظهار رسالة نجاح
+            alert('تم نشر المنشور بنجاح!');
         }
 
         // إضافة رابط لمنشور موجود
