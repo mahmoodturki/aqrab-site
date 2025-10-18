@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع مشاركة الروابط والصور</title>
+    <title>موقع مشاركة فيديوهات يوتيوب</title>
     <style>
         * {
             margin: 0;
@@ -13,143 +13,58 @@
         }
         
         body {
-            background-color: #f5f8fa;
-            color: #333;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
             line-height: 1.6;
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
         
         header {
-            background-color: #1da1f2;
-            color: white;
-            padding: 15px 0;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
-        }
-        
-        .stats-container {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-        }
-        
-        .stat {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 5px 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
         
-        .header-actions {
-            display: flex;
-            gap: 10px;
+        .logo h1 {
+            font-size: 1.8rem;
+            color: #ff4d4d;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         
-        .follow-btn, .logout-btn {
-            background-color: white;
-            color: #1da1f2;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+        .logo p {
+            font-size: 0.9rem;
+            color: #e0e0e0;
         }
         
-        .follow-btn:hover, .logout-btn:hover {
-            background-color: #e8f5fe;
-        }
-        
-        .follow-btn.following {
-            background-color: #17bf63;
-            color: white;
-        }
-        
-        .post-form {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        button {
-            background-color: #1da1f2;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #0d8bd9;
-        }
-        
-        .posts-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .post {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .post-header {
+        .auth-section {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: #1da1f2;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 10px;
             overflow: hidden;
+            border: 2px solid #4d94ff;
         }
         
         .user-avatar img {
@@ -158,151 +73,68 @@
             object-fit: cover;
         }
         
-        .user-name {
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            background: #4d94ff;
+            color: white;
             font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .post-time {
-            color: #657786;
-            font-size: 14px;
-            margin-right: auto;
-            margin-left: 10px;
+        .btn:hover {
+            background: #3377e0;
+            transform: translateY(-2px);
         }
         
-        .post-content {
-            margin-bottom: 15px;
+        .btn-login {
+            background: #ff9966;
         }
         
-        .post-links {
+        .btn-login:hover {
+            background: #ff7733;
+        }
+        
+        .btn-add {
+            background: #4CAF50;
+        }
+        
+        .btn-add:hover {
+            background: #388E3C;
+        }
+        
+        .main-content {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 30px;
         }
         
-        .link-button {
-            display: inline-flex;
-            align-items: center;
-            background-color: #f5f8fa;
-            border: 1px solid #e1e8ed;
-            border-radius: 20px;
-            padding: 8px 16px;
-            color: #1da1f2;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        
-        .link-button:hover {
-            background-color: #e8f5fe;
-            border-color: #1da1f2;
-        }
-        
-        .link-button::before {
-            content: "🔗";
-            margin-left: 5px;
-        }
-        
-        .post-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            max-height: 400px;
-            object-fit: contain;
-        }
-        
-        .post-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .add-link-btn {
-            background-color: #17bf63;
-        }
-        
-        .add-link-btn:hover {
-            background-color: #119e4f;
-        }
-        
-        .add-image-btn {
-            background-color: #794bc4;
-        }
-        
-        .add-image-btn:hover {
-            background-color: #6a3fb3;
-        }
-        
-        /* أزرار التفاعل الجديدة */
-        .post-interactions {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e1e8ed;
-        }
-        
-        .interaction-btn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: none;
-            border: none;
-            color: #657786;
-            cursor: pointer;
-            padding: 5px 10px;
+        .player-section {
+            flex: 2;
+            min-width: 300px;
+            background: rgba(30, 30, 46, 0.8);
             border-radius: 15px;
-            transition: all 0.2s;
-            font-size: 14px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
         
-        .interaction-btn:hover {
-            background-color: #f5f8fa;
-            color: #1da1f2;
-        }
-        
-        .interaction-btn.liked {
-            color: #e0245e;
-        }
-        
-        .interaction-btn.retweeted {
-            color: #17bf63;
-        }
-        
-        .interaction-btn.commented {
-            color: #1da1f2;
-        }
-        
-        .interaction-count {
-            font-size: 12px;
-            margin-right: 3px;
-        }
-        
-        /* تضمين المحتوى */
-        .embed-container {
-            margin: 15px 0;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .embed-container iframe {
-            width: 100%;
-            border: none;
-        }
-        
-        .video-container {
+        .player-container {
             position: relative;
             width: 100%;
-            height: 0;
             padding-bottom: 56.25%; /* نسبة 16:9 */
-            margin: 15px 0;
+            height: 0;
+            margin-bottom: 20px;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: #000;
         }
         
-        .video-container iframe {
+        #player {
             position: absolute;
             top: 0;
             left: 0;
@@ -311,97 +143,149 @@
             border: none;
         }
         
-        .link-preview {
-            border: 1px solid #e1e8ed;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .link-preview-image {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-        }
-        
-        .link-preview-content {
+        .video-info {
             padding: 15px;
-        }
-        
-        .link-preview-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #1da1f2;
-        }
-        
-        .link-preview-description {
-            color: #657786;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .link-preview-url {
-            color: #657786;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .audio-player {
-            width: 100%;
-            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
         }
         
-        .document-viewer {
-            border: 1px solid #e1e8ed;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            background-color: #f9f9f9;
-        }
-        
-        .document-viewer a {
+        .post-meta {
             display: flex;
             align-items: center;
             gap: 10px;
-            text-decoration: none;
-            color: #1da1f2;
-            font-weight: bold;
+            margin-bottom: 10px;
         }
         
-        /* رابط المنشور المباشر */
-        .post-permalink {
+        .post-meta .user-avatar {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .video-info h2 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #ff6b6b;
+        }
+        
+        .video-info p {
+            color: #b0b0b0;
+            margin-bottom: 15px;
+        }
+        
+        .video-link {
+            display: inline-flex;
+            align-items: center;
+            background: #ff4d4d;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3);
+        }
+        
+        .video-link:hover {
+            background: #ff3333;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 77, 77, 0.4);
+        }
+        
+        .posts-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .posts-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4d94ff;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(77, 148, 255, 0.3);
+        }
+        
+        .post-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .post-item:hover {
+            background: rgba(77, 148, 255, 0.2);
+            transform: translateX(-5px);
+        }
+        
+        .post-item.active {
+            background: rgba(77, 148, 255, 0.3);
+            border-left: 4px solid #4d94ff;
+        }
+        
+        .post-thumb {
+            width: 120px;
+            height: 70px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .post-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .post-details {
+            flex: 1;
+        }
+        
+        .post-details h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .post-details p {
+            font-size: 0.85rem;
+            color: #b0b0b0;
+        }
+        
+        .post-author {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #f5f8fa;
-            border-radius: 20px;
-            font-size: 12px;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #aaa;
         }
         
-        .permalink-url {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: #657786;
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
         }
         
-        .copy-permalink {
-            background: none;
-            border: none;
-            color: #1da1f2;
-            cursor: pointer;
-            font-size: 12px;
-            margin-right: 10px;
+        .btn-mute {
+            background: #ff9966;
         }
         
+        .btn-mute:hover {
+            background: #ff7733;
+        }
+        
+        /* نمط النوافذ المنبثقة */
         .modal {
             display: none;
             position: fixed;
@@ -409,1343 +293,638 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
         
         .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
+            background: #1e1e2e;
             width: 90%;
             max-width: 500px;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }
         
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #4d94ff;
         }
         
         .close-btn {
             background: none;
             border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #657786;
-        }
-        
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            margin: 10px 0;
-            border-radius: 5px;
-            display: none;
-        }
-        
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-input-container input[type=file] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
+            color: #fff;
+            font-size: 1.5rem;
             cursor: pointer;
         }
         
-        .file-input-label {
-            display: block;
-            padding: 10px;
-            background: #f5f8fa;
-            border: 1px dashed #ddd;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .profile-setup {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
+        .form-group {
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4d94ff;
+        }
+        
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            background-color: #1da1f2;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin: 0 auto 15px;
             overflow: hidden;
-            font-size: 32px;
+            margin: 0 auto 15px;
+            border: 3px solid #4d94ff;
         }
         
-        .profile-avatar img {
+        .avatar-preview img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
         
-        /* نافذة التعليقات */
-        .comments-section {
-            margin-top: 15px;
-            border-top: 1px solid #e1e8ed;
-            padding-top: 15px;
-            display: none;
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 40px;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .comment {
-            display: flex;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #f5f8fa;
+        /* تخصيص شريط التمرير */
+        .posts-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .posts-section::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
         }
         
-        .comment-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background-color: #1da1f2;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 10px;
-            font-size: 12px;
-            overflow: hidden;
+        .posts-section::-webkit-scrollbar-thumb {
+            background: #4d94ff;
+            border-radius: 10px;
         }
         
-        .comment-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .posts-section::-webkit-scrollbar-thumb:hover {
+            background: #3377e0;
         }
         
-        .comment-content {
-            flex: 1;
-        }
-        
-        .comment-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        
-        .comment-author {
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .comment-time {
-            color: #657786;
-            font-size: 12px;
-            margin-right: 10px;
-        }
-        
-        .comment-text {
-            font-size: 14px;
-        }
-        
-        .add-comment {
-            display: flex;
-            margin-top: 10px;
-        }
-        
-        .comment-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        
-        .send-comment-btn {
-            background-color: #1da1f2;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 15px;
-            margin-right: 10px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .post-form, .post {
-                padding: 15px;
-            }
-            
-            .post-actions {
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .main-content {
                 flex-direction: column;
             }
             
-            .post-interactions {
-                flex-wrap: wrap;
-                gap: 5px;
+            header {
+                flex-direction: column;
+                gap: 15px;
             }
             
-            .video-container {
-                padding-bottom: 56.25%; /* نسبة 16:9 */
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .post-item {
+                flex-direction: column;
+            }
+            
+            .post-thumb {
+                width: 100%;
+                height: 150px;
+                margin-left: 0;
+                margin-bottom: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>موقع مشاركة الروابط والصور</h1>
-            <div class="stats-container">
-                <div class="stat" id="registeredUsersStat">المسجلين: <span id="registeredCount">0</span></div>
-                <div class="stat" id="onlineUsersStat">المتصلين: <span id="onlineCount">0</span></div>
-            </div>
-            <div class="header-actions">
-                <button class="follow-btn" id="followBtn">متابعة</button>
-                <button class="logout-btn" id="logoutBtn">تسجيل خروج</button>
-            </div>
-        </div>
-    </header>
-    
     <div class="container">
-        <!-- إعدادات الملف الشخصي -->
-        <div class="profile-setup" id="profileSetup">
-            <h2>إعداد الملف الشخصي</h2>
-            <div class="form-group">
-                <div class="profile-avatar" id="profileAvatarPreview">
-                    <span id="avatarInitial">?</span>
-                </div>
-                <div class="file-input-container">
-                    <label class="file-input-label" for="profileImage">اختر صورة الملف الشخصي</label>
-                    <input type="file" id="profileImage" accept="image/*">
-                </div>
+        <header>
+            <div class="logo">
+                <h1>موقع مشاركة فيديوهات يوتيوب</h1>
+                <p>شارك واستمتع بمشاهدة فيديوهات يوتيوب مع الأصدقاء</p>
             </div>
-            <div class="form-group">
-                <label for="profileUsername">اسم المستخدم</label>
-                <input type="text" id="profileUsername" placeholder="أدخل اسم المستخدم">
+            <div class="auth-section">
+                <div id="user-info" class="user-info" style="display: none;">
+                    <div class="user-avatar">
+                        <img id="user-avatar-img" src="" alt="صورة المستخدم">
+                    </div>
+                    <span id="username">اسم المستخدم</span>
+                    <button id="logout-btn" class="btn">تسجيل الخروج</button>
+                </div>
+                <button id="login-btn" class="btn btn-login">تسجيل الدخول</button>
+                <button id="add-post-btn" class="btn btn-add" style="display: none;">إضافة منشور</button>
             </div>
-            <button id="saveProfile">حفظ الملف الشخصي</button>
+        </header>
+        
+        <div class="main-content">
+            <section class="player-section">
+                <div class="player-container">
+                    <div id="player"></div>
+                </div>
+                
+                <div class="video-info">
+                    <div class="post-meta">
+                        <div class="user-avatar">
+                            <img id="post-author-avatar" src="" alt="صورة الناشر">
+                        </div>
+                        <span id="post-author-name">اسم الناشر</span>
+                    </div>
+                    <h2 id="video-title">اختر فيديو من القائمة</h2>
+                    <p id="video-description">سيظهر هنا وصف الفيديو بعد اختياره من القائمة</p>
+                    <a id="video-link" href="#" target="_blank" class="video-link">
+                        <span>مشاهدة على يوتيوب</span>
+                    </a>
+                </div>
+                
+                <div class="controls">
+                    <button id="prev-btn" class="btn">
+                        <span>السابق</span>
+                    </button>
+                    <button id="mute-btn" class="btn btn-mute">
+                        <span>إلغاء كتم الصوت</span>
+                    </button>
+                    <button id="next-btn" class="btn">
+                        <span>التالي</span>
+                    </button>
+                </div>
+            </section>
+            
+            <section class="posts-section">
+                <h2>آخر المنشورات</h2>
+                <div id="posts-container">
+                    <!-- سيتم ملء القائمة عبر الجافاسكربت -->
+                </div>
+            </section>
         </div>
         
-        <!-- نموذج إضافة منشور -->
-        <div class="post-form" id="postForm" style="display: none;">
-            <h2>أضف منشور جديد</h2>
-            <div class="form-group">
-                <label for="postContent">المحتوى</label>
-                <textarea id="postContent" rows="3" placeholder="اكتب منشورك هنا"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="postLink">رابط (اختياري) - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
-                <input type="text" id="postLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
-            </div>
-            <div class="form-group">
-                <div class="file-input-container">
-                    <label class="file-input-label" for="postImage">إضافة صورة للمنشور</label>
-                    <input type="file" id="postImage" accept="image/*">
-                </div>
-                <img id="postImagePreview" class="image-preview" src="" alt="معاينة الصورة">
-            </div>
-            <button id="submitPost">نشر</button>
-        </div>
-        
-        <!-- قائمة المنشورات -->
-        <div class="posts-container" id="postsContainer">
-            <!-- سيتم إضافة المنشورات هنا ديناميكيًا -->
-        </div>
+        <footer>
+            <p>جميع حقوق الفيديوهات محفوظة لأصحابها - تم إنشاء هذا الموقع لأغراض تعليمية</p>
+        </footer>
     </div>
-    
-    <!-- نافذة إضافة رابط -->
-    <div class="modal" id="addLinkModal">
+
+    <!-- نافذة تسجيل الدخول -->
+    <div id="login-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>إضافة رابط جديد</h3>
-                <button class="close-btn" id="closeLinkModal">&times;</button>
+                <h2>تسجيل الدخول</h2>
+                <button class="close-btn">&times;</button>
             </div>
-            <div class="form-group">
-                <label for="newLink">الرابط - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
-                <input type="text" id="newLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
-            </div>
-            <button id="submitLink">إضافة</button>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username-input">اسم المستخدم</label>
+                    <input type="text" id="username-input" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="avatar-input">صورة البروفايل (اختياري)</label>
+                    <input type="file" id="avatar-input" class="form-control" accept="image/*">
+                </div>
+                <div class="avatar-preview">
+                    <img id="avatar-preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='40' r='20' fill='%234d94ff'/%3E%3Ccircle cx='50' cy='100' r='40' fill='%234d94ff'/%3E%3C/svg%3E" alt="صورة افتراضية">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">تسجيل الدخول</button>
+            </form>
         </div>
     </div>
-    
-    <!-- نافذة إضافة صورة -->
-    <div class="modal" id="addImageModal">
+
+    <!-- نافذة إضافة منشور -->
+    <div id="add-post-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>إضافة صورة جديدة</h3>
-                <button class="close-btn" id="closeImageModal">&times;</button>
+                <h2>إضافة منشور جديد</h2>
+                <button class="close-btn">&times;</button>
             </div>
-            <div class="form-group">
-                <div class="file-input-container">
-                    <label class="file-input-label" for="newImage">اختر صورة</label>
-                    <input type="file" id="newImage" accept="image/*">
+            <form id="add-post-form">
+                <div class="form-group">
+                    <label for="youtube-url">رابط فيديو يوتيوب</label>
+                    <input type="url" id="youtube-url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." required>
                 </div>
-                <img id="newImagePreview" class="image-preview" src="" alt="معاينة الصورة">
-            </div>
-            <button id="submitImage">إضافة</button>
+                <div class="form-group">
+                    <label for="post-title">عنوان المنشور</label>
+                    <input type="text" id="post-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-description">وصف المنشور</label>
+                    <textarea id="post-description" class="form-control" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">نشر الفيديو</button>
+            </form>
         </div>
     </div>
 
     <script>
-        // بيانات الموقع - تخزين محلي
-        let userProfile = JSON.parse(localStorage.getItem('userProfile')) || null;
-        let posts = JSON.parse(localStorage.getItem('linkSharingPosts')) || [];
-        let currentPostId = null; // لتتبع المنشور الذي نضيف له رابط أو صورة
-        let isFollowing = JSON.parse(localStorage.getItem('isFollowing')) || false;
-        let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
-        let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || [];
-        let autoplayVideos = JSON.parse(localStorage.getItem('autoplayVideos')) || true;
+        // بيانات التطبيق
+        let currentUser = null;
+        let posts = [];
+        let currentPostIndex = 0;
+        let player;
+        let isMuted = true;
 
-        // عناصر DOM
-        const profileSetup = document.getElementById('profileSetup');
-        const postForm = document.getElementById('postForm');
-        const postsContainer = document.getElementById('postsContainer');
-        const profileImageInput = document.getElementById('profileImage');
-        const profileUsernameInput = document.getElementById('profileUsername');
-        const profileAvatarPreview = document.getElementById('profileAvatarPreview');
-        const avatarInitial = document.getElementById('avatarInitial');
-        const saveProfileBtn = document.getElementById('saveProfile');
-        const postContentInput = document.getElementById('postContent');
-        const postLinkInput = document.getElementById('postLink');
-        const postImageInput = document.getElementById('postImage');
-        const postImagePreview = document.getElementById('postImagePreview');
-        const submitPostBtn = document.getElementById('submitPost');
-        const addLinkModal = document.getElementById('addLinkModal');
-        const closeLinkModalBtn = document.getElementById('closeLinkModal');
-        const newLinkInput = document.getElementById('newLink');
-        const submitLinkBtn = document.getElementById('submitLink');
-        const addImageModal = document.getElementById('addImageModal');
-        const closeImageModalBtn = document.getElementById('closeImageModal');
-        const newImageInput = document.getElementById('newImage');
-        const newImagePreview = document.getElementById('newImagePreview');
-        const submitImageBtn = document.getElementById('submitImage');
-        const followBtn = document.getElementById('followBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const registeredCount = document.getElementById('registeredCount');
-        const onlineCount = document.getElementById('onlineCount');
-
-        // تهيئة التطبيق
-        function initApp() {
-            updateStats();
+        // تهيئة التطبيق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            initEventListeners();
+            checkUserLogin();
+            loadPosts();
             
-            if (userProfile) {
-                // إذا كان المستخدم قد أنشأ ملف شخصي مسبقًا
-                profileSetup.style.display = 'none';
-                postForm.style.display = 'block';
-                updateProfilePreview();
-                updateOnlineStatus();
+            // تحميل واجهة برمجة تطبيقات يوتيوب
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        });
+
+        // تحميل البيانات من التخزين المحلي
+        function loadData() {
+            const savedUser = localStorage.getItem('youtubeAppUser');
+            const savedPosts = localStorage.getItem('youtubeAppPosts');
+            
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
             }
             
-            updateFollowButton();
-            displayPosts();
-            
-            // التحقق من وجود معرف منشور في الرابط
-            checkForPostInURL();
-        }
-
-        // التحقق من وجود معرف منشور في الرابط
-        function checkForPostInURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const postId = urlParams.get('post');
-            
-            if (postId) {
-                // البحث عن المنشور المطلوب
-                const postElement = document.querySelector(`.post[data-id="${postId}"]`);
-                if (postElement) {
-                    // التمرير إلى المنشور المطلوب
-                    setTimeout(() => {
-                        postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        
-                        // إضافة تأثير مرئي للمنشور المطلوب
-                        postElement.style.boxShadow = '0 0 0 3px #1da1f2';
-                        postElement.style.transition = 'box-shadow 0.3s';
-                        
-                        setTimeout(() => {
-                            postElement.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-                        }, 3000);
-                    }, 500);
-                }
-            }
-        }
-
-        // تحديث الإحصائيات
-        function updateStats() {
-            // تحديث عدد المسجلين
-            if (userProfile && !registeredUsers.includes(userProfile.username)) {
-                registeredUsers.push(userProfile.username);
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-            }
-            registeredCount.textContent = registeredUsers.length;
-            
-            // تحديث عدد المتصلين (محاكاة)
-            if (userProfile && !onlineUsers.includes(userProfile.username)) {
-                onlineUsers.push(userProfile.username);
-                localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers));
-            }
-            onlineCount.textContent = onlineUsers.length;
-        }
-
-        // تحديث حالة الاتصال
-        function updateOnlineStatus() {
-            // محاكاة تغيير عدد المتصلين بشكل عشوائي
-            setInterval(() => {
-                const randomChange = Math.floor(Math.random() * 3) - 1; // -1, 0, أو 1
-                const currentOnline = parseInt(onlineCount.textContent);
-                const newOnline = Math.max(1, currentOnline + randomChange);
-                onlineCount.textContent = newOnline;
-                localStorage.setItem('onlineUsers', JSON.stringify(Array(newOnline).fill('user')));
-            }, 10000); // تحديث كل 10 ثوانٍ
-        }
-
-        // تحديث زر المتابعة
-        function updateFollowButton() {
-            if (isFollowing) {
-                followBtn.textContent = 'متابَع';
-                followBtn.classList.add('following');
+            if (savedPosts) {
+                posts = JSON.parse(savedPosts);
             } else {
-                followBtn.textContent = 'متابعة';
-                followBtn.classList.remove('following');
-            }
-        }
-
-        // تحديث معاينة الملف الشخصي
-        function updateProfilePreview() {
-            if (userProfile) {
-                profileUsernameInput.value = userProfile.username || '';
-                
-                if (userProfile.avatar) {
-                    avatarInitial.style.display = 'none';
-                    profileAvatarPreview.innerHTML = `<img src="${userProfile.avatar}" alt="صورة الملف الشخصي">`;
-                } else {
-                    avatarInitial.style.display = 'flex';
-                    avatarInitial.textContent = userProfile.username ? userProfile.username.charAt(0).toUpperCase() : '?';
-                    profileAvatarPreview.innerHTML = '';
-                    profileAvatarPreview.appendChild(avatarInitial);
-                }
-            }
-        }
-
-        // دالة لاستخراج معرف فيديو يوتيوب من الرابط
-        function getYouTubeVideoId(url) {
-            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[7].length === 11) ? match[7] : null;
-        }
-
-        // دالة لاستخراج معرف فيديو Vimeo من الرابط
-        function getVimeoVideoId(url) {
-            const regExp = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/;
-            const match = url.match(regExp);
-            return match ? match[1] : null;
-        }
-
-        // دالة لاستخراج معرف فيديو Dailymotion من الرابط
-        function getDailymotionVideoId(url) {
-            const regExp = /(?:dailymotion\.com\/video\/|dai\.ly\/)([a-zA-Z0-9]+)/;
-            const match = url.match(regExp);
-            return match ? match[1] : null;
-        }
-
-        // دالة لاستخراج معرف تغريدة من رابط تويتر
-        function getTwitterTweetId(url) {
-            const regExp = /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)/;
-            const match = url.match(regExp);
-            return match ? match[2] : null;
-        }
-
-        // دالة لاستخراج معرف SoundCloud من الرابط
-        function getSoundCloudId(url) {
-            // SoundCloud يحتاج إلى استخدام API خاص، لذلك سنستخدم التضمين القياسي
-            return url;
-        }
-
-        // دالة للتحقق إذا كان الرابط ملف PDF
-        function isPdfFile(url) {
-            return url.toLowerCase().endsWith('.pdf');
-        }
-
-        // دالة لإنشاء محتوى مضمن للرابط مع التشغيل التلقائي
-        function generateEmbed(link) {
-            // يوتيوب
-            const youtubeId = getYouTubeVideoId(link);
-            if (youtubeId) {
-                const autoplayParam = autoplayVideos ? '?autoplay=1&mute=1' : '';
-                return `
-                    <div class="video-container">
-                        <iframe 
-                            width="100%" 
-                            height="400" 
-                            src="https://www.youtube.com/embed/${youtubeId}${autoplayParam}" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            }
-            
-            // Vimeo
-            const vimeoId = getVimeoVideoId(link);
-            if (vimeoId) {
-                const autoplayParam = autoplayVideos ? '?autoplay=1&muted=1' : '';
-                return `
-                    <div class="video-container">
-                        <iframe 
-                            src="https://player.vimeo.com/video/${vimeoId}${autoplayParam}" 
-                            frameborder="0" 
-                            allow="autoplay; fullscreen; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            }
-            
-            // Dailymotion
-            const dailymotionId = getDailymotionVideoId(link);
-            if (dailymotionId) {
-                const autoplayParam = autoplayVideos ? '?autoplay=1' : '';
-                return `
-                    <div class="video-container">
-                        <iframe 
-                            frameborder="0" 
-                            src="https://www.dailymotion.com/embed/video/${dailymotionId}${autoplayParam}" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            }
-            
-            // تويتر
-            const tweetId = getTwitterTweetId(link);
-            if (tweetId) {
-                return `
-                    <div class="embed-container">
-                        <blockquote class="twitter-tweet">
-                            <a href="${link}"></a>
-                        </blockquote>
-                    </div>
-                `;
-            }
-            
-            // إنستغرام
-            if (link.includes('instagram.com/p/') || link.includes('instagram.com/reel/')) {
-                return `
-                    <div class="embed-container">
-                        <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${link}" data-instgrm-version="14">
-                            <a href="${link}">View this post on Instagram</a>
-                        </blockquote>
-                    </div>
-                `;
-            }
-            
-            // فيسبوك
-            if (link.includes('facebook.com/') && (link.includes('/posts/') || link.includes('/videos/'))) {
-                return `
-                    <div class="embed-container">
-                        <div class="fb-post" data-href="${link}" data-width="500" data-show-text="true"></div>
-                    </div>
-                `;
-            }
-            
-            // SoundCloud
-            if (link.includes('soundcloud.com/')) {
-                const autoplayParam = autoplayVideos ? '&auto_play=true' : '&auto_play=false';
-                return `
-                    <div class="embed-container">
-                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500${autoplayParam}&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
-                    </div>
-                `;
-            }
-            
-            // ملفات PDF
-            if (isPdfFile(link)) {
-                return `
-                    <div class="document-viewer">
-                        <a href="${link}" target="_blank">
-                            <span>📄</span>
-                            <span>فتح ملف PDF</span>
-                        </a>
-                        <iframe src="${link}" width="100%" height="500" style="border: none; margin-top: 10px;"></iframe>
-                    </div>
-                `;
-            }
-            
-            // ملفات صوتية مباشرة
-            if (link.match(/\.(mp3|wav|ogg|m4a)$/i)) {
-                const autoplayAttr = autoplayVideos ? 'autoplay' : '';
-                return `
-                    <div class="audio-player">
-                        <audio controls ${autoplayAttr} style="width: 100%;">
-                            <source src="${link}" type="audio/mpeg">
-                            متصفحك لا يدعم تشغيل الملفات الصوتية.
-                        </audio>
-                    </div>
-                `;
-            }
-            
-            // ملفات فيديو مباشرة
-            if (link.match(/\.(mp4|webm|ogv|mov)$/i)) {
-                const autoplayAttr = autoplayVideos ? 'autoplay' : '';
-                return `
-                    <div class="video-container">
-                        <video controls ${autoplayAttr} style="width: 100%; height: 100%;">
-                            <source src="${link}" type="video/mp4">
-                            متصفحك لا يدعم تشغيل الفيديو.
-                        </video>
-                    </div>
-                `;
-            }
-            
-            // رابط عادي - عرض معاينة
-            return `
-                <div class="link-preview">
-                    <div class="link-preview-content">
-                        <div class="link-preview-title">رابط خارجي</div>
-                        <div class="link-preview-description">${link}</div>
-                        <a href="${link}" target="_blank" class="link-button">فتح الرابط</a>
-                    </div>
-                </div>
-            `;
-        }
-
-        // إنشاء رابط مباشر للمنشور
-        function generatePostPermalink(postId) {
-            const currentUrl = window.location.origin + window.location.pathname;
-            return `${currentUrl}?post=${postId}`;
-        }
-
-        // نسخ الرابط المباشر للحافظة
-        function copyPostPermalink(postId) {
-            const permalink = generatePostPermalink(postId);
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(permalink)
-                    .then(() => {
-                        alert('تم نسخ رابط المنشور بنجاح!');
-                    })
-                    .catch(err => {
-                        console.error('Failed to copy: ', err);
-                        fallbackCopyTextToClipboard(permalink);
-                    });
-            } else {
-                fallbackCopyTextToClipboard(permalink);
-            }
-        }
-
-        // طريقة بديلة لنسخ النص إلى الحافظة
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert('تم نسخ رابط المنشور بنجاح!');
-                } else {
-                    alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
-                }
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-                alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
-            }
-            
-            document.body.removeChild(textArea);
-        }
-
-        // عرض المنشورات
-        function displayPosts() {
-            postsContainer.innerHTML = '';
-            
-            if (posts.length === 0) {
-                postsContainer.innerHTML = '<p style="text-align: center;">لا توجد منشورات بعد. كن أول من ينشر!</p>';
-                return;
-            }
-            
-            // عرض المنشورات من الأحدث إلى الأقدم
-            posts.slice().reverse().forEach(post => {
-                const postElement = document.createElement('div');
-                postElement.className = 'post';
-                postElement.dataset.id = post.id;
-                
-                let linksHtml = '';
-                if (post.links && post.links.length > 0) {
-                    linksHtml = '<div class="post-links">';
-                    post.links.forEach(link => {
-                        // إنشاء محتوى مضمن للرابط
-                        const embedHtml = generateEmbed(link);
-                        linksHtml += embedHtml;
-                    });
-                    linksHtml += '</div>';
-                }
-                
-                let imagesHtml = '';
-                if (post.images && post.images.length > 0) {
-                    post.images.forEach(image => {
-                        imagesHtml += `
-                            <img class="post-image" src="${image}" alt="صورة المنشور">
-                        `;
-                    });
-                }
-                
-                // عرض صورة المستخدم أو الحرف الأول من اسمه
-                let userAvatarHtml = '';
-                if (post.userAvatar) {
-                    userAvatarHtml = `<img src="${post.userAvatar}" alt="صورة الملف الشخصي">`;
-                } else {
-                    userAvatarHtml = `<span>${post.username.charAt(0).toUpperCase()}</span>`;
-                }
-                
-                // التحقق مما إذا كان المنشور للمستخدم الحالي
-                const isCurrentUserPost = userProfile && post.username === userProfile.username;
-                
-                // إنشاء أزرار الإجراءات (إضافة رابط وصورة) فقط إذا كان المنشور للمستخدم الحالي
-                let actionsHtml = '';
-                if (isCurrentUserPost) {
-                    actionsHtml = `
-                        <div class="post-actions">
-                            <button class="add-link-btn" data-id="${post.id}">إضافة رابط</button>
-                            <button class="add-image-btn" data-id="${post.id}">إضافة صورة</button>
-                        </div>
-                    `;
-                }
-                
-                // إنشاء قسم التعليقات
-                let commentsHtml = '';
-                if (post.comments && post.comments.length > 0) {
-                    commentsHtml = '<div class="comments-section" id="comments-' + post.id + '">';
-                    post.comments.forEach(comment => {
-                        let commentAvatarHtml = '';
-                        if (comment.userAvatar) {
-                            commentAvatarHtml = `<img src="${comment.userAvatar}" alt="صورة الملف الشخصي">`;
-                        } else {
-                            commentAvatarHtml = `<span>${comment.username.charAt(0).toUpperCase()}</span>`;
-                        }
-                        
-                        commentsHtml += `
-                            <div class="comment">
-                                <div class="comment-avatar">
-                                    ${commentAvatarHtml}
-                                </div>
-                                <div class="comment-content">
-                                    <div class="comment-header">
-                                        <div class="comment-author">${comment.username}</div>
-                                        <div class="comment-time">${formatTime(comment.timestamp)}</div>
-                                    </div>
-                                    <div class="comment-text">${comment.text}</div>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    commentsHtml += `
-                        <div class="add-comment">
-                            <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="اكتب تعليقك...">
-                            <button class="send-comment-btn" data-postid="${post.id}">إرسال</button>
-                        </div>
-                    </div>`;
-                } else {
-                    commentsHtml = `
-                        <div class="comments-section" id="comments-${post.id}" style="display: none;">
-                            <div class="add-comment">
-                                <input type="text" class="comment-input" id="comment-input-${post.id}" placeholder="اكتب تعليقك...">
-                                <button class="send-comment-btn" data-postid="${post.id}">إرسال</button>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // إنشاء رابط مباشر للمنشور
-                const permalinkHtml = `
-                    <div class="post-permalink">
-                        <div class="permalink-url">${generatePostPermalink(post.id)}</div>
-                        <button class="copy-permalink" data-id="${post.id}">نسخ الرابط</button>
-                    </div>
-                `;
-                
-                postElement.innerHTML = `
-                    <div class="post-header">
-                        <div class="user-avatar">
-                            ${userAvatarHtml}
-                        </div>
-                        <div class="user-name">${post.username}</div>
-                        <div class="post-time">${formatTime(post.timestamp)}</div>
-                    </div>
-                    <div class="post-content">
-                        ${post.content}
-                    </div>
-                    ${imagesHtml}
-                    ${linksHtml}
-                    ${actionsHtml}
-                    ${permalinkHtml}
-                    <div class="post-interactions">
-                        <button class="interaction-btn like-btn ${post.likes && post.likes.includes(userProfile?.username) ? 'liked' : ''}" data-id="${post.id}">
-                            <span class="interaction-count">${post.likes ? post.likes.length : 0}</span>
-                            ❤️ إعجاب
-                        </button>
-                        <button class="interaction-btn comment-btn" data-id="${post.id}">
-                            <span class="interaction-count">${post.comments ? post.comments.length : 0}</span>
-                            💬 تعليق
-                        </button>
-                        <button class="interaction-btn retweet-btn ${post.retweets && post.retweets.includes(userProfile?.username) ? 'retweeted' : ''}" data-id="${post.id}">
-                            <span class="interaction-count">${post.retweets ? post.retweets.length : 0}</span>
-                            🔄 إعادة نشر
-                        </button>
-                        <button class="interaction-btn share-btn" data-id="${post.id}">
-                            📤 مشاركة
-                        </button>
-                    </div>
-                    ${commentsHtml}
-                `;
-                
-                postsContainer.appendChild(postElement);
-            });
-            
-            // إضافة مستمعي الأحداث لأزرار إضافة الروابط والصور (فقط إذا كانت موجودة)
-            document.querySelectorAll('.add-link-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    currentPostId = this.dataset.id;
-                    newLinkInput.value = '';
-                    addLinkModal.style.display = 'flex';
-                });
-            });
-            
-            document.querySelectorAll('.add-image-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    currentPostId = this.dataset.id;
-                    newImageInput.value = '';
-                    newImagePreview.style.display = 'none';
-                    addImageModal.style.display = 'flex';
-                });
-            });
-            
-            // إضافة مستمعي الأحداث لأزرار التفاعل
-            document.querySelectorAll('.like-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    toggleLike(this.dataset.id);
-                });
-            });
-            
-            document.querySelectorAll('.comment-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    toggleComments(this.dataset.id);
-                });
-            });
-            
-            document.querySelectorAll('.retweet-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    retweetPost(this.dataset.id);
-                });
-            });
-            
-            document.querySelectorAll('.share-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    sharePost(this.dataset.id);
-                });
-            });
-            
-            document.querySelectorAll('.send-comment-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    addComment(this.dataset.postid);
-                });
-            });
-            
-            // إضافة مستمعي الأحداث لأزرار نسخ الروابط المباشرة
-            document.querySelectorAll('.copy-permalink').forEach(button => {
-                button.addEventListener('click', function() {
-                    copyPostPermalink(this.dataset.id);
-                });
-            });
-            
-            // السماح بإرسال التعليق بالضغط على Enter
-            document.querySelectorAll('.comment-input').forEach(input => {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        const postId = this.id.replace('comment-input-', '');
-                        addComment(postId);
+                // بيانات افتراضية إذا لم توجد منشورات
+                posts = [
+                    {
+                        id: generateId(),
+                        videoId: 'dQw4w9WgXcQ',
+                        title: 'فيديو تجريبي 1 - مناظر طبيعية',
+                        description: 'استمتع بمشاهدة مناظر طبيعية خلابة من حول العالم',
+                        thumb: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+                        author: {
+                            username: 'مستخدم تجريبي',
+                            avatar: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%234d94ff\'/%3E%3Ccircle cx=\'50\' cy=\'100\' r=\'40\' fill=\'%234d94ff\'/%3E%3C/svg%3E'
+                        },
+                        date: new Date().toISOString()
                     }
-                });
+                ];
+                savePosts();
+            }
+        }
+
+        // حفظ البيانات في التخزين المحلي
+        function saveUser() {
+            localStorage.setItem('youtubeAppUser', JSON.stringify(currentUser));
+        }
+
+        function savePosts() {
+            localStorage.setItem('youtubeAppPosts', JSON.stringify(posts));
+        }
+
+        // إعداد مستمعي الأحداث
+        function initEventListeners() {
+            // أحداث الأزرار
+            document.getElementById('login-btn').addEventListener('click', showLoginModal);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('add-post-btn').addEventListener('click', showAddPostModal);
+            document.getElementById('next-btn').addEventListener('click', nextPost);
+            document.getElementById('prev-btn').addEventListener('click', prevPost);
+            document.getElementById('mute-btn').addEventListener('click', toggleMute);
+            
+            // أحداث النماذج
+            document.getElementById('login-form').addEventListener('submit', handleLogin);
+            document.getElementById('add-post-form').addEventListener('submit', handleAddPost);
+            
+            // أحداث النوافذ المنبثقة
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', closeModals);
             });
             
-            // إعادة تحميل أدوات التضمين بعد عرض المنشورات
-            loadEmbedScripts();
+            document.getElementById('avatar-input').addEventListener('change', handleAvatarChange);
+            
+            // إغلاق النوافذ المنبثقة بالنقر خارجها
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    closeModals();
+                }
+            });
         }
 
-        // إعادة تحميل أدوات التضمين
-        function loadEmbedScripts() {
-            // تحميل سكريبت تويتر إذا لزم الأمر
-            if (!document.querySelector('script[src="https://platform.twitter.com/widgets.js"]')) {
-                const twitterScript = document.createElement('script');
-                twitterScript.src = 'https://platform.twitter.com/widgets.js';
-                twitterScript.charset = 'utf-8';
-                twitterScript.async = true;
-                document.body.appendChild(twitterScript);
-            }
-            
-            // تحميل سكريبت إنستغرام إذا لزم الأمر
-            if (!document.querySelector('script[src="//www.instagram.com/embed.js"]')) {
-                const instagramScript = document.createElement('script');
-                instagramScript.src = '//www.instagram.com/embed.js';
-                instagramScript.async = true;
-                document.body.appendChild(instagramScript);
-            }
-            
-            // تحميل سكريبت فيسبوك إذا لزم الأمر
-            if (!document.querySelector('script[src*="connect.facebook.net"]')) {
-                const facebookScript = document.createElement('script');
-                facebookScript.src = 'https://connect.facebook.net/ar_AR/sdk.js#xfbml=1&version=v15.0';
-                facebookScript.crossOrigin = 'anonymous';
-                facebookScript.nonce = 'YOUR_NONCE';
-                facebookScript.async = true;
-                facebookScript.defer = true;
-                document.body.appendChild(facebookScript);
+        // التحقق من حالة تسجيل المستخدم
+        function checkUserLogin() {
+            if (currentUser) {
+                showUserInfo();
+            } else {
+                showLoginButton();
             }
         }
 
-        // تنسيق الوقت
-        function formatTime(timestamp) {
-            const now = new Date();
-            const postTime = new Date(timestamp);
-            const diffMs = now - postTime;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-            
-            if (diffMins < 1) return 'الآن';
-            if (diffMins < 60) return `منذ ${diffMins} دقيقة`;
-            if (diffHours < 24) return `منذ ${diffHours} ساعة`;
-            if (diffDays < 7) return `منذ ${diffDays} يوم`;
-            
-            return postTime.toLocaleDateString('ar-EG');
+        // عرض معلومات المستخدم
+        function showUserInfo() {
+            document.getElementById('user-info').style.display = 'flex';
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('add-post-btn').style.display = 'block';
+            document.getElementById('username').textContent = currentUser.username;
+            document.getElementById('user-avatar-img').src = currentUser.avatar;
         }
 
-        // تحويل الصورة إلى Base64
-        function imageToBase64(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                callback(e.target.result);
-            };
-            reader.readAsDataURL(file);
+        // عرض زر تسجيل الدخول
+        function showLoginButton() {
+            document.getElementById('user-info').style.display = 'none';
+            document.getElementById('login-btn').style.display = 'block';
+            document.getElementById('add-post-btn').style.display = 'none';
         }
 
-        // حفظ الملف الشخصي
-        function saveProfile() {
-            const username = profileUsernameInput.value.trim();
+        // عرض نافذة تسجيل الدخول
+        function showLoginModal() {
+            document.getElementById('login-modal').style.display = 'flex';
+        }
+
+        // عرض نافذة إضافة منشور
+        function showAddPostModal() {
+            document.getElementById('add-post-modal').style.display = 'flex';
+        }
+
+        // إغلاق جميع النوافذ المنبثقة
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+
+        // معالجة تغيير صورة البروفايل
+        function handleAvatarChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatar-preview-img').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // معالجة تسجيل الدخول
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username-input').value.trim();
+            const avatarFile = document.getElementById('avatar-input').files[0];
             
             if (!username) {
                 alert('يرجى إدخال اسم المستخدم');
                 return;
             }
             
-            userProfile = {
-                username: username,
-                avatar: userProfile ? userProfile.avatar : null
-            };
+            let avatar = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%234d94ff\'/%3E%3Ccircle cx=\'50\' cy=\'100\' r=\'40\' fill=\'%234d94ff\'/%3E%3C/svg%3E';
             
-            // إذا تم اختيار صورة للملف الشخصي
-            if (profileImageInput.files && profileImageInput.files[0]) {
-                imageToBase64(profileImageInput.files[0], function(base64Image) {
-                    userProfile.avatar = base64Image;
-                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
-                    updateProfilePreview();
-                    profileSetup.style.display = 'none';
-                    postForm.style.display = 'block';
-                    updateStats();
-                });
-            } else {
-                localStorage.setItem('userProfile', JSON.stringify(userProfile));
-                updateProfilePreview();
-                profileSetup.style.display = 'none';
-                postForm.style.display = 'block';
-                updateStats();
-            }
-        }
-
-        // إضافة منشور جديد - الإصدار المصحح
-        function addPost() {
-            // التحقق من وجود ملف شخصي للمستخدم
-            if (!userProfile) {
-                alert('يجب إنشاء ملف شخصي أولاً');
-                return;
-            }
-            
-            const content = postContentInput.value.trim();
-            const link = postLinkInput.value.trim();
-            
-            if (!content) {
-                alert('يرجى إدخال محتوى المنشور');
-                return;
-            }
-            
-            const newPost = {
-                id: Date.now().toString(),
-                username: userProfile.username,
-                userAvatar: userProfile.avatar,
-                content: content,
-                timestamp: new Date().toISOString(),
-                links: link ? [link] : [],
-                images: [],
-                likes: [],
-                comments: [],
-                retweets: []
-            };
-            
-            // إذا تم اختيار صورة للمنشور
-            if (postImageInput.files && postImageInput.files[0]) {
-                imageToBase64(postImageInput.files[0], function(base64Image) {
-                    newPost.images.push(base64Image);
-                    savePostToStorage(newPost);
-                });
-            } else {
-                savePostToStorage(newPost);
-            }
-        }
-
-        // دالة مساعدة لحفظ المنشور في التخزين
-        function savePostToStorage(newPost) {
-            posts.push(newPost);
-            localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-            
-            // إعادة تعيين الحقول
-            postContentInput.value = '';
-            postLinkInput.value = '';
-            postImageInput.value = '';
-            postImagePreview.style.display = 'none';
-            
-            // تحديث العرض
-            displayPosts();
-            
-            // إظهار رسالة نجاح
-            alert('تم نشر المنشور بنجاح!');
-        }
-
-        // إضافة رابط لمنشور موجود
-        function addLinkToPost() {
-            const link = newLinkInput.value.trim();
-            
-            if (!link) {
-                alert('يرجى إدخال رابط');
-                return;
-            }
-            
-            // البحث عن المنشور وإضافة الرابط
-            const postIndex = posts.findIndex(post => post.id === currentPostId);
-            if (postIndex !== -1) {
-                if (!posts[postIndex].links) {
-                    posts[postIndex].links = [];
-                }
-                posts[postIndex].links.push(link);
-                localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                displayPosts();
-            }
-            
-            // إغلاق النافذة
-            addLinkModal.style.display = 'none';
-        }
-
-        // إضافة صورة لمنشور موجود
-        function addImageToPost() {
-            if (!newImageInput.files || !newImageInput.files[0]) {
-                alert('يرجى اختيار صورة');
-                return;
-            }
-            
-            imageToBase64(newImageInput.files[0], function(base64Image) {
-                // البحث عن المنشور وإضافة الصورة
-                const postIndex = posts.findIndex(post => post.id === currentPostId);
-                if (postIndex !== -1) {
-                    if (!posts[postIndex].images) {
-                        posts[postIndex].images = [];
-                    }
-                    posts[postIndex].images.push(base64Image);
-                    localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                    displayPosts();
-                }
-                
-                // إغلاق النافذة
-                addImageModal.style.display = 'none';
-            });
-        }
-
-        // تفعيل/إلغاء الإعجاب
-        function toggleLike(postId) {
-            if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(post => post.id === postId);
-            if (postIndex !== -1) {
-                if (!posts[postIndex].likes) {
-                    posts[postIndex].likes = [];
-                }
-                
-                const userIndex = posts[postIndex].likes.indexOf(userProfile.username);
-                if (userIndex === -1) {
-                    // إضافة إعجاب
-                    posts[postIndex].likes.push(userProfile.username);
-                } else {
-                    // إزالة إعجاب
-                    posts[postIndex].likes.splice(userIndex, 1);
-                }
-                
-                localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                displayPosts();
-            }
-        }
-
-        // إظهار/إخفاء التعليقات
-        function toggleComments(postId) {
-            const commentsSection = document.getElementById(`comments-${postId}`);
-            if (commentsSection) {
-                if (commentsSection.style.display === 'none' || commentsSection.style.display === '') {
-                    commentsSection.style.display = 'block';
-                } else {
-                    commentsSection.style.display = 'none';
-                }
-            }
-        }
-
-        // إضافة تعليق
-        function addComment(postId) {
-            if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const commentInput = document.getElementById(`comment-input-${postId}`);
-            const commentText = commentInput.value.trim();
-            
-            if (!commentText) {
-                alert('يرجى إدخال نص التعليق');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(post => post.id === postId);
-            if (postIndex !== -1) {
-                if (!posts[postIndex].comments) {
-                    posts[postIndex].comments = [];
-                }
-                
-                const newComment = {
-                    username: userProfile.username,
-                    userAvatar: userProfile.avatar,
-                    text: commentText,
-                    timestamp: new Date().toISOString()
+            if (avatarFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatar = e.target.result;
+                    completeLogin(username, avatar);
                 };
-                
-                posts[postIndex].comments.push(newComment);
-                localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                
-                // إعادة تعيين حقل التعليق
-                commentInput.value = '';
-                
-                // تحديث العرض
-                displayPosts();
-                
-                // إظهار قسم التعليقات
-                const commentsSection = document.getElementById(`comments-${postId}`);
-                if (commentsSection) {
-                    commentsSection.style.display = 'block';
-                }
-            }
-        }
-
-        // إعادة نشر
-        function retweetPost(postId) {
-            if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(post => post.id === postId);
-            if (postIndex !== -1) {
-                if (!posts[postIndex].retweets) {
-                    posts[postIndex].retweets = [];
-                }
-                
-                const userIndex = posts[postIndex].retweets.indexOf(userProfile.username);
-                if (userIndex === -1) {
-                    // إعادة نشر
-                    posts[postIndex].retweets.push(userProfile.username);
-                    
-                    // إنشاء منشور جديد كإعادة نشر
-                    const originalPost = posts[postIndex];
-                    const retweetPost = {
-                        id: Date.now().toString(),
-                        username: userProfile.username,
-                        userAvatar: userProfile.avatar,
-                        content: `أعاد نشر منشور ${originalPost.username}`,
-                        originalPost: originalPost.id,
-                        timestamp: new Date().toISOString(),
-                        likes: [],
-                        comments: [],
-                        retweets: []
-                    };
-                    
-                    posts.push(retweetPost);
-                    localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                    displayPosts();
-                    
-                    alert('تمت إعادة النشر بنجاح!');
-                } else {
-                    // إلغاء إعادة النشر
-                    posts[postIndex].retweets.splice(userIndex, 1);
-                    localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
-                    displayPosts();
-                }
-            }
-        }
-
-        // مشاركة المنشور
-        function sharePost(postId) {
-            const postIndex = posts.findIndex(post => post.id === postId);
-            if (postIndex !== -1) {
-                const post = posts[postIndex];
-                let shareText = `${post.username}: ${post.content}`;
-                
-                if (post.links && post.links.length > 0) {
-                    shareText += ` ${post.links[0]}`;
-                }
-                
-                // نسخ النص إلى الحافظة
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(shareText)
-                        .then(() => {
-                            alert('تم نسخ الرابط بنجاح! يمكنك مشاركته الآن.');
-                        })
-                        .catch(err => {
-                            console.error('Failed to copy: ', err);
-                            fallbackCopyTextToClipboard(shareText);
-                        });
-                } else {
-                    fallbackCopyTextToClipboard(shareText);
-                }
-            }
-        }
-
-        // متابعة/إلغاء المتابعة
-        function toggleFollow() {
-            isFollowing = !isFollowing;
-            localStorage.setItem('isFollowing', JSON.stringify(isFollowing));
-            updateFollowButton();
-            
-            if (isFollowing) {
-                alert('تمت المتابعة بنجاح!');
+                reader.readAsDataURL(avatarFile);
             } else {
-                alert('تم إلغاء المتابعة.');
+                completeLogin(username, avatar);
             }
+        }
+
+        // إكمال عملية تسجيل الدخول
+        function completeLogin(username, avatar) {
+            currentUser = {
+                username: username,
+                avatar: avatar
+            };
+            
+            saveUser();
+            checkUserLogin();
+            closeModals();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('login-form').reset();
+            document.getElementById('avatar-preview-img').src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%234d94ff\'/%3E%3Ccircle cx=\'50\' cy=\'100\' r=\'40\' fill=\'%234d94ff\'/%3E%3C/svg%3E';
         }
 
         // تسجيل الخروج
         function logout() {
-            if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
-                // إزالة المستخدم من قائمة المتصلين
-                const userIndex = onlineUsers.indexOf(userProfile.username);
-                if (userIndex !== -1) {
-                    onlineUsers.splice(userIndex, 1);
-                    localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers));
-                }
+            currentUser = null;
+            localStorage.removeItem('youtubeAppUser');
+            checkUserLogin();
+        }
+
+        // معالجة إضافة منشور جديد
+        function handleAddPost(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const youtubeUrl = document.getElementById('youtube-url').value;
+            const title = document.getElementById('post-title').value;
+            const description = document.getElementById('post-description').value;
+            
+            // استخراج معرف الفيديو من الرابط
+            const videoId = extractVideoId(youtubeUrl);
+            
+            if (!videoId) {
+                alert('رابط يوتيوب غير صحيح');
+                return;
+            }
+            
+            const newPost = {
+                id: generateId(),
+                videoId: videoId,
+                title: title,
+                description: description,
+                thumb: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                author: {
+                    username: currentUser.username,
+                    avatar: currentUser.avatar
+                },
+                date: new Date().toISOString()
+            };
+            
+            posts.unshift(newPost);
+            savePosts();
+            loadPosts();
+            closeModals();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('add-post-form').reset();
+            
+            // تشغيل المنشور الجديد
+            playPost(0);
+        }
+
+        // استخراج معرف الفيديو من رابط يوتيوب
+        function extractVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        // توليد معرف فريد
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // تحميل المنشورات وعرضها
+        function loadPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
+            
+            if (posts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #aaa;">لا توجد منشورات بعد</p>';
+                return;
+            }
+            
+            posts.forEach((post, index) => {
+                const postItem = document.createElement('div');
+                postItem.className = `post-item ${index === currentPostIndex ? 'active' : ''}`;
+                postItem.onclick = () => playPost(index);
                 
-                // تحديث عدد المتصلين
-                onlineCount.textContent = onlineUsers.length;
+                postItem.innerHTML = `
+                    <div class="post-thumb">
+                        <img src="${post.thumb}" alt="${post.title}">
+                    </div>
+                    <div class="post-details">
+                        <h3>${post.title}</h3>
+                        <p>${post.description}</p>
+                        <div class="post-author">
+                            <div class="user-avatar">
+                                <img src="${post.author.avatar}" alt="${post.author.username}">
+                            </div>
+                            <span>${post.author.username}</span>
+                        </div>
+                    </div>
+                `;
                 
-                // إعادة تعيين البيانات المحلية
-                localStorage.removeItem('userProfile');
-                userProfile = null;
-                
-                // إعادة تحميل الصفحة
-                location.reload();
+                container.appendChild(postItem);
+            });
+        }
+
+        // تشغيل منشور محدد
+        function playPost(index) {
+            currentPostIndex = index;
+            const post = posts[currentPostIndex];
+            
+            if (player && player.loadVideoById) {
+                player.loadVideoById(post.videoId);
+            }
+            
+            updatePostInfo();
+            loadPosts();
+            
+            // تحديث رابط الصفحة ليشمل معرف المنشور
+            window.history.pushState({}, '', `#post-${post.id}`);
+        }
+
+        // تحديث معلومات المنشور المعروض
+        function updatePostInfo() {
+            const post = posts[currentPostIndex];
+            document.getElementById('video-title').textContent = post.title;
+            document.getElementById('video-description').textContent = post.description;
+            document.getElementById('video-link').href = `https://www.youtube.com/watch?v=${post.videoId}`;
+            document.getElementById('post-author-name').textContent = post.author.username;
+            document.getElementById('post-author-avatar').src = post.author.avatar;
+        }
+
+        // الانتقال إلى المنشور التالي
+        function nextPost() {
+            currentPostIndex = (currentPostIndex + 1) % posts.length;
+            playPost(currentPostIndex);
+        }
+
+        // الانتقال إلى المنشور السابق
+        function prevPost() {
+            currentPostIndex = (currentPostIndex - 1 + posts.length) % posts.length;
+            playPost(currentPostIndex);
+        }
+
+        // التحكم في كتم الصوت
+        function toggleMute() {
+            if (isMuted) {
+                player.unMute();
+                document.getElementById('mute-btn').innerHTML = '<span>كتم الصوت</span>';
+                isMuted = false;
+            } else {
+                player.mute();
+                document.getElementById('mute-btn').innerHTML = '<span>إلغاء كتم الصوت</span>';
+                isMuted = true;
             }
         }
 
-        // مستمعي الأحداث
-        saveProfileBtn.addEventListener('click', saveProfile);
-        submitPostBtn.addEventListener('click', addPost);
-        submitLinkBtn.addEventListener('click', addLinkToPost);
-        submitImageBtn.addEventListener('click', addImageToPost);
-        followBtn.addEventListener('click', toggleFollow);
-        logoutBtn.addEventListener('click', logout);
-        
-        closeLinkModalBtn.addEventListener('click', () => {
-            addLinkModal.style.display = 'none';
-        });
-        
-        closeImageModalBtn.addEventListener('click', () => {
-            addImageModal.style.display = 'none';
-        });
+        // تهيئة مشغل يوتيوب عند تحميل الصفحة
+        function onYouTubeIframeAPIReady() {
+            if (posts.length > 0) {
+                player = new YT.Player('player', {
+                    height: '100%',
+                    width: '100%',
+                    videoId: posts[currentPostIndex].videoId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'mute': 1,
+                        'controls': 1,
+                        'rel': 0,
+                        'modestbranding': 1,
+                        'playsinline': 1
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        }
 
-        // عرض معاينة الصورة عند اختيارها
-        postImageInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    postImagePreview.src = e.target.result;
-                    postImagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-        
-        newImageInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    newImagePreview.src = e.target.result;
-                    newImagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
+        // عندما يكون المشغل جاهزًا
+        function onPlayerReady(event) {
+            updatePostInfo();
+        }
 
-        // إغلاق النوافذ عند النقر خارجها
-        window.addEventListener('click', (e) => {
-            if (e.target === addLinkModal) {
-                addLinkModal.style.display = 'none';
-            }
-            if (e.target === addImageModal) {
-                addImageModal.style.display = 'none';
-            }
-        });
+        // عند تغيير حالة المشغل
+        function onPlayerStateChange(event) {
+            // يمكن إضافة تفاعلات إضافية هنا عند تغيير حالة الفيديو
+        }
 
-        // السماح بإرسال النموذج بالضغط على Enter في حقل المحتوى
-        postContentInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                addPost();
+        // التحقق من وجود معرف منشور في رابط الصفحة
+        function checkUrlForPost() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#post-')) {
+                const postId = hash.replace('#post-', '');
+                const postIndex = posts.findIndex(post => post.id === postId);
+                if (postIndex !== -1) {
+                    playPost(postIndex);
+                }
+            } else if (posts.length > 0) {
+                playPost(0);
             }
-        });
+        }
 
-        // التهيئة الأولية
-        initApp();
+        // تشغيل التحقق من الرابط بعد تحميل البيانات
+        setTimeout(checkUrlForPost, 500);
     </script>
 </body>
 </html>
