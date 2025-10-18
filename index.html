@@ -373,6 +373,35 @@
             font-weight: bold;
         }
         
+        /* رابط المنشور المباشر */
+        .post-permalink {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #f5f8fa;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .permalink-url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #657786;
+        }
+        
+        .copy-permalink {
+            background: none;
+            border: none;
+            color: #1da1f2;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -691,6 +720,7 @@
         let isFollowing = JSON.parse(localStorage.getItem('isFollowing')) || false;
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
         let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || [];
+        let autoplayVideos = JSON.parse(localStorage.getItem('autoplayVideos')) || true;
 
         // عناصر DOM
         const profileSetup = document.getElementById('profileSetup');
@@ -734,6 +764,34 @@
             
             updateFollowButton();
             displayPosts();
+            
+            // التحقق من وجود معرف منشور في الرابط
+            checkForPostInURL();
+        }
+
+        // التحقق من وجود معرف منشور في الرابط
+        function checkForPostInURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('post');
+            
+            if (postId) {
+                // البحث عن المنشور المطلوب
+                const postElement = document.querySelector(`.post[data-id="${postId}"]`);
+                if (postElement) {
+                    // التمرير إلى المنشور المطلوب
+                    setTimeout(() => {
+                        postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // إضافة تأثير مرئي للمنشور المطلوب
+                        postElement.style.boxShadow = '0 0 0 3px #1da1f2';
+                        postElement.style.transition = 'box-shadow 0.3s';
+                        
+                        setTimeout(() => {
+                            postElement.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+                        }, 3000);
+                    }, 500);
+                }
+            }
         }
 
         // تحديث الإحصائيات
@@ -832,17 +890,18 @@
             return url.toLowerCase().endsWith('.pdf');
         }
 
-        // دالة لإنشاء محتوى مضمن للرابط
+        // دالة لإنشاء محتوى مضمن للرابط مع التشغيل التلقائي
         function generateEmbed(link) {
             // يوتيوب
             const youtubeId = getYouTubeVideoId(link);
             if (youtubeId) {
+                const autoplayParam = autoplayVideos ? '?autoplay=1&mute=1' : '';
                 return `
                     <div class="video-container">
                         <iframe 
                             width="100%" 
                             height="400" 
-                            src="https://www.youtube.com/embed/${youtubeId}" 
+                            src="https://www.youtube.com/embed/${youtubeId}${autoplayParam}" 
                             frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowfullscreen>
@@ -854,10 +913,11 @@
             // Vimeo
             const vimeoId = getVimeoVideoId(link);
             if (vimeoId) {
+                const autoplayParam = autoplayVideos ? '?autoplay=1&muted=1' : '';
                 return `
                     <div class="video-container">
                         <iframe 
-                            src="https://player.vimeo.com/video/${vimeoId}" 
+                            src="https://player.vimeo.com/video/${vimeoId}${autoplayParam}" 
                             frameborder="0" 
                             allow="autoplay; fullscreen; picture-in-picture" 
                             allowfullscreen>
@@ -869,11 +929,12 @@
             // Dailymotion
             const dailymotionId = getDailymotionVideoId(link);
             if (dailymotionId) {
+                const autoplayParam = autoplayVideos ? '?autoplay=1' : '';
                 return `
                     <div class="video-container">
                         <iframe 
                             frameborder="0" 
-                            src="https://www.dailymotion.com/embed/video/${dailymotionId}" 
+                            src="https://www.dailymotion.com/embed/video/${dailymotionId}${autoplayParam}" 
                             allowfullscreen>
                         </iframe>
                     </div>
@@ -914,9 +975,10 @@
             
             // SoundCloud
             if (link.includes('soundcloud.com/')) {
+                const autoplayParam = autoplayVideos ? '&auto_play=true' : '&auto_play=false';
                 return `
                     <div class="embed-container">
-                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500${autoplayParam}&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
                     </div>
                 `;
             }
@@ -936,9 +998,10 @@
             
             // ملفات صوتية مباشرة
             if (link.match(/\.(mp3|wav|ogg|m4a)$/i)) {
+                const autoplayAttr = autoplayVideos ? 'autoplay' : '';
                 return `
                     <div class="audio-player">
-                        <audio controls style="width: 100%;">
+                        <audio controls ${autoplayAttr} style="width: 100%;">
                             <source src="${link}" type="audio/mpeg">
                             متصفحك لا يدعم تشغيل الملفات الصوتية.
                         </audio>
@@ -948,9 +1011,10 @@
             
             // ملفات فيديو مباشرة
             if (link.match(/\.(mp4|webm|ogv|mov)$/i)) {
+                const autoplayAttr = autoplayVideos ? 'autoplay' : '';
                 return `
                     <div class="video-container">
-                        <video controls style="width: 100%; height: 100%;">
+                        <video controls ${autoplayAttr} style="width: 100%; height: 100%;">
                             <source src="${link}" type="video/mp4">
                             متصفحك لا يدعم تشغيل الفيديو.
                         </video>
@@ -968,6 +1032,54 @@
                     </div>
                 </div>
             `;
+        }
+
+        // إنشاء رابط مباشر للمنشور
+        function generatePostPermalink(postId) {
+            const currentUrl = window.location.origin + window.location.pathname;
+            return `${currentUrl}?post=${postId}`;
+        }
+
+        // نسخ الرابط المباشر للحافظة
+        function copyPostPermalink(postId) {
+            const permalink = generatePostPermalink(postId);
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(permalink)
+                    .then(() => {
+                        alert('تم نسخ رابط المنشور بنجاح!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        fallbackCopyTextToClipboard(permalink);
+                    });
+            } else {
+                fallbackCopyTextToClipboard(permalink);
+            }
+        }
+
+        // طريقة بديلة لنسخ النص إلى الحافظة
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('تم نسخ رابط المنشور بنجاح!');
+                } else {
+                    alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
+            }
+            
+            document.body.removeChild(textArea);
         }
 
         // عرض المنشورات
@@ -1071,6 +1183,14 @@
                     `;
                 }
                 
+                // إنشاء رابط مباشر للمنشور
+                const permalinkHtml = `
+                    <div class="post-permalink">
+                        <div class="permalink-url">${generatePostPermalink(post.id)}</div>
+                        <button class="copy-permalink" data-id="${post.id}">نسخ الرابط</button>
+                    </div>
+                `;
+                
                 postElement.innerHTML = `
                     <div class="post-header">
                         <div class="user-avatar">
@@ -1085,6 +1205,7 @@
                     ${imagesHtml}
                     ${linksHtml}
                     ${actionsHtml}
+                    ${permalinkHtml}
                     <div class="post-interactions">
                         <button class="interaction-btn like-btn ${post.likes && post.likes.includes(userProfile?.username) ? 'liked' : ''}" data-id="${post.id}">
                             <span class="interaction-count">${post.likes ? post.likes.length : 0}</span>
@@ -1154,6 +1275,13 @@
             document.querySelectorAll('.send-comment-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     addComment(this.dataset.postid);
+                });
+            });
+            
+            // إضافة مستمعي الأحداث لأزرار نسخ الروابط المباشرة
+            document.querySelectorAll('.copy-permalink').forEach(button => {
+                button.addEventListener('click', function() {
+                    copyPostPermalink(this.dataset.id);
                 });
             });
             
@@ -1522,30 +1650,6 @@
                     fallbackCopyTextToClipboard(shareText);
                 }
             }
-        }
-
-        // طريقة بديلة لنسخ النص إلى الحافظة
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    alert('تم نسخ الرابط بنجاح! يمكنك مشاركته الآن.');
-                } else {
-                    alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
-                }
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-                alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
-            }
-            
-            document.body.removeChild(textArea);
         }
 
         // متابعة/إلغاء المتابعة
