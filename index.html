@@ -25,13 +25,14 @@
         }
         
         header {
-            background-color: #1da1f2;
+            background: linear-gradient(135deg, #1da1f2, #0d8bd9);
             color: white;
             padding: 15px 0;
             text-align: center;
             border-radius: 10px 10px 0 0;
             margin-bottom: 20px;
             position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .header-content {
@@ -67,10 +68,12 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            font-weight: bold;
         }
         
         .follow-btn:hover, .logout-btn:hover {
             background-color: #e8f5fe;
+            transform: translateY(-2px);
         }
         
         .follow-btn.following {
@@ -102,6 +105,12 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #1da1f2;
+            outline: none;
         }
         
         button {
@@ -112,11 +121,12 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
         
         button:hover {
             background-color: #0d8bd9;
+            transform: translateY(-2px);
         }
         
         .posts-container {
@@ -130,6 +140,12 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .post:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
         
         .post-header {
@@ -171,6 +187,7 @@
         
         .post-content {
             margin-bottom: 15px;
+            line-height: 1.8;
         }
         
         .post-links {
@@ -682,6 +699,89 @@
             font-size: 14px;
         }
         
+        /* تحسينات جديدة */
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1da1f2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #17bf63;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 3000;
+            display: none;
+        }
+        
+        .auto-play-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #1da1f2;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 10px;
@@ -762,6 +862,13 @@
                 <input type="text" id="postLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
             </div>
             <div class="form-group">
+                <div class="auto-play-toggle">
+                    <label for="autoplayToggle">التشغيل التلقائي للفيديوهات:</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoplayToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
                 <div class="file-input-container">
                     <label class="file-input-label" for="postImage">إضافة صورة للمنشور</label>
                     <input type="file" id="postImage" accept="image/*">
@@ -769,6 +876,7 @@
                 <img id="postImagePreview" class="image-preview" src="" alt="معاينة الصورة">
             </div>
             <button id="submitPost">نشر</button>
+            <div class="loading-spinner" id="postLoadingSpinner"></div>
         </div>
         
         <!-- قائمة المنشورات -->
@@ -820,6 +928,9 @@
         </div>
     </div>
 
+    <!-- إشعارات -->
+    <div class="notification" id="notification"></div>
+
     <script>
         // بيانات الموقع - تخزين محلي
         let userProfile = JSON.parse(localStorage.getItem('userProfile')) || null;
@@ -860,6 +971,9 @@
         const videoModal = document.getElementById('videoModal');
         const videoModalIframe = document.getElementById('videoModalIframe');
         const closeVideoModalBtn = document.getElementById('closeVideoModal');
+        const notification = document.getElementById('notification');
+        const autoplayToggle = document.getElementById('autoplayToggle');
+        const postLoadingSpinner = document.getElementById('postLoadingSpinner');
 
         // تهيئة التطبيق
         function initApp() {
@@ -873,11 +987,28 @@
                 updateOnlineStatus();
             }
             
+            // ضبط حالة التشغيل التلقائي
+            autoplayToggle.checked = autoplayVideos;
+            
             updateFollowButton();
             displayPosts();
             
             // التحقق من وجود معرف منشور في الرابط
             checkForPostInURL();
+            
+            // تحميل سكريبتات التضمين
+            loadEmbedScripts();
+        }
+
+        // إظهار إشعار
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.style.backgroundColor = type === 'success' ? '#17bf63' : '#e0245e';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
         }
 
         // التحقق من وجود معرف منشور في الرابط
@@ -1026,7 +1157,7 @@
                 return `
                     <div class="video-container">
                         <iframe 
-                            src="https://player.vimeo.com/video/${vimeoId}" 
+                            src="https://player.vimeo.com/video/${vimeoId}${autoplayVideos ? '?autoplay=1' : ''}" 
                             frameborder="0" 
                             allow="autoplay; fullscreen; picture-in-picture" 
                             allowfullscreen>
@@ -1042,7 +1173,7 @@
                     <div class="video-container">
                         <iframe 
                             frameborder="0" 
-                            src="https://www.dailymotion.com/embed/video/${dailymotionId}" 
+                            src="https://www.dailymotion.com/embed/video/${dailymotionId}${autoplayVideos ? '?autoplay=1' : ''}" 
                             allowfullscreen>
                         </iframe>
                     </div>
@@ -1085,7 +1216,7 @@
             if (link.includes('soundcloud.com/')) {
                 return `
                     <div class="embed-container">
-                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500&auto_play=${autoplayVideos ? 'true' : 'false'}&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
                     </div>
                 `;
             }
@@ -1107,7 +1238,7 @@
             if (link.match(/\.(mp3|wav|ogg|m4a)$/i)) {
                 return `
                     <div class="audio-player">
-                        <audio controls style="width: 100%;">
+                        <audio controls style="width: 100%;" ${autoplayVideos ? 'autoplay' : ''}>
                             <source src="${link}" type="audio/mpeg">
                             متصفحك لا يدعم تشغيل الملفات الصوتية.
                         </audio>
@@ -1119,7 +1250,7 @@
             if (link.match(/\.(mp4|webm|ogv|mov)$/i)) {
                 return `
                     <div class="video-container">
-                        <video controls style="width: 100%; height: 100%;">
+                        <video controls style="width: 100%; height: 100%;" ${autoplayVideos ? 'autoplay' : ''}>
                             <source src="${link}" type="video/mp4">
                             متصفحك لا يدعم تشغيل الفيديو.
                         </video>
@@ -1176,7 +1307,7 @@
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(permalink)
                     .then(() => {
-                        alert('تم نسخ رابط المنشور بنجاح!');
+                        showNotification('تم نسخ رابط المنشور بنجاح!');
                     })
                     .catch(err => {
                         console.error('Failed to copy: ', err);
@@ -1199,13 +1330,13 @@
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    alert('تم نسخ رابط المنشور بنجاح!');
+                    showNotification('تم نسخ رابط المنشور بنجاح!');
                 } else {
-                    alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
+                    showNotification('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.', 'error');
                 }
             } catch (err) {
                 console.error('Fallback: Oops, unable to copy', err);
-                alert('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.');
+                showNotification('فشل نسخ الرابط. يرجى المحاولة مرة أخرى.', 'error');
             }
             
             document.body.removeChild(textArea);
@@ -1432,9 +1563,6 @@
                     }
                 });
             });
-            
-            // إعادة تحميل أدوات التضمين بعد عرض المنشورات
-            loadEmbedScripts();
         }
 
         // إعادة تحميل أدوات التضمين
@@ -1499,7 +1627,7 @@
             const username = profileUsernameInput.value.trim();
             
             if (!username) {
-                alert('يرجى إدخال اسم المستخدم');
+                showNotification('يرجى إدخال اسم المستخدم', 'error');
                 return;
             }
             
@@ -1517,6 +1645,7 @@
                     profileSetup.style.display = 'none';
                     postForm.style.display = 'block';
                     updateStats();
+                    showNotification('تم حفظ الملف الشخصي بنجاح!');
                 });
             } else {
                 localStorage.setItem('userProfile', JSON.stringify(userProfile));
@@ -1524,14 +1653,15 @@
                 profileSetup.style.display = 'none';
                 postForm.style.display = 'block';
                 updateStats();
+                showNotification('تم حفظ الملف الشخصي بنجاح!');
             }
         }
 
-        // إضافة منشور جديد - الإصدار المصحح
+        // إضافة منشور جديد
         function addPost() {
             // التحقق من وجود ملف شخصي للمستخدم
             if (!userProfile) {
-                alert('يجب إنشاء ملف شخصي أولاً');
+                showNotification('يجب إنشاء ملف شخصي أولاً', 'error');
                 return;
             }
             
@@ -1539,9 +1669,13 @@
             const link = postLinkInput.value.trim();
             
             if (!content) {
-                alert('يرجى إدخال محتوى المنشور');
+                showNotification('يرجى إدخال محتوى المنشور', 'error');
                 return;
             }
+            
+            // إظهار مؤشر التحميل
+            postLoadingSpinner.style.display = 'block';
+            submitPostBtn.disabled = true;
             
             const newPost = {
                 id: Date.now().toString(),
@@ -1578,11 +1712,15 @@
             postImageInput.value = '';
             postImagePreview.style.display = 'none';
             
+            // إخفاء مؤشر التحميل
+            postLoadingSpinner.style.display = 'none';
+            submitPostBtn.disabled = false;
+            
             // تحديث العرض
             displayPosts();
             
             // إظهار رسالة نجاح
-            alert('تم نشر المنشور بنجاح!');
+            showNotification('تم نشر المنشور بنجاح!');
         }
 
         // إضافة رابط لمنشور موجود
@@ -1590,7 +1728,7 @@
             const link = newLinkInput.value.trim();
             
             if (!link) {
-                alert('يرجى إدخال رابط');
+                showNotification('يرجى إدخال رابط', 'error');
                 return;
             }
             
@@ -1603,6 +1741,7 @@
                 posts[postIndex].links.push(link);
                 localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
                 displayPosts();
+                showNotification('تم إضافة الرابط بنجاح!');
             }
             
             // إغلاق النافذة
@@ -1612,7 +1751,7 @@
         // إضافة صورة لمنشور موجود
         function addImageToPost() {
             if (!newImageInput.files || !newImageInput.files[0]) {
-                alert('يرجى اختيار صورة');
+                showNotification('يرجى اختيار صورة', 'error');
                 return;
             }
             
@@ -1626,6 +1765,7 @@
                     posts[postIndex].images.push(base64Image);
                     localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
                     displayPosts();
+                    showNotification('تم إضافة الصورة بنجاح!');
                 }
                 
                 // إغلاق النافذة
@@ -1636,7 +1776,7 @@
         // تفعيل/إلغاء الإعجاب
         function toggleLike(postId) {
             if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
+                showNotification('يجب تسجيل الدخول أولاً', 'error');
                 return;
             }
             
@@ -1650,9 +1790,11 @@
                 if (userIndex === -1) {
                     // إضافة إعجاب
                     posts[postIndex].likes.push(userProfile.username);
+                    showNotification('تم إضافة الإعجاب!');
                 } else {
                     // إزالة إعجاب
                     posts[postIndex].likes.splice(userIndex, 1);
+                    showNotification('تم إزالة الإعجاب!');
                 }
                 
                 localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
@@ -1675,7 +1817,7 @@
         // إضافة تعليق
         function addComment(postId) {
             if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
+                showNotification('يجب تسجيل الدخول أولاً', 'error');
                 return;
             }
             
@@ -1683,7 +1825,7 @@
             const commentText = commentInput.value.trim();
             
             if (!commentText) {
-                alert('يرجى إدخال نص التعليق');
+                showNotification('يرجى إدخال نص التعليق', 'error');
                 return;
             }
             
@@ -1714,13 +1856,15 @@
                 if (commentsSection) {
                     commentsSection.style.display = 'block';
                 }
+                
+                showNotification('تم إضافة التعليق بنجاح!');
             }
         }
 
         // إعادة نشر
         function retweetPost(postId) {
             if (!userProfile) {
-                alert('يجب تسجيل الدخول أولاً');
+                showNotification('يجب تسجيل الدخول أولاً', 'error');
                 return;
             }
             
@@ -1753,12 +1897,13 @@
                     localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
                     displayPosts();
                     
-                    alert('تمت إعادة النشر بنجاح!');
+                    showNotification('تمت إعادة النشر بنجاح!');
                 } else {
                     // إلغاء إعادة النشر
                     posts[postIndex].retweets.splice(userIndex, 1);
                     localStorage.setItem('linkSharingPosts', JSON.stringify(posts));
                     displayPosts();
+                    showNotification('تم إلغاء إعادة النشر!');
                 }
             }
         }
@@ -1778,7 +1923,7 @@
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(shareText)
                         .then(() => {
-                            alert('تم نسخ الرابط بنجاح! يمكنك مشاركته الآن.');
+                            showNotification('تم نسخ الرابط بنجاح! يمكنك مشاركته الآن.');
                         })
                         .catch(err => {
                             console.error('Failed to copy: ', err);
@@ -1797,9 +1942,9 @@
             updateFollowButton();
             
             if (isFollowing) {
-                alert('تمت المتابعة بنجاح!');
+                showNotification('تمت المتابعة بنجاح!');
             } else {
-                alert('تم إلغاء المتابعة.');
+                showNotification('تم إلغاء المتابعة.');
             }
         }
 
@@ -1896,6 +2041,13 @@
                 e.preventDefault();
                 addPost();
             }
+        });
+
+        // تحديث التشغيل التلقائي عند تغيير التبديل
+        autoplayToggle.addEventListener('change', function() {
+            autoplayVideos = this.checked;
+            localStorage.setItem('autoplayVideos', JSON.stringify(autoplayVideos));
+            displayPosts(); // إعادة عرض المنشورات لتطبيق التغيير
         });
 
         // التهيئة الأولية
