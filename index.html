@@ -278,6 +278,101 @@
             margin-right: 3px;
         }
         
+        /* تضمين المحتوى */
+        .embed-container {
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .embed-container iframe {
+            width: 100%;
+            border: none;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* نسبة 16:9 */
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .link-preview {
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .link-preview-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+        }
+        
+        .link-preview-content {
+            padding: 15px;
+        }
+        
+        .link-preview-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1da1f2;
+        }
+        
+        .link-preview-description {
+            color: #657786;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .link-preview-url {
+            color: #657786;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+        
+        .document-viewer {
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #f9f9f9;
+        }
+        
+        .document-viewer a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #1da1f2;
+            font-weight: bold;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -486,6 +581,10 @@
                 flex-wrap: wrap;
                 gap: 5px;
             }
+            
+            .video-container {
+                padding-bottom: 56.25%; /* نسبة 16:9 */
+            }
         }
     </style>
 </head>
@@ -532,8 +631,8 @@
                 <textarea id="postContent" rows="3" placeholder="اكتب منشورك هنا"></textarea>
             </div>
             <div class="form-group">
-                <label for="postLink">رابط (اختياري)</label>
-                <input type="text" id="postLink" placeholder="https://www.example.com/dq3symqa?key=d70f6394915c1bfe2cb605a19858de60">
+                <label for="postLink">رابط (اختياري) - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
+                <input type="text" id="postLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
             </div>
             <div class="form-group">
                 <div class="file-input-container">
@@ -559,8 +658,8 @@
                 <button class="close-btn" id="closeLinkModal">&times;</button>
             </div>
             <div class="form-group">
-                <label for="newLink">الرابط</label>
-                <input type="text" id="newLink" placeholder="https://www.example.com/dq3symqa?key=d70f6394915c1bfe2cb605a19858de60">
+                <label for="newLink">الرابط - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
+                <input type="text" id="newLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
             </div>
             <button id="submitLink">إضافة</button>
         </div>
@@ -694,6 +793,183 @@
             }
         }
 
+        // دالة لاستخراج معرف فيديو يوتيوب من الرابط
+        function getYouTubeVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        // دالة لاستخراج معرف فيديو Vimeo من الرابط
+        function getVimeoVideoId(url) {
+            const regExp = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)([0-9]+)/;
+            const match = url.match(regExp);
+            return match ? match[1] : null;
+        }
+
+        // دالة لاستخراج معرف فيديو Dailymotion من الرابط
+        function getDailymotionVideoId(url) {
+            const regExp = /(?:dailymotion\.com\/video\/|dai\.ly\/)([a-zA-Z0-9]+)/;
+            const match = url.match(regExp);
+            return match ? match[1] : null;
+        }
+
+        // دالة لاستخراج معرف تغريدة من رابط تويتر
+        function getTwitterTweetId(url) {
+            const regExp = /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)/;
+            const match = url.match(regExp);
+            return match ? match[2] : null;
+        }
+
+        // دالة لاستخراج معرف SoundCloud من الرابط
+        function getSoundCloudId(url) {
+            // SoundCloud يحتاج إلى استخدام API خاص، لذلك سنستخدم التضمين القياسي
+            return url;
+        }
+
+        // دالة للتحقق إذا كان الرابط ملف PDF
+        function isPdfFile(url) {
+            return url.toLowerCase().endsWith('.pdf');
+        }
+
+        // دالة لإنشاء محتوى مضمن للرابط
+        function generateEmbed(link) {
+            // يوتيوب
+            const youtubeId = getYouTubeVideoId(link);
+            if (youtubeId) {
+                return `
+                    <div class="video-container">
+                        <iframe 
+                            width="100%" 
+                            height="400" 
+                            src="https://www.youtube.com/embed/${youtubeId}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            }
+            
+            // Vimeo
+            const vimeoId = getVimeoVideoId(link);
+            if (vimeoId) {
+                return `
+                    <div class="video-container">
+                        <iframe 
+                            src="https://player.vimeo.com/video/${vimeoId}" 
+                            frameborder="0" 
+                            allow="autoplay; fullscreen; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            }
+            
+            // Dailymotion
+            const dailymotionId = getDailymotionVideoId(link);
+            if (dailymotionId) {
+                return `
+                    <div class="video-container">
+                        <iframe 
+                            frameborder="0" 
+                            src="https://www.dailymotion.com/embed/video/${dailymotionId}" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            }
+            
+            // تويتر
+            const tweetId = getTwitterTweetId(link);
+            if (tweetId) {
+                return `
+                    <div class="embed-container">
+                        <blockquote class="twitter-tweet">
+                            <a href="${link}"></a>
+                        </blockquote>
+                    </div>
+                `;
+            }
+            
+            // إنستغرام
+            if (link.includes('instagram.com/p/') || link.includes('instagram.com/reel/')) {
+                return `
+                    <div class="embed-container">
+                        <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${link}" data-instgrm-version="14">
+                            <a href="${link}">View this post on Instagram</a>
+                        </blockquote>
+                    </div>
+                `;
+            }
+            
+            // فيسبوك
+            if (link.includes('facebook.com/') && (link.includes('/posts/') || link.includes('/videos/'))) {
+                return `
+                    <div class="embed-container">
+                        <div class="fb-post" data-href="${link}" data-width="500" data-show-text="true"></div>
+                    </div>
+                `;
+            }
+            
+            // SoundCloud
+            if (link.includes('soundcloud.com/')) {
+                return `
+                    <div class="embed-container">
+                        <iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(link)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+                    </div>
+                `;
+            }
+            
+            // ملفات PDF
+            if (isPdfFile(link)) {
+                return `
+                    <div class="document-viewer">
+                        <a href="${link}" target="_blank">
+                            <span>📄</span>
+                            <span>فتح ملف PDF</span>
+                        </a>
+                        <iframe src="${link}" width="100%" height="500" style="border: none; margin-top: 10px;"></iframe>
+                    </div>
+                `;
+            }
+            
+            // ملفات صوتية مباشرة
+            if (link.match(/\.(mp3|wav|ogg|m4a)$/i)) {
+                return `
+                    <div class="audio-player">
+                        <audio controls style="width: 100%;">
+                            <source src="${link}" type="audio/mpeg">
+                            متصفحك لا يدعم تشغيل الملفات الصوتية.
+                        </audio>
+                    </div>
+                `;
+            }
+            
+            // ملفات فيديو مباشرة
+            if (link.match(/\.(mp4|webm|ogv|mov)$/i)) {
+                return `
+                    <div class="video-container">
+                        <video controls style="width: 100%; height: 100%;">
+                            <source src="${link}" type="video/mp4">
+                            متصفحك لا يدعم تشغيل الفيديو.
+                        </video>
+                    </div>
+                `;
+            }
+            
+            // رابط عادي - عرض معاينة
+            return `
+                <div class="link-preview">
+                    <div class="link-preview-content">
+                        <div class="link-preview-title">رابط خارجي</div>
+                        <div class="link-preview-description">${link}</div>
+                        <a href="${link}" target="_blank" class="link-button">فتح الرابط</a>
+                    </div>
+                </div>
+            `;
+        }
+
         // عرض المنشورات
         function displayPosts() {
             postsContainer.innerHTML = '';
@@ -713,9 +989,9 @@
                 if (post.links && post.links.length > 0) {
                     linksHtml = '<div class="post-links">';
                     post.links.forEach(link => {
-                        linksHtml += `
-                            <a href="${link}" target="_blank" class="link-button">افتح الرابط</a>
-                        `;
+                        // إنشاء محتوى مضمن للرابط
+                        const embedHtml = generateEmbed(link);
+                        linksHtml += embedHtml;
                     });
                     linksHtml += '</div>';
                 }
@@ -890,6 +1166,40 @@
                     }
                 });
             });
+            
+            // إعادة تحميل أدوات التضمين بعد عرض المنشورات
+            loadEmbedScripts();
+        }
+
+        // إعادة تحميل أدوات التضمين
+        function loadEmbedScripts() {
+            // تحميل سكريبت تويتر إذا لزم الأمر
+            if (!document.querySelector('script[src="https://platform.twitter.com/widgets.js"]')) {
+                const twitterScript = document.createElement('script');
+                twitterScript.src = 'https://platform.twitter.com/widgets.js';
+                twitterScript.charset = 'utf-8';
+                twitterScript.async = true;
+                document.body.appendChild(twitterScript);
+            }
+            
+            // تحميل سكريبت إنستغرام إذا لزم الأمر
+            if (!document.querySelector('script[src="//www.instagram.com/embed.js"]')) {
+                const instagramScript = document.createElement('script');
+                instagramScript.src = '//www.instagram.com/embed.js';
+                instagramScript.async = true;
+                document.body.appendChild(instagramScript);
+            }
+            
+            // تحميل سكريبت فيسبوك إذا لزم الأمر
+            if (!document.querySelector('script[src*="connect.facebook.net"]')) {
+                const facebookScript = document.createElement('script');
+                facebookScript.src = 'https://connect.facebook.net/ar_AR/sdk.js#xfbml=1&version=v15.0';
+                facebookScript.crossOrigin = 'anonymous';
+                facebookScript.nonce = 'YOUR_NONCE';
+                facebookScript.async = true;
+                facebookScript.defer = true;
+                document.body.appendChild(facebookScript);
+            }
         }
 
         // تنسيق الوقت
