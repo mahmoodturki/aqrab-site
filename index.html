@@ -853,6 +853,7 @@
             <div class="stats-container">
                 <div class="stat" id="registeredUsersStat">المسجلين: <span id="registeredCount">0</span></div>
                 <div class="stat" id="onlineUsersStat">المتصلين: <span id="onlineCount">0</span></div>
+                <div class="stat" id="siteVisitsStat">الزيارات: <span id="visitsCount">0</span></div>
             </div>
             <div class="header-actions">
                 <button class="follow-btn" id="followBtn">متابعة</button>
@@ -971,6 +972,7 @@
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
         let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || [];
         let autoplayVideos = JSON.parse(localStorage.getItem('autoplayVideos')) || false;
+        let siteVisits = JSON.parse(localStorage.getItem('siteVisits')) || 0;
 
         // عناصر DOM
         const profileSetup = document.getElementById('profileSetup');
@@ -999,6 +1001,7 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const registeredCount = document.getElementById('registeredCount');
         const onlineCount = document.getElementById('onlineCount');
+        const visitsCount = document.getElementById('visitsCount');
         const videoModal = document.getElementById('videoModal');
         const videoModalIframe = document.getElementById('videoModalIframe');
         const closeVideoModalBtn = document.getElementById('closeVideoModal');
@@ -1008,6 +1011,9 @@
 
         // تهيئة التطبيق
         function initApp() {
+            // تحديث عدد الزيارات
+            updateSiteVisits();
+            
             updateStats();
             
             if (userProfile) {
@@ -1029,6 +1035,13 @@
             
             // تحميل سكريبتات التضمين
             loadEmbedScripts();
+        }
+
+        // تحديث عدد زيارات الموقع
+        function updateSiteVisits() {
+            siteVisits++;
+            localStorage.setItem('siteVisits', JSON.stringify(siteVisits));
+            visitsCount.textContent = siteVisits;
         }
 
         // إظهار إشعار
@@ -1688,7 +1701,7 @@
             }
         }
 
-        // إضافة منشور جديد
+        // إضافة منشور جديد - الإصدار المصحح
         function addPost() {
             // التحقق من وجود ملف شخصي للمستخدم
             if (!userProfile) {
