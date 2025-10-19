@@ -35,6 +35,65 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
+        /* إعلانات بين المنشورات */
+        .post-ad {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* إعلان في الشريط الجانبي */
+        .sidebar-ad {
+            display: flex;
+            justify-content: center;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* إعلان في الأسفل */
+        .bottom-ad {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* إعلان عائم في الأسفل */
+        .floating-ad {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* تخطيط الصفحة مع الشريط الجانبي */
+        .page-layout {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 300px;
+        }
+        
         header {
             background: linear-gradient(135deg, #1da1f2, #0d8bd9);
             color: white;
@@ -793,6 +852,21 @@
             transform: translateX(26px);
         }
         
+        /* إخفاء الإعلان العائم على الهواتف */
+        @media (max-width: 768px) {
+            .page-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .floating-ad {
+                display: none;
+            }
+        }
+        
         @media (max-width: 600px) {
             .container {
                 padding: 10px;
@@ -824,7 +898,7 @@
                 width: 95%;
             }
             
-            .top-ad {
+            .top-ad, .post-ad, .sidebar-ad, .bottom-ad {
                 padding: 5px;
             }
         }
@@ -834,16 +908,17 @@
     <!-- إعلان أعلى الموقع -->
     <div class="container">
         <div class="top-ad">
+            <!-- الكود الأول: 320x50 -->
             <script type="text/javascript">
                 atOptions = {
-                    'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
                     'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
+                    'height' : 50,
+                    'width' : 320,
                     'params' : {}
-                };
+                }
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"></script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
         </div>
     </div>
     
@@ -853,6 +928,7 @@
             <div class="stats-container">
                 <div class="stat" id="registeredUsersStat">المسجلين: <span id="registeredCount">0</span></div>
                 <div class="stat" id="onlineUsersStat">المتصلين: <span id="onlineCount">0</span></div>
+                <div class="stat" id="siteVisitsStat">الزيارات: <span id="visitsCount">0</span></div>
             </div>
             <div class="header-actions">
                 <button class="follow-btn" id="followBtn">متابعة</button>
@@ -862,58 +938,107 @@
     </header>
     
     <div class="container">
-        <!-- إعدادات الملف الشخصي -->
-        <div class="profile-setup" id="profileSetup">
-            <h2>إعداد الملف الشخصي</h2>
-            <div class="form-group">
-                <div class="profile-avatar" id="profileAvatarPreview">
-                    <span id="avatarInitial">?</span>
+        <div class="page-layout">
+            <div class="main-content">
+                <!-- إعدادات الملف الشخصي -->
+                <div class="profile-setup" id="profileSetup">
+                    <h2>إعداد الملف الشخصي</h2>
+                    <div class="form-group">
+                        <div class="profile-avatar" id="profileAvatarPreview">
+                            <span id="avatarInitial">?</span>
+                        </div>
+                        <div class="file-input-container">
+                            <label class="file-input-label" for="profileImage">اختر صورة الملف الشخصي</label>
+                            <input type="file" id="profileImage" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileUsername">اسم المستخدم</label>
+                        <input type="text" id="profileUsername" placeholder="أدخل اسم المستخدم">
+                    </div>
+                    <button id="saveProfile">حفظ الملف الشخصي</button>
                 </div>
-                <div class="file-input-container">
-                    <label class="file-input-label" for="profileImage">اختر صورة الملف الشخصي</label>
-                    <input type="file" id="profileImage" accept="image/*">
+                
+                <!-- نموذج إضافة منشور -->
+                <div class="post-form" id="postForm" style="display: none;">
+                    <h2>أضف منشور جديد</h2>
+                    <div class="form-group">
+                        <label for="postContent">المحتوى</label>
+                        <textarea id="postContent" rows="3" placeholder="اكتب منشورك هنا"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="postLink">رابط (اختياري) - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
+                        <input type="text" id="postLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
+                    </div>
+                    <div class="form-group">
+                        <div class="auto-play-toggle">
+                            <label for="autoplayToggle">التشغيل التلقائي للفيديوهات:</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoplayToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="file-input-container">
+                            <label class="file-input-label" for="postImage">إضافة صورة للمنشور</label>
+                            <input type="file" id="postImage" accept="image/*">
+                        </div>
+                        <img id="postImagePreview" class="image-preview" src="" alt="معاينة الصورة">
+                    </div>
+                    <button id="submitPost">نشر</button>
+                    <div class="loading-spinner" id="postLoadingSpinner"></div>
+                </div>
+                
+                <!-- قائمة المنشورات -->
+                <div class="posts-container" id="postsContainer">
+                    <!-- سيتم إضافة المنشورات هنا ديناميكيًا -->
+                </div>
+                
+                <!-- إعلان أسفل المحتوى الرئيسي -->
+                <div class="bottom-ad">
+                    <!-- الكود الثاني -->
+                    <script type='text/javascript' src='//pl27783662.effectivegatecpm.com/8d/f4/a9/8df4a9bd2d8c6909d8f0cfc70ea9ec02.js'></script>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="profileUsername">اسم المستخدم</label>
-                <input type="text" id="profileUsername" placeholder="أدخل اسم المستخدم">
+            
+            <!-- الشريط الجانبي -->
+            <div class="sidebar">
+                <!-- إعلان في الشريط الجانبي -->
+                <div class="sidebar-ad">
+                    <!-- الكود الرابع: 160x300 -->
+                    <script type="text/javascript">
+                        atOptions = {
+                            'key' : '08651e54be331f32562cc9fb890bb154',
+                            'format' : 'iframe',
+                            'height' : 300,
+                            'width' : 160,
+                            'params' : {}
+                        };
+                    </script>
+                    <script type="text/javascript" src="//www.highperformanceformat.com/08651e54be331f32562cc9fb890bb154/invoke.js"></script>
+                </div>
+                
+                <!-- إعلان إضافي في الشريط الجانبي -->
+                <div class="sidebar-ad">
+                    <!-- الكود الثالث -->
+                    <script type='text/javascript' src='//pl27855747.effectivegatecpm.com/70/04/ee/7004ee25e67b74af981a82d58dae4b0c.js'></script>
+                </div>
             </div>
-            <button id="saveProfile">حفظ الملف الشخصي</button>
         </div>
-        
-        <!-- نموذج إضافة منشور -->
-        <div class="post-form" id="postForm" style="display: none;">
-            <h2>أضف منشور جديد</h2>
-            <div class="form-group">
-                <label for="postContent">المحتوى</label>
-                <textarea id="postContent" rows="3" placeholder="اكتب منشورك هنا"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="postLink">رابط (اختياري) - يدعم YouTube، Vimeo، Dailymotion، Twitter، Instagram، Facebook، SoundCloud، ملفات PDF والمزيد</label>
-                <input type="text" id="postLink" placeholder="https://www.example.com أو رابط فيديو يوتيوب">
-            </div>
-            <div class="form-group">
-                <div class="auto-play-toggle">
-                    <label for="autoplayToggle">التشغيل التلقائي للفيديوهات:</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="autoplayToggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="file-input-container">
-                    <label class="file-input-label" for="postImage">إضافة صورة للمنشور</label>
-                    <input type="file" id="postImage" accept="image/*">
-                </div>
-                <img id="postImagePreview" class="image-preview" src="" alt="معاينة الصورة">
-            </div>
-            <button id="submitPost">نشر</button>
-            <div class="loading-spinner" id="postLoadingSpinner"></div>
-        </div>
-        
-        <!-- قائمة المنشورات -->
-        <div class="posts-container" id="postsContainer">
-            <!-- سيتم إضافة المنشورات هنا ديناميكيًا -->
-        </div>
+    </div>
+    
+    <!-- إعلان عائم في الأسفل -->
+    <div class="floating-ad">
+        <!-- الكود الخامس: 300x250 -->
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"></script>
     </div>
     
     <!-- نافذة إضافة رابط -->
@@ -971,6 +1096,7 @@
         let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
         let onlineUsers = JSON.parse(localStorage.getItem('onlineUsers')) || [];
         let autoplayVideos = JSON.parse(localStorage.getItem('autoplayVideos')) || false;
+        let siteVisits = JSON.parse(localStorage.getItem('siteVisits')) || 0;
 
         // عناصر DOM
         const profileSetup = document.getElementById('profileSetup');
@@ -999,6 +1125,7 @@
         const logoutBtn = document.getElementById('logoutBtn');
         const registeredCount = document.getElementById('registeredCount');
         const onlineCount = document.getElementById('onlineCount');
+        const visitsCount = document.getElementById('visitsCount');
         const videoModal = document.getElementById('videoModal');
         const videoModalIframe = document.getElementById('videoModalIframe');
         const closeVideoModalBtn = document.getElementById('closeVideoModal');
@@ -1008,6 +1135,9 @@
 
         // تهيئة التطبيق
         function initApp() {
+            // تحديث عدد الزيارات
+            updateSiteVisits();
+            
             updateStats();
             
             if (userProfile) {
@@ -1029,6 +1159,42 @@
             
             // تحميل سكريبتات التضمين
             loadEmbedScripts();
+        }
+
+        // تحديث عدد زيارات الموقع
+        function updateSiteVisits() {
+            siteVisits++;
+            localStorage.setItem('siteVisits', JSON.stringify(siteVisits));
+            visitsCount.textContent = siteVisits;
+        }
+
+        // إنشاء عنصر إعلان
+        function createAdElement(adType) {
+            const adElement = document.createElement('div');
+            adElement.className = 'post-ad';
+            
+            let adCode = '';
+            
+            switch(adType) {
+                case 'between_posts':
+                    // الكود الخامس: 300x250
+                    adCode = `
+                        <script type="text/javascript">
+                            atOptions = {
+                                'key' : '3fa8b00fc8159153c0596ee9ffb026ea',
+                                'format' : 'iframe',
+                                'height' : 250,
+                                'width' : 300,
+                                'params' : {}
+                            };
+                        </script>
+                        <script type="text/javascript" src="//www.highperformanceformat.com/3fa8b00fc8159153c0596ee9ffb026ea/invoke.js"></script>
+                    `;
+                    break;
+            }
+            
+            adElement.innerHTML = adCode;
+            return adElement;
         }
 
         // إظهار إشعار
@@ -1383,7 +1549,9 @@
             }
             
             // عرض المنشورات من الأحدث إلى الأقدم
-            posts.slice().reverse().forEach(post => {
+            const postsToShow = posts.slice().reverse();
+            
+            postsToShow.forEach((post, index) => {
                 const postElement = document.createElement('div');
                 postElement.className = 'post';
                 postElement.dataset.id = post.id;
@@ -1518,6 +1686,12 @@
                 `;
                 
                 postsContainer.appendChild(postElement);
+                
+                // إضافة إعلان بعد كل 5 منشورات
+                if ((index + 1) % 5 === 0 && index < postsToShow.length - 1) {
+                    const adElement = createAdElement('between_posts');
+                    postsContainer.appendChild(adElement);
+                }
             });
             
             // إضافة مستمعي الأحداث لأزرار إضافة الروابط والصور (فقط إذا كانت موجودة)
@@ -1688,7 +1862,7 @@
             }
         }
 
-        // إضافة منشور جديد
+        // إضافة منشور جديد - الإصدار المصحح
         function addPost() {
             // التحقق من وجود ملف شخصي للمستخدم
             if (!userProfile) {
