@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShowcaseHub - منصة عرض المنتجات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* التصميم الأساسي */
         * {
@@ -34,6 +35,9 @@
             border-radius: 10px;
             margin-bottom: 30px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .header-content {
@@ -96,6 +100,16 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid #ff7e5f;
+        }
+        
+        .visitor-counter {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         /* زر الإضافة */
@@ -207,6 +221,7 @@
         .card-actions {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 10px;
         }
         
         .card-btn {
@@ -225,6 +240,35 @@
         
         .card-btn.primary {
             background: linear-gradient(45deg, #ff7e5f, #feb47b);
+        }
+        
+        .interactions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .interaction-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .interaction-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .interaction-btn.active {
+            color: #ff7e5f;
         }
         
         /* النموذج */
@@ -370,6 +414,47 @@
             .grid {
                 grid-template-columns: 1fr;
             }
+            
+            .interactions {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .interaction-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+        
+        /* تحسينات للهاتف */
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .card-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        /* إصلاح مشكلة اللمس على الهواتف */
+        button, .file-input-label {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .modal {
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -392,6 +477,10 @@
                 </nav>
                 
                 <div class="user-info">
+                    <div class="visitor-counter">
+                        <i class="fas fa-eye"></i>
+                        <span id="visitorCount">0</span>
+                    </div>
                     <span id="userGreeting">مرحباً، زائر</span>
                     <button class="add-btn" id="loginBtn">تسجيل الدخول</button>
                     <button class="add-btn" id="addProductBtn" style="display:none">إضافة منتج</button>
@@ -402,16 +491,7 @@
         <!-- إعلان غير مزعج -->
         <div class="ad-container">
             <div id="ad-top">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+                <!-- سيتم إضافة الإعلان هنا عبر JavaScript -->
             </div>
         </div>
         
@@ -427,16 +507,7 @@
             <!-- إعلان في منتصف الصفحة -->
             <div class="ad-container">
                 <div id="ad-mid">
-                    <script type="text/javascript">
-                        atOptions = {
-                            'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                            'format' : 'iframe',
-                            'height' : 50,
-                            'width' : 320,
-                            'params' : {}
-                        };
-                    </script>
-                    <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+                    <!-- سيتم إضافة الإعلان هنا عبر JavaScript -->
                 </div>
             </div>
             
@@ -515,6 +586,20 @@
     </div>
 
     <script>
+        // زيادة عداد الزوار
+        function incrementVisitorCount() {
+            let count = localStorage.getItem('visitorCount') || 0;
+            count = parseInt(count) + 1;
+            localStorage.setItem('visitorCount', count);
+            document.getElementById('visitorCount').textContent = count;
+        }
+        
+        // تحميل عداد الزوار
+        function loadVisitorCount() {
+            let count = localStorage.getItem('visitorCount') || 0;
+            document.getElementById('visitorCount').textContent = count;
+        }
+        
         // بيانات المنتجات والمستخدمين
         let products = JSON.parse(localStorage.getItem('products')) || [
             {
@@ -522,16 +607,24 @@
                 name: "هاتف ذكي",
                 description: "هاتف ذكي حديث بشاشة كبيرة وكاميرا متميزة",
                 price: 2500,
-                image: "default-product.jpg",
-                userId: "demo"
+                image: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzM0OThEQiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Yp9mE2YLYqSDYp9mE2KfYstin2YY8L3RleHQ+PC9zdmc+",
+                userId: "demo",
+                likes: 5,
+                comments: [],
+                shares: 2,
+                likedBy: []
             },
             {
                 id: 2,
                 name: "لابتوب",
                 description: "لابتوب قوي مناسب للأعمال والألعاب",
                 price: 4500,
-                image: "default-product.jpg",
-                userId: "demo"
+                image: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzlCNTlCNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Zh9in2YbZhdmI2KfYr9ipPC90ZXh0Pjwvc3ZnPg==",
+                userId: "demo",
+                likes: 3,
+                comments: [],
+                shares: 1,
+                likedBy: []
             }
         ];
         
@@ -591,6 +684,9 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'card';
                 
+                // التحقق مما إذا كان المستخدم الحالي قد أعجب بهذا المنتج
+                const isLiked = currentUser && product.likedBy && product.likedBy.includes(currentUser.username);
+                
                 productCard.innerHTML = `
                     <div class="card-img">
                         <img src="${product.image}" alt="${product.name}">
@@ -602,6 +698,20 @@
                         <div class="card-actions">
                             <button class="card-btn" onclick="viewProduct(${product.id})">عرض</button>
                             <button class="card-btn primary" onclick="addToCart(${product.id})">شراء</button>
+                        </div>
+                        <div class="interactions">
+                            <button class="interaction-btn ${isLiked ? 'active' : ''}" onclick="likeProduct(${product.id})">
+                                <i class="fas fa-heart"></i>
+                                <span>${product.likes || 0}</span>
+                            </button>
+                            <button class="interaction-btn" onclick="commentOnProduct(${product.id})">
+                                <i class="fas fa-comment"></i>
+                                <span>${product.comments ? product.comments.length : 0}</span>
+                            </button>
+                            <button class="interaction-btn" onclick="shareProduct(${product.id})">
+                                <i class="fas fa-share"></i>
+                                <span>${product.shares || 0}</span>
+                            </button>
                         </div>
                     </div>
                 `;
@@ -687,7 +797,7 @@
             }
             
             // إذا لم يختار المستخدم صورة، نستخدم صورة افتراضية
-            let avatarSrc = 'default-avatar.png';
+            let avatarSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjIwMCIgcj0iODAiIGZpbGw9IiMzMzMiLz48L3N2Zz4=';
             
             if (avatarFile) {
                 const reader = new FileReader();
@@ -755,7 +865,11 @@
                     description,
                     price: parseInt(price),
                     image: e.target.result,
-                    userId: currentUser.username
+                    userId: currentUser.username,
+                    likes: 0,
+                    comments: [],
+                    shares: 0,
+                    likedBy: []
                 };
                 
                 products.push(newProduct);
@@ -770,6 +884,104 @@
             reader.readAsDataURL(imageFile);
         });
 
+        // وظائف التفاعل
+        function likeProduct(productId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            const product = products.find(p => p.id === productId);
+            if (!product.likedBy) {
+                product.likedBy = [];
+            }
+            
+            const userIndex = product.likedBy.indexOf(currentUser.username);
+            
+            if (userIndex === -1) {
+                // لم يعجب المستخدم بالمنتج من قبل
+                product.likedBy.push(currentUser.username);
+                product.likes = (product.likes || 0) + 1;
+            } else {
+                // إلغاء الإعجاب
+                product.likedBy.splice(userIndex, 1);
+                product.likes = (product.likes || 0) - 1;
+            }
+            
+            localStorage.setItem('products', JSON.stringify(products));
+            renderProducts();
+        }
+        
+        function commentOnProduct(productId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                loginModal.style.display = 'flex';
+                return;
+            }
+            
+            const comment = prompt('أضف تعليقك على هذا المنتج:');
+            if (comment && comment.trim() !== '') {
+                const product = products.find(p => p.id === productId);
+                if (!product.comments) {
+                    product.comments = [];
+                }
+                
+                product.comments.push({
+                    user: currentUser.username,
+                    text: comment,
+                    date: new Date().toISOString()
+                });
+                
+                localStorage.setItem('products', JSON.stringify(products));
+                renderProducts();
+                alert('تم إضافة تعليقك بنجاح!');
+            }
+        }
+        
+        function shareProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            product.shares = (product.shares || 0) + 1;
+            
+            // إنشاء رابط للمشاركة
+            const shareUrl = `${window.location.origin}${window.location.pathname}#product-${productId}`;
+            
+            // محاولة استخدام واجهة Web Share API إذا كانت متاحة
+            if (navigator.share) {
+                navigator.share({
+                    title: product.name,
+                    text: product.description,
+                    url: shareUrl
+                })
+                .then(() => {
+                    localStorage.setItem('products', JSON.stringify(products));
+                    renderProducts();
+                })
+                .catch(err => {
+                    console.error('Error sharing:', err);
+                    fallbackShare(shareUrl, product);
+                });
+            } else {
+                fallbackShare(shareUrl, product);
+            }
+        }
+        
+        function fallbackShare(shareUrl, product) {
+            // نسخ الرابط إلى الحافظة
+            navigator.clipboard.writeText(shareUrl)
+                .then(() => {
+                    alert(`تم نسخ رابط المنتج: ${product.name}\nالرابط: ${shareUrl}`);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    renderProducts();
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert(`رابط المشاركة: ${shareUrl}`);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    renderProducts();
+                });
+        }
+
         // وظائف تفاعلية
         function viewProduct(id) {
             const product = products.find(p => p.id === id);
@@ -781,10 +993,40 @@
             alert(`تمت إضافة ${product.name} إلى سلة التسوق!`);
         }
 
+        // إضافة الإعلانات
+        function loadAds() {
+            const adScript = document.createElement('script');
+            adScript.innerHTML = `
+                atOptions = {
+                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            `;
+            
+            const adScript2 = document.createElement('script');
+            adScript2.src = "//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js";
+            
+            document.getElementById('ad-top').appendChild(adScript);
+            document.getElementById('ad-top').appendChild(adScript2);
+            
+            // نسخ الإعلان للمنطقة الوسطى
+            const adMid = document.getElementById('ad-mid');
+            const adScript3 = adScript.cloneNode(true);
+            const adScript4 = adScript2.cloneNode(true);
+            adMid.appendChild(adScript3);
+            adMid.appendChild(adScript4);
+        }
+
         // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', () => {
+            incrementVisitorCount();
+            loadVisitorCount();
             renderProducts();
             updateUI();
+            loadAds();
         });
     </script>
 </body>
