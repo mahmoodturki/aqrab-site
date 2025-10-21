@@ -26,7 +26,13 @@
         body {
             background-color: #f5f5f5;
             color: var(--dark);
-            padding-top: 70px;
+            padding-top: 120px;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: white;
         }
 
         /* التصميم المتجاوب */
@@ -45,6 +51,12 @@
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .header {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .top-ad {
@@ -52,6 +64,11 @@
             padding: 5px;
             text-align: center;
             border-bottom: 1px solid #eee;
+        }
+
+        .dark-mode .top-ad {
+            background: #3d3d3d;
+            border-bottom: 1px solid #555;
         }
 
         .navbar {
@@ -81,6 +98,10 @@
             transition: all 0.3s;
         }
 
+        .dark-mode .nav-links a {
+            color: white;
+        }
+
         .nav-links a:hover {
             background: var(--primary);
             color: white;
@@ -93,6 +114,29 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #d0006f;
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.1);
         }
 
         /* نموذج المصادقة */
@@ -103,6 +147,12 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .auth-container {
+            background: #2d2d2d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .auth-container h2 {
@@ -118,6 +168,13 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .auth-container input {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .auth-container button {
@@ -130,12 +187,22 @@
             font-size: 1rem;
             cursor: pointer;
             margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .auth-container button:hover {
+            background: var(--secondary);
         }
 
         .auth-toggle {
             text-align: center;
             color: var(--gray);
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-toggle:hover {
+            color: var(--primary);
         }
 
         /* البوستات */
@@ -151,6 +218,14 @@
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 5px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .sort-select {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .post-card {
@@ -160,6 +235,12 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 1.5rem;
             max-width: 600px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .post-card {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .post-header {
@@ -174,6 +255,7 @@
             border-radius: 50%;
             margin-left: 1rem;
             object-fit: cover;
+            border: 2px solid var(--primary);
         }
 
         .post-user-info {
@@ -184,6 +266,10 @@
         .username {
             font-weight: bold;
             color: var(--dark);
+        }
+
+        .dark-mode .username {
+            color: white;
         }
 
         .post-time {
@@ -215,6 +301,11 @@
             padding: 1rem;
             border-radius: 5px;
             margin: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .product-info {
+            background: #3d3d3d;
         }
 
         .product-info p {
@@ -231,6 +322,10 @@
             margin: 1rem 0;
         }
 
+        .dark-mode .engagement-bar {
+            border-color: #555;
+        }
+
         .engagement-bar button {
             background: none;
             border: none;
@@ -238,10 +333,17 @@
             padding: 0.5rem;
             border-radius: 5px;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
         .engagement-bar button:hover {
             background: #f0f0f0;
+        }
+
+        .dark-mode .engagement-bar button:hover {
+            background: #3d3d3d;
         }
 
         .liked {
@@ -263,6 +365,13 @@
             padding: 0.5rem;
             border: 1px solid #ddd;
             border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .comment-form input {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .comment-form button {
@@ -272,6 +381,11 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .comment-form button:hover {
+            background: var(--secondary);
         }
 
         .comment {
@@ -281,6 +395,11 @@
             padding: 0.5rem;
             background: #f8f9fa;
             border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .comment {
+            background: #3d3d3d;
         }
 
         .comment img {
@@ -311,6 +430,13 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .post-url input {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .post-url button {
@@ -320,6 +446,11 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .post-url button:hover {
+            background: #3aa8d0;
         }
 
         /* الإعلانات */
@@ -331,6 +462,12 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             max-width: 600px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .in-feed-ad {
+            background: #2d2d2d;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         /* نموذج إنشاء منشور */
@@ -341,6 +478,18 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .create-post {
+            background: #2d2d2d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .create-post h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
         }
 
         .create-post textarea {
@@ -351,6 +500,14 @@
             margin-bottom: 1rem;
             resize: vertical;
             min-height: 100px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .create-post textarea {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .create-post input {
@@ -359,10 +516,35 @@
             margin-bottom: 1rem;
             border: 1px solid #ddd;
             border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .create-post input {
+            background: #3d3d3d;
+            color: white;
+            border-color: #555;
         }
 
         .file-upload {
             margin: 1rem 0;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-upload label {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload label:hover {
+            background: var(--secondary);
         }
 
         .submit-btn {
@@ -374,6 +556,11 @@
             border-radius: 5px;
             font-size: 1rem;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: var(--secondary);
         }
 
         /* الحالة */
@@ -395,6 +582,12 @@
             padding: 2rem;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .profile {
+            background: #2d2d2d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
         .profile-header {
@@ -408,6 +601,7 @@
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 1rem;
+            border: 3px solid var(--primary);
         }
 
         .profile-stats {
@@ -422,6 +616,11 @@
             padding: 1rem;
             background: #f8f9fa;
             border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .stat-item {
+            background: #3d3d3d;
         }
 
         .stat-number {
@@ -430,35 +629,13 @@
             color: var(--primary);
         }
 
-        /* الوضع الليلي */
-        .dark-mode {
-            background-color: #1a1a1a;
-            color: white;
+        /* الأقسام */
+        .section {
+            display: none;
         }
 
-        .dark-mode .header,
-        .dark-mode .post-card,
-        .dark-mode .auth-container,
-        .dark-mode .create-post,
-        .dark-mode .profile,
-        .dark-mode .in-feed-ad {
-            background: #2d2d2d;
-            color: white;
-        }
-
-        .dark-mode input,
-        .dark-mode textarea {
-            background: #3d3d3d;
-            color: white;
-            border-color: #555;
-        }
-
-        .dark-mode .product-info {
-            background: #3d3d3d;
-        }
-
-        .dark-mode .engagement-bar button:hover {
-            background: #3d3d3d;
+        .section.active {
+            display: block;
         }
 
         /* التجاوب */
@@ -480,6 +657,10 @@
 
             .profile-stats {
                 grid-template-columns: 1fr;
+            }
+
+            body {
+                padding-top: 160px;
             }
         }
     </style>
@@ -511,7 +692,7 @@
                 <a href="#" onclick="showSection('create')">منشور جديد</a>
                 <a href="#" onclick="showSection('profile')">ملفي</a>
                 <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
-                <button onclick="toggleDarkMode()">🌙</button>
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
             </div>
         </nav>
     </header>
@@ -519,7 +700,7 @@
     <!-- المحتوى الرئيسي -->
     <div class="container">
         <!-- الصفحة الرئيسية -->
-        <div id="home-section" class="section">
+        <div id="home-section" class="section active">
             <div class="feed-header">
                 <h1>أحدث المنشورات</h1>
                 <select class="sort-select" onchange="sortPosts(this.value)">
@@ -534,19 +715,19 @@
         </div>
 
         <!-- إنشاء منشور جديد -->
-        <div id="create-section" class="section" style="display: none;">
+        <div id="create-section" class="section">
             <div class="create-post">
                 <h2>إنشاء منشور جديد</h2>
                 <form id="post-form">
-                    <textarea placeholder="ماذا تريد أن تنشر؟" required></textarea>
+                    <textarea id="post-content" placeholder="ماذا تريد أن تنشر؟" required></textarea>
                     
-                    <input type="text" placeholder="وصف المنتج (اختياري)">
-                    <input type="tel" placeholder="رقم الهاتف (اختياري)">
-                    <input type="url" placeholder="رابط التواصل (اختياري)">
+                    <input type="text" id="post-description" placeholder="وصف المنتج (اختياري)">
+                    <input type="tel" id="post-phone" placeholder="رقم الهاتف (اختياري)">
+                    <input type="url" id="post-link" placeholder="رابط التواصل (اختياري)">
                     
                     <div class="file-upload">
                         <input type="file" id="image-upload" accept="image/*" multiple>
-                        <label for="image-upload">رفع صور</label>
+                        <label for="image-upload">📷 رفع صور</label>
                     </div>
                     
                     <button type="submit" class="submit-btn">نشر المنشور</button>
@@ -555,12 +736,12 @@
         </div>
 
         <!-- الملف الشخصي -->
-        <div id="profile-section" class="section" style="display: none;">
+        <div id="profile-section" class="section">
             <div class="profile">
                 <div class="profile-header">
-                    <img id="profile-avatar" src="" alt="صورة البروفايل" class="profile-avatar">
-                    <h2 id="profile-username"></h2>
-                    <p id="profile-bio"></p>
+                    <img id="profile-avatar" src="https://via.placeholder.com/100" alt="صورة البروفايل" class="profile-avatar">
+                    <h2 id="profile-username">اسم المستخدم</h2>
+                    <p id="profile-bio">وصف المستخدم</p>
                 </div>
                 
                 <div class="profile-stats">
@@ -608,9 +789,56 @@
 
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        // تهيئة التطبيق
+        function initializeApp() {
+            loadDarkMode();
             checkAuth();
             loadSampleData();
-        });
+            setupEventListeners();
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // نموذج المصادقة
+            document.getElementById('auth-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleAuth();
+            });
+
+            // نموذج إنشاء منشور
+            document.getElementById('post-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                createNewPost();
+            });
+
+            // رفع الصور
+            document.getElementById('image-upload').addEventListener('change', function(e) {
+                handleImageUpload(e);
+            });
+        }
+
+        // تحميل وضع التصميم
+        function loadDarkMode() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                isDarkMode = true;
+                document.body.classList.add('dark-mode');
+                document.querySelector('.dark-mode-toggle').textContent = '☀️';
+            }
+        }
+
+        // تبديل وضع التصميم
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            const toggleBtn = document.querySelector('.dark-mode-toggle');
+            toggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+        }
 
         // التحقق من المصادقة
         function checkAuth() {
@@ -646,9 +874,7 @@
         }
 
         // معالجة المصادقة
-        document.getElementById('auth-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+        function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
@@ -658,21 +884,26 @@
             } else {
                 login(email, password);
             }
-        });
+        }
 
         // تسجيل الدخول
         function login(email, password) {
+            if (!email || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+
             // محاكاة تسجيل الدخول
             currentUser = {
                 id: Date.now(),
                 username: 'مستخدم',
                 email: email,
-                profilePicture: '',
-                bio: 'هذا وصف المستخدم',
+                profilePicture: 'https://via.placeholder.com/100',
+                bio: 'مرحباً! أنا مستخدم جديد في PostLinker',
                 stats: {
-                    posts: 0,
-                    likes: 0,
-                    views: 0
+                    posts: 2,
+                    likes: 15,
+                    views: 239
                 }
             };
 
@@ -680,16 +911,24 @@
             showSection('home');
             updateProfile();
             renderPosts();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('auth-form').reset();
         }
 
         // تسجيل جديد
         function register(username, email, password) {
+            if (!username || !email || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+
             // محاكاة التسجيل
             currentUser = {
                 id: Date.now(),
                 username: username,
                 email: email,
-                profilePicture: '',
+                profilePicture: 'https://via.placeholder.com/100',
                 bio: 'مرحباً! أنا جديد في PostLinker',
                 stats: {
                     posts: 0,
@@ -702,6 +941,9 @@
             showSection('home');
             updateProfile();
             renderPosts();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('auth-form').reset();
         }
 
         // تسجيل الخروج
@@ -714,14 +956,14 @@
         // إظهار قسم معين
         function showSection(sectionName) {
             document.querySelectorAll('.section').forEach(section => {
-                section.style.display = 'none';
+                section.classList.remove('active');
             });
             
             if (sectionName === 'auth' && currentUser) {
                 sectionName = 'home';
             }
             
-            document.getElementById(sectionName + '-section').style.display = 'block';
+            document.getElementById(sectionName + '-section').classList.add('active');
             
             if (sectionName === 'home') {
                 renderPosts();
@@ -737,19 +979,20 @@
                     id: 1,
                     userId: 1,
                     username: 'أحمد',
-                    profilePicture: '',
+                    profilePicture: 'https://via.placeholder.com/50',
                     content: 'هذا منتج رائع أريد مشاركته معكم! 🎉',
                     media: { images: [], videos: [] },
                     productInfo: {
-                        description: 'منتج عالي الجودة',
+                        description: 'منتج عالي الجودة مع ضمان لمدة سنة',
                         phone: '+966500000000',
-                        price: 150
+                        price: 150,
+                        link: 'https://example.com'
                     },
                     engagement: {
                         likes: [1, 2, 3],
                         comments: [
-                            { userId: 2, username: 'محمد', text: 'جميل! كم السعر؟' },
-                            { userId: 3, username: 'فاطمة', text: 'أين يمكن الشراء؟' }
+                            { id: 1, userId: 2, username: 'محمد', text: 'جميل! كم السعر؟', createdAt: new Date(Date.now() - 60 * 60 * 1000) },
+                            { id: 2, userId: 3, username: 'فاطمة', text: 'أين يمكن الشراء؟', createdAt: new Date(Date.now() - 30 * 60 * 1000) }
                         ],
                         shares: 5,
                         reposts: 2,
@@ -762,18 +1005,19 @@
                     id: 2,
                     userId: 2,
                     username: 'محمد',
-                    profilePicture: '',
-                    content: 'عرض خاص على الأجهزة الإلكترونية 📱',
+                    profilePicture: 'https://via.placeholder.com/50',
+                    content: 'عرض خاص على الأجهزة الإلكترونية 📱\n\nخصم يصل إلى 30% على أحدث الموديلات!',
                     media: { images: [], videos: [] },
                     productInfo: {
-                        description: 'أجهزة إلكترونية بأسعار مميزة',
+                        description: 'أجهزة إلكترونية بأسعار مميزة مع شهادة ضمان',
                         phone: '+966511111111',
-                        price: 999
+                        price: 999,
+                        link: 'https://electronics-store.com'
                     },
                     engagement: {
                         likes: [1, 3],
                         comments: [
-                            { userId: 1, username: 'أحمد', text: 'ممتاز!' }
+                            { id: 3, userId: 1, username: 'أحمد', text: 'ممتاز! متوفر اللون الأسود؟', createdAt: new Date(Date.now() - 45 * 60 * 1000) }
                         ],
                         shares: 3,
                         reposts: 1,
@@ -781,6 +1025,32 @@
                     },
                     postUrl: 'post-2-def456',
                     createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000)
+                },
+                {
+                    id: 3,
+                    userId: 3,
+                    username: 'فاطمة',
+                    profilePicture: 'https://via.placeholder.com/50',
+                    content: 'خدمة تصميم جرافيك محترف 🎨\n\nأقدم لكم خدمات التصميم الإبداعي للشعارات والمواد التسويقية.',
+                    media: { images: [], videos: [] },
+                    productInfo: {
+                        description: 'تصميم جرافيك محترف بأسعار مناسبة وبجودة عالية',
+                        phone: '+966522222222',
+                        price: 200,
+                        link: 'https://design-portfolio.com'
+                    },
+                    engagement: {
+                        likes: [1, 2, 3, 4],
+                        comments: [
+                            { id: 4, userId: 1, username: 'أحمد', text: 'عمل رائع! كم تستغرق مدة التصميم؟', createdAt: new Date(Date.now() - 20 * 60 * 1000) },
+                            { id: 5, userId: 2, username: 'محمد', text: 'هل تقدمين خدمة التصميم للشعارات أيضًا؟', createdAt: new Date(Date.now() - 15 * 60 * 1000) }
+                        ],
+                        shares: 7,
+                        reposts: 3,
+                        views: 210
+                    },
+                    postUrl: 'post-3-ghi789',
+                    createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000)
                 }
             ];
         }
@@ -788,9 +1058,16 @@
         // عرض المنشورات
         function renderPosts() {
             const feed = document.getElementById('posts-feed');
+            if (!feed) return;
+
             feed.innerHTML = '';
 
             const sortedPosts = sortPostsByAlgorithm(posts);
+
+            if (sortedPosts.length === 0) {
+                feed.innerHTML = '<div class="loading">لا توجد منشورات لعرضها</div>';
+                return;
+            }
 
             sortedPosts.forEach((post, index) => {
                 // إضافة المنشور
@@ -819,11 +1096,12 @@
         // إنشاء HTML للمنشور
         function createPostHTML(post) {
             const isLiked = currentUser && post.engagement.likes.includes(currentUser.id);
+            const postUrl = `${window.location.origin}/post/${post.postUrl}`;
             
             return `
                 <div class="post-card" data-post-id="${post.id}">
                     <div class="post-header">
-                        <img src="${post.profilePicture || 'https://via.placeholder.com/50'}" 
+                        <img src="${post.profilePicture}" 
                              alt="${post.username}" class="post-avatar">
                         <div class="post-user-info">
                             <span class="username">@${post.username}</span>
@@ -832,7 +1110,7 @@
                     </div>
 
                     <div class="post-content">
-                        <p>${post.content}</p>
+                        <p>${post.content.replace(/\n/g, '<br>')}</p>
                     </div>
 
                     ${post.productInfo ? `
@@ -840,6 +1118,7 @@
                             ${post.productInfo.description ? `<p>📝 ${post.productInfo.description}</p>` : ''}
                             ${post.productInfo.phone ? `<p>📞 ${post.productInfo.phone}</p>` : ''}
                             ${post.productInfo.price ? `<p>💰 ${post.productInfo.price} ريال</p>` : ''}
+                            ${post.productInfo.link ? `<p>🔗 <a href="${post.productInfo.link}" target="_blank">${post.productInfo.link}</a></p>` : ''}
                         </div>
                     ` : ''}
 
@@ -857,18 +1136,19 @@
                     </div>
 
                     <div id="comments-${post.id}" class="comments-section" style="display: none;">
-                        <form class="comment-form" onsubmit="addComment(event, ${post.id})">
-                            <input type="text" placeholder="اكتب تعليقك..." required>
+                        <form class="comment-form" onsubmit="event.preventDefault(); addComment(${post.id})">
+                            <input type="text" id="comment-input-${post.id}" placeholder="اكتب تعليقك..." required>
                             <button type="submit">نشر</button>
                         </form>
                         
-                        <div class="comments-list">
+                        <div class="comments-list" id="comments-list-${post.id}">
                             ${post.engagement.comments.map(comment => `
                                 <div class="comment">
                                     <img src="https://via.placeholder.com/35" alt="${comment.username}">
                                     <div class="comment-content">
                                         <span class="comment-username">@${comment.username}</span>
                                         <p>${comment.text}</p>
+                                        <span class="post-time">${formatTime(comment.createdAt)}</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -876,8 +1156,8 @@
                     </div>
 
                     <div class="post-url">
-                        <input type="text" value="${window.location.origin}/post/${post.postUrl}" readonly>
-                        <button onclick="copyToClipboard('${window.location.origin}/post/${post.postUrl}')">
+                        <input type="text" value="${postUrl}" readonly>
+                        <button onclick="copyToClipboard('${postUrl}')">
                             نسخ الرابط
                         </button>
                     </div>
@@ -929,6 +1209,12 @@
 
         // التفاعل مع المنشورات
         function likePost(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول للإعجاب بالمنشورات');
+                showSection('auth');
+                return;
+            }
+
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
@@ -945,46 +1231,87 @@
 
         function toggleComments(postId) {
             const commentsSection = document.getElementById(`comments-${postId}`);
-            commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+            if (commentsSection) {
+                commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+            }
         }
 
-        function addComment(event, postId) {
-            event.preventDefault();
-            const input = event.target.querySelector('input');
-            const text = input.value.trim();
+        function addComment(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول لإضافة تعليق');
+                showSection('auth');
+                return;
+            }
+
+            const commentInput = document.getElementById(`comment-input-${postId}`);
+            const text = commentInput.value.trim();
             
             if (!text) return;
 
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
-            post.engagement.comments.push({
+            const newComment = {
+                id: Date.now(),
                 userId: currentUser.id,
                 username: currentUser.username,
-                text: text
-            });
+                text: text,
+                createdAt: new Date()
+            };
 
-            input.value = '';
+            post.engagement.comments.push(newComment);
+            commentInput.value = '';
             renderPosts();
+            
+            // إظهار قسم التعليقات بعد الإضافة
+            toggleComments(postId);
         }
 
         function sharePost(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول لمشاركة المنشورات');
+                showSection('auth');
+                return;
+            }
+
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
             post.engagement.shares++;
-            navigator.clipboard.writeText(`${window.location.origin}/post/${post.postUrl}`);
-            alert('تم نسخ الرابط!');
+            const postUrl = `${window.location.origin}/post/${post.postUrl}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `منشور من ${post.username}`,
+                    text: post.content.substring(0, 100) + '...',
+                    url: postUrl,
+                });
+            } else {
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    alert('تم نسخ رابط المنشور!');
+                });
+            }
+            
             renderPosts();
         }
 
         // إنشاء منشور جديد
-        document.getElementById('post-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const content = this.querySelector('textarea').value;
-            const description = this.querySelectorAll('input')[0].value;
-            const phone = this.querySelectorAll('input')[1].value;
+        function createNewPost() {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول لإنشاء منشور');
+                showSection('auth');
+                return;
+            }
+
+            const content = document.getElementById('post-content').value;
+            const description = document.getElementById('post-description').value;
+            const phone = document.getElementById('post-phone').value;
+            const link = document.getElementById('post-link').value;
+
+            if (!content.trim()) {
+                alert('يرجى إضافة محتوى للمنشور');
+                return;
+            }
 
             const newPost = {
                 id: Date.now(),
@@ -996,7 +1323,8 @@
                 productInfo: {
                     description: description,
                     phone: phone,
-                    price: null
+                    price: null,
+                    link: link
                 },
                 engagement: {
                     likes: [],
@@ -1012,11 +1340,22 @@
             posts.unshift(newPost);
             currentUser.stats.posts++;
             
-            this.reset();
+            document.getElementById('post-form').reset();
             showSection('home');
             renderPosts();
             updateProfile();
-        });
+            
+            alert('تم نشر منشورك بنجاح!');
+        }
+
+        // معالجة رفع الصور
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                alert(`تم اختيار ${files.length} صورة للرفع`);
+                // في التطبيق الحقيقي، هنا سيتم رفع الصور إلى الخادم
+            }
+        }
 
         // تحديث الملف الشخصي
         function updateProfile() {
@@ -1024,6 +1363,7 @@
 
             document.getElementById('profile-username').textContent = currentUser.username;
             document.getElementById('profile-bio').textContent = currentUser.bio;
+            document.getElementById('profile-avatar').src = currentUser.profilePicture;
             document.getElementById('stats-posts').textContent = currentUser.stats.posts;
             document.getElementById('stats-likes').textContent = currentUser.stats.likes;
             document.getElementById('stats-views').textContent = currentUser.stats.views;
@@ -1032,6 +1372,16 @@
         // نسخ إلى الحافظة
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
+                alert('تم نسخ الرابط إلى الحافظة!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // طريقة بديلة للنسخ
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
                 alert('تم نسخ الرابط!');
             });
         }
@@ -1047,21 +1397,8 @@
             if (minutes < 1) return 'الآن';
             if (minutes < 60) return `قبل ${minutes} دقيقة`;
             if (hours < 24) return `قبل ${hours} ساعة`;
-            return `قبل ${days} يوم`;
-        }
-
-        // الوضع الليلي
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('dark-mode', isDarkMode);
-            localStorage.setItem('darkMode', isDarkMode);
-        }
-
-        // تحميل وضع التصميم المحفوظ
-        const savedDarkMode = localStorage.getItem('darkMode');
-        if (savedDarkMode === 'true') {
-            isDarkMode = true;
-            document.body.classList.add('dark-mode');
+            if (days < 7) return `قبل ${days} يوم`;
+            return new Date(date).toLocaleDateString('ar-SA');
         }
     </script>
 </body>
