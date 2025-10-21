@@ -456,9 +456,41 @@
         .modal {
             -webkit-overflow-scrolling: touch;
         }
+        
+        /* تحسينات إضافية للهاتف */
+        input, textarea, button {
+            font-size: 16px; /* منع التكبير التلقائي على iOS */
+        }
+        
+        .file-input-label {
+            padding: 15px; /* زيادة مساحة اللمس */
+        }
+        
+        /* رسالة نجاح */
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
+    <!-- رسالة نجاح -->
+    <div class="success-message" id="successMessage"></div>
+    
     <div class="container">
         <header>
             <div class="header-content">
@@ -598,6 +630,17 @@
         function loadVisitorCount() {
             let count = localStorage.getItem('visitorCount') || 0;
             document.getElementById('visitorCount').textContent = count;
+        }
+        
+        // عرض رسالة نجاح
+        function showSuccessMessage(message) {
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
         }
         
         // بيانات المنتجات والمستخدمين
@@ -741,7 +784,7 @@
         // فتح نموذج إضافة منتج
         addProductBtn.addEventListener('click', () => {
             if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
+                showSuccessMessage('يجب تسجيل الدخول أولاً');
                 loginModal.style.display = 'flex';
                 return;
             }
@@ -792,7 +835,7 @@
             const avatarFile = document.getElementById('avatar').files[0];
             
             if (!username) {
-                alert('يرجى إدخال اسم المستخدم');
+                showSuccessMessage('يرجى إدخال اسم المستخدم');
                 return;
             }
             
@@ -834,7 +877,7 @@
             loginForm.reset();
             avatarPreview.style.display = 'none';
             
-            alert(`مرحباً ${username}! تم تسجيل الدخول بنجاح.`);
+            showSuccessMessage(`مرحباً ${username}! تم تسجيل الدخول بنجاح.`);
         }
 
         // إضافة منتج جديد
@@ -842,7 +885,7 @@
             e.preventDefault();
             
             if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
+                showSuccessMessage('يجب تسجيل الدخول أولاً');
                 loginModal.style.display = 'flex';
                 return;
             }
@@ -853,7 +896,7 @@
             const imageFile = document.getElementById('productImage').files[0];
             
             if (!imageFile) {
-                alert('يرجى اختيار صورة للمنتج');
+                showSuccessMessage('يرجى اختيار صورة للمنتج');
                 return;
             }
             
@@ -873,13 +916,14 @@
                 };
                 
                 products.push(newProduct);
+                localStorage.setItem('products', JSON.stringify(products));
                 renderProducts();
                 
                 productModal.style.display = 'none';
                 productForm.reset();
                 productImagePreview.style.display = 'none';
                 
-                alert('تم إضافة المنتج بنجاح!');
+                showSuccessMessage('تم إضافة المنتج بنجاح!');
             };
             reader.readAsDataURL(imageFile);
         });
@@ -887,7 +931,7 @@
         // وظائف التفاعل
         function likeProduct(productId) {
             if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
+                showSuccessMessage('يجب تسجيل الدخول أولاً');
                 loginModal.style.display = 'flex';
                 return;
             }
@@ -903,10 +947,12 @@
                 // لم يعجب المستخدم بالمنتج من قبل
                 product.likedBy.push(currentUser.username);
                 product.likes = (product.likes || 0) + 1;
+                showSuccessMessage('تم الإعجاب بالمنتج!');
             } else {
                 // إلغاء الإعجاب
                 product.likedBy.splice(userIndex, 1);
                 product.likes = (product.likes || 0) - 1;
+                showSuccessMessage('تم إلغاء الإعجاب بالمنتج!');
             }
             
             localStorage.setItem('products', JSON.stringify(products));
@@ -915,7 +961,7 @@
         
         function commentOnProduct(productId) {
             if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
+                showSuccessMessage('يجب تسجيل الدخول أولاً');
                 loginModal.style.display = 'flex';
                 return;
             }
@@ -935,7 +981,7 @@
                 
                 localStorage.setItem('products', JSON.stringify(products));
                 renderProducts();
-                alert('تم إضافة تعليقك بنجاح!');
+                showSuccessMessage('تم إضافة تعليقك بنجاح!');
             }
         }
         
@@ -956,6 +1002,7 @@
                 .then(() => {
                     localStorage.setItem('products', JSON.stringify(products));
                     renderProducts();
+                    showSuccessMessage('تم مشاركة المنتج بنجاح!');
                 })
                 .catch(err => {
                     console.error('Error sharing:', err);
@@ -970,13 +1017,13 @@
             // نسخ الرابط إلى الحافظة
             navigator.clipboard.writeText(shareUrl)
                 .then(() => {
-                    alert(`تم نسخ رابط المنتج: ${product.name}\nالرابط: ${shareUrl}`);
+                    showSuccessMessage(`تم نسخ رابط المنتج: ${product.name}`);
                     localStorage.setItem('products', JSON.stringify(products));
                     renderProducts();
                 })
                 .catch(err => {
                     console.error('Failed to copy: ', err);
-                    alert(`رابط المشاركة: ${shareUrl}`);
+                    showSuccessMessage(`رابط المشاركة: ${shareUrl}`);
                     localStorage.setItem('products', JSON.stringify(products));
                     renderProducts();
                 });
@@ -990,7 +1037,7 @@
 
         function addToCart(id) {
             const product = products.find(p => p.id === id);
-            alert(`تمت إضافة ${product.name} إلى سلة التسوق!`);
+            showSuccessMessage(`تمت إضافة ${product.name} إلى سلة التسوق!`);
         }
 
         // إضافة الإعلانات
