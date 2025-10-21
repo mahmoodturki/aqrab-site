@@ -1,44 +1,322 @@
 <!doctype html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ShowcaseHub — منصة عرض المنتجات</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#06b6d4}
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:linear-gradient(180deg,#071428 0%, #071a2a 100%);color:#e6eef6}
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#06b6d4;
+      --error:#ef4444;
+      --success:#10b981;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+      background:linear-gradient(180deg,#071428 0%, #071a2a 100%);
+      color:#e6eef6;
+    }
+    
     /* layout */
-    header{position:fixed;top:0;left:0;right:0;height:64px;background:rgba(2,6,23,0.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;padding:8px 16px;z-index:50}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700}
-    main{max-width:960px;margin:88px auto;padding:16px}
-    .compose, .controls{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); padding:14px;border-radius:12px}
-    .compose textarea{width:100%;min-height:80px;background:transparent;border:0;color:inherit;resize:vertical}
-    .row{display:flex;gap:8px;align-items:center}
-    .btn{background:var(--accent);border:0;color:#032;cursor:pointer;padding:8px 12px;border-radius:8px;font-weight:600}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-    .profile-input{display:flex;gap:8px;align-items:center}
-    .posts{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-    .post{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.04)}
-    .post .meta{display:flex;align-items:center;gap:12px}
-    .avatar{width:44px;height:44px;border-radius:50%;background:#0e1622;display:flex;align-items:center;justify-content:center;font-weight:700}
-    .media{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
-    .media img,.media video{max-width:100%;border-radius:8px}
-    .actions{display:flex;gap:8px;margin-top:8px}
-    .stat{opacity:0.9;font-size:14px}
-    .center-ad{display:flex;justify-content:center;padding:12px}
+    header{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      height:64px;
+      background:rgba(2,6,23,0.6);
+      backdrop-filter:blur(6px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:8px 16px;
+      z-index:50;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    
+    .logo{
+      width:44px;
+      height:44px;
+      border-radius:8px;
+      background:linear-gradient(135deg,var(--accent),#7c3aed);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      color: white;
+    }
+    
+    main{
+      max-width:960px;
+      margin:88px auto;
+      padding:16px;
+    }
+    
+    .compose, .controls{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      padding:14px;
+      border-radius:12px;
+      margin-bottom: 16px;
+    }
+    
+    .compose textarea{
+      width:100%;
+      min-height:80px;
+      background:transparent;
+      border:0;
+      color:inherit;
+      resize:vertical;
+      font-family: inherit;
+    }
+    
+    .row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    
+    .btn{
+      background:var(--accent);
+      border:0;
+      color:#032;
+      cursor:pointer;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    
+    .btn.ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:var(--muted);
+    }
+    
+    .btn.ghost:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .profile-input{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    
+    .posts{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+    }
+    
+    .post{
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+      padding:12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.04);
+      transition: all 0.3s ease;
+    }
+    
+    .post:hover {
+      border-color: rgba(255,255,255,0.08);
+      transform: translateY(-2px);
+    }
+    
+    .post .meta{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    
+    .avatar{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      background:#0e1622;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .media{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    
+    .media img, .media video{
+      max-width:100%;
+      border-radius:8px;
+      max-height: 300px;
+      object-fit: cover;
+    }
+    
+    .actions{
+      display:flex;
+      gap:8px;
+      margin-top:8px;
+    }
+    
+    .stat{
+      opacity:0.9;
+      font-size:14px;
+    }
+    
+    .center-ad{
+      display:flex;
+      justify-content:center;
+      padding:12px;
+    }
+    
     /* modals */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);z-index:100}
-    .modal.open{display:flex}
-    .card{background:linear-gradient(180deg,#071323,#07142a);padding:16px;border-radius:12px;min-width:320px;max-width:720px}
-    input,textarea{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:inherit;width:100%}
-    .muted{color:var(--muted);font-size:13px}
-    footer{max-width:960px;margin:24px auto;color:var(--muted);text-align:center}
-    @media(min-width:980px){.media img,.media video{max-width:48%}}
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(2,6,23,0.6);
+      z-index:100;
+      padding: 16px;
+    }
+    
+    .modal.open{
+      display:flex;
+    }
+    
+    .card{
+      background:linear-gradient(180deg,#071323,#07142a);
+      padding:16px;
+      border-radius:12px;
+      min-width:320px;
+      max-width:720px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    
+    input, textarea, select {
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.08);
+      padding:8px;
+      border-radius:8px;
+      color:inherit;
+      width:100%;
+      font-family: inherit;
+      margin-bottom: 8px;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .muted{
+      color:var(--muted);
+      font-size:13px;
+    }
+    
+    footer{
+      max-width:960px;
+      margin:24px auto;
+      color:var(--muted);
+      text-align:center;
+      padding: 0 16px;
+    }
+    
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .success {
+      color: var(--success);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--success);
+      color: white;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none;
+    }
+    
+    .notification.error {
+      background: var(--error);
+    }
+    
+    @media(min-width:980px){
+      .media img, .media video{
+        max-width:48%;
+      }
+    }
+    
+    @media(max-width: 768px) {
+      header {
+        padding: 8px;
+      }
+      
+      .brand > div:last-child .muted {
+        display: none;
+      }
+      
+      .row {
+        flex-wrap: wrap;
+      }
+      
+      .controls .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- ثابت أعلى الشاشة: إعلان (كما طلبت) -->
+  <!-- إشعارات -->
+  <div class="notification" id="notification"></div>
+
+  <!-- ثابت أعلى الشاشة: إعلان -->
   <div style="position:fixed;top:64px;left:0;right:0;display:flex;justify-content:center;z-index:60;padding:6px;background:transparent">
     <!-- Ad snippet (top fixed) -->
     <div id="top-ad">
@@ -56,7 +334,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="muted" id="visitCounter">Visits: 0</div>
+      <div class="muted" id="visitCounter">الزيارات: 0</div>
       <button class="btn" id="openCompose">انشر منتج</button>
       <button class="btn ghost" id="openLogin">تسجيل / دخول</button>
     </div>
@@ -76,10 +354,10 @@
       </div>
     </section>
 
-    <section class="compose" style="margin-top:12px">
+    <section class="compose">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div><strong>انظر المنشورات الأبرز أولاً — خوارزمية مدمجة</strong><div class="muted">الترتيب حسب التفاعل (لايك، تعليق، إعادة نشر) + عامل الزمن</div></div>
-        <div class="muted">Suggested name: <strong>ShowcaseHub</strong></div>
+        <div class="muted">الاسم المقترح: <strong>ShowcaseHub</strong></div>
       </div>
       <div class="posts" id="posts"></div>
     </section>
@@ -129,6 +407,7 @@
       <div style="margin-top:8px">
         <input id="username" placeholder="اسم المستخدم" />
         <input id="password" placeholder="كلمة المرور" type="password" />
+        <div id="loginError" class="error" style="display:none"></div>
         <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end">
           <button class="btn ghost" id="closeLogin">إغلاق</button>
           <button class="btn" id="doRegister">تسجيل</button>
@@ -170,51 +449,120 @@
     const $ = id => document.getElementById(id);
 
     // Site visits counter
-    let visits = parseInt(localStorage.getItem('siteVisits')||'0');
+    let visits = parseInt(localStorage.getItem('siteVisits')) || 0;
     visits++;
     localStorage.setItem('siteVisits', visits);
-    $('visitCounter').textContent = 'Visits: ' + visits;
+    $('visitCounter').textContent = 'الزيارات: ' + visits;
 
     // Current session user
-    let currentUser = JSON.parse(sessionStorage.getItem('currentUser')||'null');
+    let currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 
     // Storage keys
     const KEY_USERS = 'sh_users';
     const KEY_POSTS = 'sh_posts';
 
     // Load objects
-    function loadUsers(){return JSON.parse(localStorage.getItem(KEY_USERS)||'{}')}
-    function saveUsers(u){localStorage.setItem(KEY_USERS, JSON.stringify(u))}
-    function loadPosts(){return JSON.parse(localStorage.getItem(KEY_POSTS)||'[]')}
-    function savePosts(p){localStorage.setItem(KEY_POSTS, JSON.stringify(p))}
+    function loadUsers() {
+      return JSON.parse(localStorage.getItem(KEY_USERS) || '{}');
+    }
+    
+    function saveUsers(u) {
+      localStorage.setItem(KEY_USERS, JSON.stringify(u));
+    }
+    
+    function loadPosts() {
+      return JSON.parse(localStorage.getItem(KEY_POSTS) || '[]');
+    }
+    
+    function savePosts(p) {
+      localStorage.setItem(KEY_POSTS, JSON.stringify(p));
+    }
+
+    // Show notification
+    function showNotification(message, isError = false) {
+      const notification = $('notification');
+      notification.textContent = message;
+      notification.className = isError ? 'notification error' : 'notification';
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
 
     // UI refs
     const postsEl = $('posts');
 
     // Basic auth (localStorage) — for demo only
-    $('openLogin').addEventListener('click', ()=>openModal('modalLogin'));
-    $('closeLogin').addEventListener('click', ()=>closeModal('modalLogin'));
-    $('doRegister').addEventListener('click', ()=>{
-      const u = $('username').value.trim(); const p = $('password').value;
-      if(!u||!p){alert('املأ الحقول');return}
+    $('openLogin').addEventListener('click', () => openModal('modalLogin'));
+    $('closeLogin').addEventListener('click', () => closeModal('modalLogin'));
+    
+    $('doRegister').addEventListener('click', () => {
+      const u = $('username').value.trim();
+      const p = $('password').value;
+      
+      if (!u || !p) {
+        showNotification('املأ جميع الحقول', true);
+        return;
+      }
+      
+      if (u.length < 3) {
+        showNotification('اسم المستخدم يجب أن يكون 3 أحرف على الأقل', true);
+        return;
+      }
+      
+      if (p.length < 3) {
+        showNotification('كلمة المرور يجب أن تكون 3 أحرف على الأقل', true);
+        return;
+      }
+      
       const users = loadUsers();
-      if(users[u]){alert('اسم المستخدم موجود');return}
-      users[u] = {password: btoa(p), name:u, avatar:null, bio:''};
+      if (users[u]) {
+        showNotification('اسم المستخدم موجود مسبقاً', true);
+        return;
+      }
+      
+      users[u] = {
+        password: btoa(p),
+        name: u,
+        avatar: null,
+        bio: ''
+      };
+      
       saveUsers(users);
-      alert('تم التسجيل. يمكنك الآن تسجيل الدخول');
+      showNotification('تم التسجيل بنجاح. يمكنك الآن تسجيل الدخول');
+      $('username').value = '';
+      $('password').value = '';
     });
-    $('doLogin').addEventListener('click', ()=>{
-      const u = $('username').value.trim(); const p = $('password').value;
+    
+    $('doLogin').addEventListener('click', () => {
+      const u = $('username').value.trim();
+      const p = $('password').value;
       const users = loadUsers();
-      if(!users[u] || users[u].password !== btoa(p)){alert('بيانات غير صحيحة');return}
-      currentUser = {username:u, name:users[u].name, avatar:users[u].avatar, bio:users[u].bio};
+      
+      if (!users[u] || users[u].password !== btoa(p)) {
+        showNotification('بيانات الدخول غير صحيحة', true);
+        return;
+      }
+      
+      currentUser = {
+        username: u,
+        name: users[u].name,
+        avatar: users[u].avatar,
+        bio: users[u].bio
+      };
+      
       sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-      updateAuthUI(); closeModal('modalLogin');
+      updateAuthUI();
+      closeModal('modalLogin');
+      showNotification(`مرحباً ${currentUser.name || currentUser.username}!`);
+      $('username').value = '';
+      $('password').value = '';
     });
 
-    function updateAuthUI(){
-      if(currentUser){
-        $('welcomeText').textContent = 'مرحباً، ' + (currentUser.name||currentUser.username);
+    function updateAuthUI() {
+      if (currentUser) {
+        $('welcomeText').textContent = 'مرحباً، ' + (currentUser.name || currentUser.username);
         $('btnLogout').style.display = 'inline-block';
         $('openLogin').style.display = 'none';
       } else {
@@ -224,173 +572,470 @@
       }
     }
 
-    $('btnLogout').addEventListener('click', ()=>{sessionStorage.removeItem('currentUser');currentUser=null;updateAuthUI();});
+    $('btnLogout').addEventListener('click', () => {
+      sessionStorage.removeItem('currentUser');
+      currentUser = null;
+      updateAuthUI();
+      showNotification('تم تسجيل الخروج بنجاح');
+    });
 
     // Profile modal
-    $('btnProfile').addEventListener('click', ()=>{
-      if(!currentUser){alert('سجل الدخول أولاً'); openModal('modalLogin'); return}
+    $('btnProfile').addEventListener('click', () => {
+      if (!currentUser) {
+        showNotification('سجل الدخول أولاً', true);
+        openModal('modalLogin');
+        return;
+      }
+      
       const users = loadUsers();
       const u = users[currentUser.username];
-      $('profileName').value = u.name||currentUser.username;
-      $('profileBio').value = u.bio||'';
+      $('profileName').value = u.name || currentUser.username;
+      $('profileBio').value = u.bio || '';
+      $('profilePic').value = '';
       openModal('modalProfile');
     });
-    $('closeProfile').addEventListener('click', ()=>closeModal('modalProfile'));
-    $('saveProfile').addEventListener('click', ()=>{
+    
+    $('closeProfile').addEventListener('click', () => closeModal('modalProfile'));
+    
+    $('saveProfile').addEventListener('click', () => {
       const name = $('profileName').value.trim();
       const bio = $('profileBio').value.trim();
       const file = $('profilePic').files[0];
       const users = loadUsers();
       const u = users[currentUser.username];
-      u.name = name || currentUser.username;
+      
+      if (!name) {
+        showNotification('اسم العرض مطلوب', true);
+        return;
+      }
+      
+      u.name = name;
       u.bio = bio;
-      if(file){const r=new FileReader(); r.onload=()=>{u.avatar=r.result; users[currentUser.username]=u; saveUsers(users); currentUser={username:currentUser.username,name:u.name,avatar:u.avatar,bio:u.bio}; sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); updateAuthUI(); closeModal('modalProfile'); renderPosts();}; r.readAsDataURL(file);} else {users[currentUser.username]=u; saveUsers(users); currentUser={username:currentUser.username,name:u.name,avatar:u.avatar,bio:u.bio}; sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); updateAuthUI(); closeModal('modalProfile'); renderPosts();}
+      
+      if (file) {
+        const r = new FileReader();
+        r.onload = () => {
+          u.avatar = r.result;
+          users[currentUser.username] = u;
+          saveUsers(users);
+          currentUser = {
+            username: currentUser.username,
+            name: u.name,
+            avatar: u.avatar,
+            bio: u.bio
+          };
+          sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+          updateAuthUI();
+          closeModal('modalProfile');
+          renderPosts();
+          showNotification('تم تحديث الملف الشخصي');
+        };
+        r.readAsDataURL(file);
+      } else {
+        users[currentUser.username] = u;
+        saveUsers(users);
+        currentUser = {
+          username: currentUser.username,
+          name: u.name,
+          avatar: u.avatar,
+          bio: u.bio
+        };
+        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateAuthUI();
+        closeModal('modalProfile');
+        renderPosts();
+        showNotification('تم تحديث الملف الشخصي');
+      }
     });
 
     // Compose modal
-    $('openCompose').addEventListener('click', ()=>{
-      if(!currentUser){alert('سجل الدخول أولاً'); openModal('modalLogin'); return}
+    $('openCompose').addEventListener('click', () => {
+      if (!currentUser) {
+        showNotification('سجل الدخول أولاً', true);
+        openModal('modalLogin');
+        return;
+      }
       openModal('modalCompose');
     });
-    $('closeCompose').addEventListener('click', ()=>closeModal('modalCompose'));
+    
+    $('closeCompose').addEventListener('click', () => closeModal('modalCompose'));
 
     // Submit post
-    $('submitPost').addEventListener('click', async ()=>{
+    $('submitPost').addEventListener('click', async () => {
       const title = $('postTitle').value.trim();
       const desc = $('postDesc').value.trim();
       const phone = $('postPhone').value.trim();
       const link = $('postLink').value.trim();
       const price = $('postPrice').value.trim();
       const files = Array.from($('postFiles').files);
+      
+      if (!desc && files.length === 0) {
+        showNotification('الرجاء إضافة وصف أو ملف وسائط', true);
+        return;
+      }
+      
       const media = [];
       // read files to data URLs
-      for(const f of files){
+      for (const f of files) {
         const d = await fileToDataURL(f);
-        media.push({type: f.type.startsWith('video')? 'video' : 'image', data: d, name: f.name});
+        media.push({
+          type: f.type.startsWith('video') ? 'video' : 'image',
+          data: d,
+          name: f.name
+        });
       }
+      
       const posts = loadPosts();
-      const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+      const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
       const post = {
-        id, author: currentUser.username, authorName: currentUser.name, authorAvatar: currentUser.avatar,
-        title, desc, phone, link, price, media, createdAt: Date.now(), likes:0, comments:[], shares:0, views:0
+        id,
+        author: currentUser.username,
+        authorName: currentUser.name,
+        authorAvatar: currentUser.avatar,
+        title,
+        desc,
+        phone,
+        link,
+        price,
+        media,
+        createdAt: Date.now(),
+        likes: 0,
+        comments: [],
+        shares: 0,
+        views: 0
       };
-      posts.push(post); savePosts(posts);
-      closeModal('modalCompose'); clearComposeForm(); renderPosts();
+      
+      posts.push(post);
+      savePosts(posts);
+      closeModal('modalCompose');
+      clearComposeForm();
+      renderPosts();
+      showNotification('تم نشر منشورك بنجاح');
+      
       // navigate to permalink
       location.hash = 'post-' + id;
     });
 
-    function clearComposeForm(){['postTitle','postDesc','postPhone','postLink','postPrice'].forEach(i=>$(i).value=''); $('postFiles').value=null}
-
-    function fileToDataURL(file){return new Promise(res=>{const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file);})}
-
-    // Render posts with algorithmic sorting
-    function computeScore(post){
-      const ageHours = (Date.now() - post.createdAt) / 36e5;
-      const freshness = Math.max(0, 72 - ageHours); // recent 72 hours bonus
-      return (post.likes||0)*2 + (post.comments?post.comments.length*3:0) + (post.shares||0)*4 + freshness;
+    function clearComposeForm() {
+      ['postTitle', 'postDesc', 'postPhone', 'postLink', 'postPrice'].forEach(i => $(i).value = '');
+      $('postFiles').value = null;
     }
 
-    function renderPosts(){
+    function fileToDataURL(file) {
+      return new Promise(res => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.readAsDataURL(file);
+      });
+    }
+
+    // Render posts with algorithmic sorting
+    function computeScore(post) {
+      const ageHours = (Date.now() - post.createdAt) / 36e5;
+      const freshness = Math.max(0, 72 - ageHours); // recent 72 hours bonus
+      return (post.likes || 0) * 2 + (post.comments ? post.comments.length * 3 : 0) + (post.shares || 0) * 4 + freshness;
+    }
+
+    function renderPosts() {
       const posts = loadPosts();
       // sort by score desc
-      posts.sort((a,b)=>computeScore(b)-computeScore(a) || b.createdAt - a.createdAt);
+      posts.sort((a, b) => computeScore(b) - computeScore(a) || b.createdAt - a.createdAt);
       postsEl.innerHTML = '';
+      
       // We'll insert a mid-feed ad after 3 posts
-      posts.forEach((p,idx)=>{
-        const el = document.createElement('div'); el.className='post';
-        el.id = 'post-'+p.id;
+      posts.forEach((p, idx) => {
+        const el = document.createElement('div');
+        el.className = 'post';
+        el.id = 'post-' + p.id;
+        
         el.innerHTML = `
           <div class="meta">
-            <div class="avatar">${p.authorAvatar? ('<img src="'+p.authorAvatar+'" style="width:100%;height:100%;border-radius:50%">') : (p.authorName? p.authorName[0].toUpperCase() : 'U')}</div>
+            <div class="avatar">${p.authorAvatar ? ('<img src="' + p.authorAvatar + '" alt="' + (p.authorName || p.author) + '">') : (p.authorName ? p.authorName[0].toUpperCase() : 'U')}</div>
             <div style="flex:1">
               <div style="display:flex;justify-content:space-between;align-items:center">
-                <div><strong>${escapeHtml(p.title||'')}</strong><div class="muted">بواسطة ${escapeHtml(p.authorName||p.author)} · ${timeAgo(p.createdAt)}</div></div>
-                <div class="muted">${p.price? ('Price: ' + escapeHtml(p.price)) : ''}</div>
+                <div><strong>${escapeHtml(p.title || '')}</strong><div class="muted">بواسطة ${escapeHtml(p.authorName || p.author)} · ${timeAgo(p.createdAt)}</div></div>
+                <div class="muted">${p.price ? ('السعر: ' + escapeHtml(p.price)) : ''}</div>
               </div>
-              <div style="margin-top:8px">${escapeHtml(p.desc||'')}</div>
-              ${p.phone? '<div class="muted">Phone: '+escapeHtml(p.phone)+'</div>':''}
-              ${p.link? '<div class="muted">Link: <a href="'+escapeHtml(p.link)+'" target="_blank">'+escapeHtml(p.link)+'</a></div>':''}
+              <div style="margin-top:8px">${escapeHtml(p.desc || '')}</div>
+              ${p.phone ? '<div class="muted">الهاتف: ' + escapeHtml(p.phone) + '</div>' : ''}
+              ${p.link ? '<div class="muted">الرابط: <a href="' + escapeHtml(p.link) + '" target="_blank" style="color: var(--accent);">' + escapeHtml(p.link) + '</a></div>' : ''}
             </div>
           </div>
         `;
+        
         // media
-        if(p.media && p.media.length){
-          const mediaWrap = document.createElement('div'); mediaWrap.className='media';
-          p.media.forEach(m=>{
-            if(m.type==='image'){
-              const i = document.createElement('img'); i.src=m.data; i.alt=m.name; mediaWrap.appendChild(i);
+        if (p.media && p.media.length) {
+          const mediaWrap = document.createElement('div');
+          mediaWrap.className = 'media';
+          p.media.forEach(m => {
+            if (m.type === 'image') {
+              const i = document.createElement('img');
+              i.src = m.data;
+              i.alt = m.name;
+              mediaWrap.appendChild(i);
             } else {
-              const v = document.createElement('video'); v.src=m.data; v.controls=true; v.preload='metadata'; mediaWrap.appendChild(v);
+              const v = document.createElement('video');
+              v.src = m.data;
+              v.controls = true;
+              v.preload = 'metadata';
+              mediaWrap.appendChild(v);
             }
           });
           el.appendChild(mediaWrap);
         }
 
         // actions
-        const actions = document.createElement('div'); actions.className='actions';
-        const likeBtn = document.createElement('button'); likeBtn.className='btn ghost'; likeBtn.textContent = '👍 ' + (p.likes||0);
-        likeBtn.addEventListener('click', ()=>{ p.likes = (p.likes||0)+1; savePost(p); renderPosts(); });
-        const commentBtn = document.createElement('button'); commentBtn.className='btn ghost'; commentBtn.textContent = '💬 ' + (p.comments? p.comments.length:0);
-        commentBtn.addEventListener('click', ()=>{ const txt=prompt('أضف تعليقك:'); if(txt){ p.comments = p.comments||[]; p.comments.push({user:currentUser?currentUser.username:'guest',text:txt,at:Date.now()}); savePost(p); renderPosts(); }});
-        const shareBtn = document.createElement('button'); shareBtn.className='btn ghost'; shareBtn.textContent = '🔁 ' + (p.shares||0);
-        shareBtn.addEventListener('click', ()=>{ p.shares = (p.shares||0)+1; savePost(p); // copy link
-          const link = location.origin + location.pathname + '#post-' + p.id; navigator.clipboard && navigator.clipboard.writeText(link); alert('Link copied: '+link); renderPosts(); });
-        const permalink = document.createElement('button'); permalink.className='btn ghost'; permalink.textContent='🔗 Link'; permalink.addEventListener('click', ()=>{ location.hash = 'post-' + p.id; alert('Permalink: ' + location.origin + location.pathname + '#post-' + p.id); });
-        const repostBtn = document.createElement('button'); repostBtn.className='btn ghost'; repostBtn.textContent='↩️ Repost'; repostBtn.addEventListener('click', ()=>{ if(!currentUser){alert('سجل الدخول لإعادة النشر'); return} const posts = loadPosts(); const nid = 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,8); const newp = JSON.parse(JSON.stringify(p)); newp.id = nid; newp.createdAt = Date.now(); newp.author = currentUser.username; newp.authorName = currentUser.name; newp.authorAvatar = currentUser.avatar; newp.likes=0; newp.comments=[]; newp.shares=0; posts.push(newp); savePosts(posts); renderPosts(); alert('تم إعادة النشر'); });
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        
+        const likeBtn = document.createElement('button');
+        likeBtn.className = 'btn ghost';
+        likeBtn.textContent = '👍 ' + (p.likes || 0);
+        likeBtn.addEventListener('click', () => {
+          if (!currentUser) {
+            showNotification('سجل الدخول أولاً', true);
+            openModal('modalLogin');
+            return;
+          }
+          p.likes = (p.likes || 0) + 1;
+          savePost(p);
+          renderPosts();
+        });
+        
+        const commentBtn = document.createElement('button');
+        commentBtn.className = 'btn ghost';
+        commentBtn.textContent = '💬 ' + (p.comments ? p.comments.length : 0);
+        commentBtn.addEventListener('click', () => {
+          if (!currentUser) {
+            showNotification('سجل الدخول أولاً', true);
+            openModal('modalLogin');
+            return;
+          }
+          const txt = prompt('أضف تعليقك:');
+          if (txt) {
+            p.comments = p.comments || [];
+            p.comments.push({
+              user: currentUser.username,
+              text: txt,
+              at: Date.now()
+            });
+            savePost(p);
+            renderPosts();
+          }
+        });
+        
+        const shareBtn = document.createElement('button');
+        shareBtn.className = 'btn ghost';
+        shareBtn.textContent = '🔁 ' + (p.shares || 0);
+        shareBtn.addEventListener('click', () => {
+          p.shares = (p.shares || 0) + 1;
+          savePost(p);
+          // copy link
+          const link = location.origin + location.pathname + '#post-' + p.id;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(link).then(() => {
+              showNotification('تم نسخ الرابط: ' + link);
+            });
+          } else {
+            showNotification('الرابط: ' + link);
+          }
+          renderPosts();
+        });
+        
+        const permalink = document.createElement('button');
+        permalink.className = 'btn ghost';
+        permalink.textContent = '🔗 رابط';
+        permalink.addEventListener('click', () => {
+          location.hash = 'post-' + p.id;
+          showNotification('تم الانتقال إلى الرابط الدائم');
+        });
+        
+        const repostBtn = document.createElement('button');
+        repostBtn.className = 'btn ghost';
+        repostBtn.textContent = '↩️ إعادة نشر';
+        repostBtn.addEventListener('click', () => {
+          if (!currentUser) {
+            showNotification('سجل الدخول أولاً', true);
+            openModal('modalLogin');
+            return;
+          }
+          const posts = loadPosts();
+          const nid = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+          const newp = JSON.parse(JSON.stringify(p));
+          newp.id = nid;
+          newp.createdAt = Date.now();
+          newp.author = currentUser.username;
+          newp.authorName = currentUser.name;
+          newp.authorAvatar = currentUser.avatar;
+          newp.likes = 0;
+          newp.comments = [];
+          newp.shares = 0;
+          posts.push(newp);
+          savePosts(posts);
+          renderPosts();
+          showNotification('تم إعادة النشر بنجاح');
+        });
 
-        actions.appendChild(likeBtn); actions.appendChild(commentBtn); actions.appendChild(shareBtn); actions.appendChild(repostBtn); actions.appendChild(permalink);
+        actions.appendChild(likeBtn);
+        actions.appendChild(commentBtn);
+        actions.appendChild(shareBtn);
+        actions.appendChild(repostBtn);
+        actions.appendChild(permalink);
         el.appendChild(actions);
 
         // show comments preview
-        if(p.comments && p.comments.length){
-          const cwrap = document.createElement('div'); cwrap.className='muted'; cwrap.style.marginTop='8px'; cwrap.innerHTML = '<strong>تعليقات: </strong>' + p.comments.slice(-3).map(c=>escapeHtml((c.user||'')+': '+c.text)).join(' | ');
+        if (p.comments && p.comments.length) {
+          const cwrap = document.createElement('div');
+          cwrap.className = 'muted';
+          cwrap.style.marginTop = '8px';
+          cwrap.innerHTML = '<strong>تعليقات: </strong>' + p.comments.slice(-3).map(c => escapeHtml((c.user || '') + ': ' + c.text)).join(' | ');
           el.appendChild(cwrap);
         }
 
         // count views when rendered in feed (simple impression)
-        p.views = (p.views||0) + 1; savePost(p);
+        p.views = (p.views || 0) + 1;
+        savePost(p);
 
         postsEl.appendChild(el);
+        
         // Insert mid-feed ad after third item
-        if(idx===2){ const adc = $('midAdContainer'); if(adc) adc.innerHTML = `<div style="width:320px;height:50px;">` + '<script type="text/javascript"> atOptions = { \'key\' : \'2d5deaded3e62ebc9943db8d8b49f74e\', \'format\' : \'iframe\', \'height\' : 50, \'width\' : 320, \'params\' : {} }; <\/script><script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>' + `</div>`; }
+        if (idx === 2) {
+          const adc = $('midAdContainer');
+          if (adc) {
+            adc.innerHTML = `<div style="width:320px;height:50px;">
+              <script type="text/javascript"> 
+                atOptions = { 
+                  'key' : '2d5deaded3e62ebc9943db8d8b49f74e', 
+                  'format' : 'iframe', 
+                  'height' : 50, 
+                  'width' : 320, 
+                  'params' : {} 
+                }; 
+              <\/script>
+              <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"><\/script>
+            </div>`;
+          }
+        }
       });
 
       // update visit count display
-      $('visitCounter').textContent = 'Visits: ' + localStorage.getItem('siteVisits');
+      $('visitCounter').textContent = 'الزيارات: ' + localStorage.getItem('siteVisits');
     }
 
-    function savePost(p){ const posts = loadPosts(); const ix = posts.findIndex(x=>x.id===p.id); if(ix>=0) posts[ix]=p; else posts.push(p); savePosts(posts); }
+    function savePost(p) {
+      const posts = loadPosts();
+      const ix = posts.findIndex(x => x.id === p.id);
+      if (ix >= 0) {
+        posts[ix] = p;
+      } else {
+        posts.push(p);
+      }
+      savePosts(posts);
+    }
 
     // utils
-    function openModal(id){$(id).classList.add('open')}
-    function closeModal(id){$(id).classList.remove('open')}
-    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-    function timeAgo(ts){ const d = Date.now()-ts; const s = Math.floor(d/1000); if(s<60) return s+'s'; const m=Math.floor(s/60); if(m<60) return m+'m'; const h=Math.floor(m/60); if(h<24) return h+'h'; const days=Math.floor(h/24); return days+'d'; }
+    function openModal(id) {
+      $(id).classList.add('open');
+    }
+    
+    function closeModal(id) {
+      $(id).classList.remove('open');
+    }
+    
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g, '&amp;')
+             .replace(/</g, '&lt;')
+             .replace(/>/g, '&gt;')
+             .replace(/"/g, '&quot;')
+             .replace(/'/g, '&#039;');
+    }
+    
+    function timeAgo(ts) {
+      const d = Date.now() - ts;
+      const s = Math.floor(d / 1000);
+      if (s < 60) return s + ' ثانية';
+      const m = Math.floor(s / 60);
+      if (m < 60) return m + ' دقيقة';
+      const h = Math.floor(m / 60);
+      if (h < 24) return h + ' ساعة';
+      const days = Math.floor(h / 24);
+      return days + ' يوم';
+    }
 
     // check hash for permalink navigation
-    window.addEventListener('hashchange', ()=>{
-      const h = location.hash.replace('#',''); if(h.startsWith('post-')){ const id = h.slice(5); const el = document.getElementById('post-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.boxShadow='0 0 0 3px rgba(6,182,212,0.12)'; setTimeout(()=>el.style.boxShadow='none',2000); }
+    window.addEventListener('hashchange', () => {
+      const h = location.hash.replace('#', '');
+      if (h.startsWith('post-')) {
+        const id = h.slice(5);
+        const el = document.getElementById('post-' + id);
+        if (el) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+          el.style.boxShadow = '0 0 0 3px rgba(6,182,212,0.12)';
+          setTimeout(() => el.style.boxShadow = 'none', 2000);
+        }
       }
     });
 
     // initial setup: create a demo user & seed posts if empty
-    (function init(){
-      const users = loadUsers(); if(!users['demo']){ users['demo']={password:btoa('demo'),name:'Demo Seller',avatar:null,bio:'متجر تجريبي'}; saveUsers(users); }
-      if(!sessionStorage.getItem('currentUser')){
+    (function init() {
+      const users = loadUsers();
+      if (!users['demo']) {
+        users['demo'] = {
+          password: btoa('demo'),
+          name: 'Demo Seller',
+          avatar: null,
+          bio: 'متجر تجريبي'
+        };
+        saveUsers(users);
+      }
+      
+      if (!sessionStorage.getItem('currentUser')) {
         // keep currentUser null until login
-      } else currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      } else {
+        currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      }
+      
       updateAuthUI();
-      const posts = loadPosts(); if(!posts || posts.length===0){ // seed
+      
+      const posts = loadPosts();
+      if (!posts || posts.length === 0) {
+        // seed
         const seed = [];
-        for(let i=1;i<=4;i++){
-          seed.push({id:'seed_'+i,author:'demo',authorName:'Demo Seller',authorAvatar:null,title:'منتج '+i,desc:'وصف توضيحي للمنتج '+i,phone:'',link:'',price: i*10 + ' USD',media:[],createdAt:Date.now() - i*3600*1000,likes: i*2,comments:[{user:'user1',text:'جيد',at:Date.now()-2000*i}],shares:i});
+        for (let i = 1; i <= 4; i++) {
+          seed.push({
+            id: 'seed_' + i,
+            author: 'demo',
+            authorName: 'Demo Seller',
+            authorAvatar: null,
+            title: 'منتج ' + i,
+            desc: 'وصف توضيحي للمنتج ' + i,
+            phone: '',
+            link: '',
+            price: i * 10 + ' USD',
+            media: [],
+            createdAt: Date.now() - i * 3600 * 1000,
+            likes: i * 2,
+            comments: [{
+              user: 'user1',
+              text: 'جيد',
+              at: Date.now() - 2000 * i
+            }],
+            shares: i
+          });
         }
         savePosts(seed);
       }
+      
       renderPosts();
+      
       // if loaded with hash
-      if(location.hash) window.dispatchEvent(new HashChangeEvent('hashchange'));
+      if (location.hash) {
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+      }
     })();
 
   </script>
