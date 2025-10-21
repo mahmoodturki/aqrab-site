@@ -84,6 +84,11 @@
             color: var(--primary);
         }
 
+        .nav-brand a {
+            text-decoration: none;
+            color: inherit;
+        }
+
         .nav-links {
             display: flex;
             gap: 1rem;
@@ -96,6 +101,7 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             transition: all 0.3s;
+            cursor: pointer;
         }
 
         .dark-mode .nav-links a {
@@ -280,6 +286,7 @@
         .post-content {
             margin-bottom: 1rem;
             line-height: 1.6;
+            white-space: pre-line;
         }
 
         .post-images {
@@ -670,29 +677,27 @@
     <header class="header">
         <div class="top-ad">
             <!-- الإعلان الثابت -->
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+            <div id="top-ad-container">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                        'format' : 'iframe',
+                        'height' : 50,
+                        'width' : 320,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+            </div>
         </div>
         
         <nav class="navbar">
             <div class="nav-brand">
-                <a href="#" style="text-decoration: none; color: inherit;">📱 PostLinker</a>
+                <a href="#" onclick="showSection('home')">📱 PostLinker</a>
             </div>
             
-            <div class="nav-links">
-                <a href="#" onclick="showSection('home')">الرئيسية</a>
-                <a href="#" onclick="showSection('create')">منشور جديد</a>
-                <a href="#" onclick="showSection('profile')">ملفي</a>
-                <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
-                <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+            <div class="nav-links" id="nav-links">
+                <!-- سيتم تعبئة الروابط ديناميكياً -->
             </div>
         </nav>
     </header>
@@ -798,6 +803,7 @@
             checkAuth();
             loadSampleData();
             setupEventListeners();
+            updateNavigation();
         }
 
         // إعداد مستمعي الأحداث
@@ -820,13 +826,42 @@
             });
         }
 
+        // تحديث شريط التنقل
+        function updateNavigation() {
+            const navLinks = document.getElementById('nav-links');
+            if (!navLinks) return;
+            
+            if (currentUser) {
+                navLinks.innerHTML = `
+                    <a onclick="showSection('home')">الرئيسية</a>
+                    <a onclick="showSection('create')">منشور جديد</a>
+                    <a onclick="showSection('profile')">ملفي</a>
+                    <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+                    <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+                `;
+            } else {
+                navLinks.innerHTML = `
+                    <a onclick="showSection('home')">الرئيسية</a>
+                    <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</button>
+                `;
+            }
+        }
+
         // تحميل وضع التصميم
         function loadDarkMode() {
             const savedDarkMode = localStorage.getItem('darkMode');
             if (savedDarkMode === 'true') {
                 isDarkMode = true;
                 document.body.classList.add('dark-mode');
-                document.querySelector('.dark-mode-toggle').textContent = '☀️';
+                updateDarkModeToggle();
+            }
+        }
+
+        // تحديث زر الوضع الليلي
+        function updateDarkModeToggle() {
+            const toggleBtn = document.querySelector('.dark-mode-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
             }
         }
 
@@ -835,9 +870,7 @@
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark-mode', isDarkMode);
             localStorage.setItem('darkMode', isDarkMode);
-            
-            const toggleBtn = document.querySelector('.dark-mode-toggle');
-            toggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+            updateDarkModeToggle();
         }
 
         // التحقق من المصادقة
@@ -850,6 +883,7 @@
             } else {
                 showSection('auth');
             }
+            updateNavigation();
         }
 
         // تبديل وضع المصادقة
@@ -895,7 +929,7 @@
 
             // محاكاة تسجيل الدخول
             currentUser = {
-                id: Date.now(),
+                id: 1,
                 username: 'مستخدم',
                 email: email,
                 profilePicture: 'https://via.placeholder.com/100',
@@ -911,6 +945,7 @@
             showSection('home');
             updateProfile();
             renderPosts();
+            updateNavigation();
             
             // إعادة تعيين النموذج
             document.getElementById('auth-form').reset();
@@ -941,6 +976,7 @@
             showSection('home');
             updateProfile();
             renderPosts();
+            updateNavigation();
             
             // إعادة تعيين النموذج
             document.getElementById('auth-form').reset();
@@ -951,6 +987,7 @@
             currentUser = null;
             localStorage.removeItem('currentUser');
             showSection('auth');
+            updateNavigation();
         }
 
         // إظهار قسم معين
@@ -963,7 +1000,10 @@
                 sectionName = 'home';
             }
             
-            document.getElementById(sectionName + '-section').classList.add('active');
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
             
             if (sectionName === 'home') {
                 renderPosts();
@@ -1077,16 +1117,18 @@
                 if ((index + 1) % 3 === 0) {
                     feed.innerHTML += `
                         <div class="in-feed-ad">
-                            <script type="text/javascript">
-                                atOptions = {
-                                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                                    'format' : 'iframe',
-                                    'height' : 50,
-                                    'width' : 320,
-                                    'params' : {}
-                                };
-                            </script>
-                            <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+                            <div id="ad-${index}">
+                                <script type="text/javascript">
+                                    atOptions = {
+                                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                                        'format' : 'iframe',
+                                        'height' : 50,
+                                        'width' : 320,
+                                        'params' : {}
+                                    };
+                                </script>
+                                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+                            </div>
                         </div>
                     `;
                 }
@@ -1110,7 +1152,7 @@
                     </div>
 
                     <div class="post-content">
-                        <p>${post.content.replace(/\n/g, '<br>')}</p>
+                        ${post.content}
                     </div>
 
                     ${post.productInfo ? `
@@ -1287,9 +1329,7 @@
                     url: postUrl,
                 });
             } else {
-                navigator.clipboard.writeText(postUrl).then(() => {
-                    alert('تم نسخ رابط المنشور!');
-                });
+                copyToClipboard(postUrl);
             }
             
             renderPosts();
@@ -1371,19 +1411,27 @@
 
         // نسخ إلى الحافظة
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('تم نسخ الرابط إلى الحافظة!');
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-                // طريقة بديلة للنسخ
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('تم نسخ الرابط!');
-            });
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('تم نسخ الرابط إلى الحافظة!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    fallbackCopyToClipboard(text);
+                });
+            } else {
+                fallbackCopyToClipboard(text);
+            }
+        }
+
+        // طريقة بديلة للنسخ
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('تم نسخ الرابط!');
         }
 
         // تنسيق الوقت
