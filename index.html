@@ -471,6 +471,24 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+        
+        .comments-section {
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .comment {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .comment:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -501,6 +519,7 @@
                     <span id="userGreeting">مرحباً، زائر</span>
                     <button class="add-btn" id="loginBtn">تسجيل الدخول</button>
                     <button class="add-btn" id="addProductBtn" style="display:none">إضافة منتج</button>
+                    <button class="add-btn" id="logoutBtn" style="display:none">تسجيل الخروج</button>
                 </div>
             </div>
         </header>
@@ -593,6 +612,7 @@
     </div>
 
     <script>
+        // زيادة عداد الزوار
         function incrementVisitorCount() {
             let count = localStorage.getItem('visitorCount') || 0;
             count = parseInt(count) + 1;
@@ -600,11 +620,13 @@
             document.getElementById('visitorCount').textContent = count;
         }
         
+        // تحميل عداد الزوار
         function loadVisitorCount() {
             let count = localStorage.getItem('visitorCount') || 0;
             document.getElementById('visitorCount').textContent = count;
         }
         
+        // عرض رسالة نجاح
         function showSuccessMessage(message) {
             const successMessage = document.getElementById('successMessage');
             successMessage.textContent = message;
@@ -615,6 +637,7 @@
             }, 3000);
         }
         
+        // بيانات المنتجات والمستخدمين
         let products = JSON.parse(localStorage.getItem('products')) || [
             {
                 id: 1,
@@ -624,9 +647,12 @@
                 image: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzM0OThEQiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Yp9mE2YLYqSDYp9mE2KfYstin2YY8L3RleHQ+PC9zdmc+",
                 userId: "demo",
                 likes: 5,
-                comments: [],
+                comments: [
+                    { user: "أحمد", text: "منتج رائع!", date: "2023-10-01" },
+                    { user: "محمد", text: "أريد شراءه", date: "2023-10-02" }
+                ],
                 shares: 2,
-                likedBy: []
+                likedBy: ["demo"]
             },
             {
                 id: 2,
@@ -636,15 +662,18 @@
                 image: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzlCNTlCNiIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7Zh9in2YbZhdmI2KfYr9ipPC90ZXh0Pjwvc3ZnPg==",
                 userId: "demo",
                 likes: 3,
-                comments: [],
+                comments: [
+                    { user: "سارة", text: "جيد للعمل", date: "2023-10-03" }
+                ],
                 shares: 1,
-                likedBy: []
+                likedBy: ["demo"]
             }
         ];
         
         let users = JSON.parse(localStorage.getItem('users')) || {};
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
+        // العناصر في DOM
         const productsGrid = document.getElementById('productsGrid');
         const productModal = document.getElementById('productModal');
         const loginModal = document.getElementById('loginModal');
@@ -652,6 +681,7 @@
         const loginForm = document.getElementById('loginForm');
         const addProductBtn = document.getElementById('addProductBtn');
         const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
         const heroLoginBtn = document.getElementById('heroLoginBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const cancelLoginBtn = document.getElementById('cancelLoginBtn');
@@ -659,6 +689,7 @@
         const avatarPreview = document.getElementById('avatarPreview');
         const productImagePreview = document.getElementById('productImagePreview');
 
+        // تحميل الصورة وعرض معاينة
         document.getElementById('avatar').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -683,6 +714,7 @@
             }
         });
 
+        // عرض المنتجات
         function renderProducts() {
             productsGrid.innerHTML = '';
             
@@ -695,6 +727,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'card';
                 
+                // التحقق مما إذا كان المستخدم الحالي قد أعجب بهذا المنتج
                 const isLiked = currentUser && product.likedBy && product.likedBy.includes(currentUser.username);
                 
                 productCard.innerHTML = `
@@ -723,29 +756,43 @@
                                 <span>${product.shares || 0}</span>
                             </button>
                         </div>
+                        ${product.comments && product.comments.length > 0 ? `
+                        <div class="comments-section">
+                            ${product.comments.slice(-2).map(comment => `
+                                <div class="comment">
+                                    <strong>${comment.user}:</strong> ${comment.text}
+                                </div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 `;
                 
                 productsGrid.appendChild(productCard);
             });
             
+            // حفظ المنتجات في localStorage
             localStorage.setItem('products', JSON.stringify(products));
         }
 
+        // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول
         function updateUI() {
             if (currentUser) {
                 userGreeting.textContent = `مرحباً، ${currentUser.username}`;
                 loginBtn.style.display = 'none';
                 addProductBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'inline-block';
                 heroLoginBtn.style.display = 'none';
             } else {
                 userGreeting.textContent = 'مرحباً، زائر';
                 loginBtn.style.display = 'inline-block';
                 addProductBtn.style.display = 'none';
+                logoutBtn.style.display = 'none';
                 heroLoginBtn.style.display = 'inline-block';
             }
         }
 
+        // فتح نموذج إضافة منتج
         addProductBtn.addEventListener('click', () => {
             if (!currentUser) {
                 showSuccessMessage('يجب تسجيل الدخول أولاً');
@@ -755,6 +802,7 @@
             productModal.style.display = 'flex';
         });
 
+        // فتح نموذج تسجيل الدخول
         loginBtn.addEventListener('click', () => {
             loginModal.style.display = 'flex';
         });
@@ -763,6 +811,15 @@
             loginModal.style.display = 'flex';
         });
 
+        // تسجيل الخروج
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUI();
+            showSuccessMessage('تم تسجيل الخروج بنجاح');
+        });
+
+        // إغلاق النماذج
         cancelBtn.addEventListener('click', () => {
             productModal.style.display = 'none';
             productForm.reset();
@@ -775,6 +832,7 @@
             avatarPreview.style.display = 'none';
         });
 
+        // إغلاق النماذج عند النقر خارج المحتوى
         window.addEventListener('click', (e) => {
             if (e.target === productModal) {
                 productModal.style.display = 'none';
@@ -788,6 +846,7 @@
             }
         });
 
+        // تسجيل الدخول
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -799,6 +858,7 @@
                 return;
             }
             
+            // إذا لم يختار المستخدم صورة، نستخدم صورة افتراضية
             let avatarSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjIwMCIgcj0iODAiIGZpbGw9IiMzMzMiLz48L3N2Zz4=';
             
             if (avatarFile) {
@@ -814,6 +874,7 @@
         });
 
         function completeLogin(username, avatarSrc) {
+            // حفظ المستخدم إذا لم يكن مسجلاً من قبل
             if (!users[username]) {
                 users[username] = {
                     username: username,
@@ -823,6 +884,7 @@
                 localStorage.setItem('users', JSON.stringify(users));
             }
             
+            // تسجيل الدخول
             currentUser = {
                 username: username,
                 avatar: users[username].avatar
@@ -837,6 +899,7 @@
             showSuccessMessage(`مرحباً ${username}! تم تسجيل الدخول بنجاح.`);
         }
 
+        // إضافة منتج جديد
         productForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -884,6 +947,7 @@
             reader.readAsDataURL(imageFile);
         });
 
+        // وظائف التفاعل
         function likeProduct(productId) {
             if (!currentUser) {
                 showSuccessMessage('يجب تسجيل الدخول أولاً');
@@ -942,8 +1006,10 @@
             const product = products.find(p => p.id === productId);
             product.shares = (product.shares || 0) + 1;
             
+            // إنشاء رابط للمشاركة
             const shareUrl = `${window.location.origin}${window.location.pathname}#product-${productId}`;
             
+            // محاولة استخدام واجهة Web Share API إذا كانت متاحة
             if (navigator.share) {
                 navigator.share({
                     title: product.name,
@@ -965,6 +1031,7 @@
         }
         
         function fallbackShare(shareUrl, product) {
+            // نسخ الرابط إلى الحافظة
             navigator.clipboard.writeText(shareUrl)
                 .then(() => {
                     showSuccessMessage(`تم نسخ رابط المنتج: ${product.name}`);
@@ -979,6 +1046,7 @@
                 });
         }
 
+        // وظائف تفاعلية
         function viewProduct(id) {
             const product = products.find(p => p.id === id);
             alert(`عرض المنتج: ${product.name}\nالسعر: ${product.price} ريال\nالوصف: ${product.description}`);
@@ -989,6 +1057,7 @@
             showSuccessMessage(`تمت إضافة ${product.name} إلى سلة التسوق!`);
         }
 
+        // إضافة الإعلانات
         function loadAds() {
             const adScript = document.createElement('script');
             adScript.innerHTML = `
@@ -1014,6 +1083,7 @@
             adMid.appendChild(adScript4);
         }
 
+        // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', () => {
             incrementVisitorCount();
             loadVisitorCount();
