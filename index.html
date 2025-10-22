@@ -1,1069 +1,335 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProductShow - منصة عرض المنتجات</title>
-    <style>
-        /* أنماط CSS */
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
+import React, { useEffect, useState, useRef } from "react";
+
+// Single-file React app (Tailwind CSS classes assumed available)
+// Frontend-only demo: data persisted in localStorage (users, posts, visits)
+// Features:
+// - Signup/login by username + profile picture
+// - Create product post: name, description, multiple images
+// - Like, comment, share (copy link / navigator.share), 5-star rating
+// - Per-post permalink via hash (#post-{id})
+// - Visit counter
+// - Ranking algorithm: sorts posts by weighted interactions
+// - Ad scripts placed at top and mid-feed (as requested)
+
+const AD_SCRIPT_TOP = `
+<script type="text/javascript">
+	atOptions = {
+		'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+`;
+
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [visitCount, setVisitCount] = useState(0);
+  const [form, setForm] = useState({ title: "", desc: "", images: [] });
+  const [commentText, setCommentText] = useState("");
+  const fileInputRef = useRef(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const rawUsers = localStorage.getItem("pp_users");
+    const rawPosts = localStorage.getItem("pp_posts");
+    const rawVisit = localStorage.getItem("pp_visits");
+    if (rawUsers) setUsers(JSON.parse(rawUsers));
+    if (rawPosts) setPosts(JSON.parse(rawPosts));
+    const visits = rawVisit ? parseInt(rawVisit, 10) : 0;
+    const newVisits = visits + 1;
+    setVisitCount(newVisits);
+    localStorage.setItem("pp_visits", String(newVisits));
+
+    // deep-linking to a post
+    const hash = window.location.hash;
+    if (hash.startsWith("#post-")) {
+      const id = hash.replace("#post-", "");
+      // scroll handled below after posts loaded
+      setTimeout(() => scrollToPost(id), 300);
+    }
+  }, []);
+
+  // persist users
+  useEffect(() => {
+    localStorage.setItem("pp_users", JSON.stringify(users));
+  }, [users]);
+  // persist posts
+  useEffect(() => {
+    localStorage.setItem("pp_posts", JSON.stringify(posts));
+  }, [posts]);
+
+  function saveUser(username, profileDataUrl) {
+    const existing = users.find((u) => u.username === username);
+    if (!existing) {
+      const newUser = { id: Date.now().toString(), username, avatar: profileDataUrl };
+      setUsers((s) => [...s, newUser]);
+      setUser(newUser);
+    } else {
+      setUser(existing);
+    }
+  }
+
+  async function handleProfileImageUpload(file) {
+    const dataUrl = await readFileAsDataURL(file);
+    return dataUrl;
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = e.target.username.value.trim();
+    const file = e.target.profile.files[0];
+    if (!username) return alert("Enter a username");
+    if (file) {
+      handleProfileImageUpload(file).then((dataUrl) => saveUser(username, dataUrl));
+    } else {
+      saveUser(username, null);
+    }
+    e.target.reset();
+  }
+
+  function handleLogout() {
+    setUser(null);
+  }
+
+  async function handleCreatePost(e) {
+    e.preventDefault();
+    if (!user) return alert("Please log in to post");
+    if (!form.title.trim()) return alert("Product name required");
+    const newPost = {
+      id: Date.now().toString(),
+      author: { id: user.id, username: user.username, avatar: user.avatar },
+      title: form.title,
+      desc: form.desc,
+      images: form.images, // data URLs
+      likes: [],
+      comments: [],
+      shares: 0,
+      ratings: [],
+      createdAt: new Date().toISOString(),
+    };
+    setPosts((s) => [newPost, ...s]);
+    setForm({ title: "", desc: "", images: [] });
+    fileInputRef.current.value = null;
+  }
+
+  async function handleImagesChange(e) {
+    const files = Array.from(e.target.files || []);
+    const urls = await Promise.all(files.map((f) => readFileAsDataURL(f)));
+    setForm((s) => ({ ...s, images: [...s.images, ...urls] }));
+  }
+
+  function toggleLike(postId) {
+    if (!user) return alert("Please log in to like");
+    setPosts((ps) =>
+      ps.map((p) => {
+        if (p.id !== postId) return p;
+        const liked = p.likes.includes(user.id);
+        return { ...p, likes: liked ? p.likes.filter((id) => id !== user.id) : [...p.likes, user.id] };
+      })
+    );
+  }
+
+  function addComment(postId, text) {
+    if (!user) return alert("Please log in to comment");
+    if (!text.trim()) return;
+    const comment = { id: Date.now().toString(), user: { id: user.id, username: user.username }, text, createdAt: new Date().toISOString() };
+    setPosts((ps) => ps.map((p) => (p.id === postId ? { ...p, comments: [...p.comments, comment] } : p)));
+    setCommentText("");
+  }
+
+  function sharePost(postId) {
+    const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+    setPosts((ps) => ps.map((p) => (p.id === postId ? { ...p, shares: p.shares + 1 } : p)));
+    if (navigator.share) {
+      navigator.share({ title: "Check this product", url }).catch(() => {});
+    } else {
+      copyToClipboard(url);
+      alert("Link copied to clipboard: " + url);
+    }
+  }
+
+  function ratePost(postId, stars) {
+    if (!user) return alert("Please log in to rate");
+    setPosts((ps) =>
+      ps.map((p) => {
+        if (p.id !== postId) return p;
+        const existing = p.ratings.find((r) => r.userId === user.id);
+        let newRatings;
+        if (existing) {
+          newRatings = p.ratings.map((r) => (r.userId === user.id ? { ...r, stars } : r));
+        } else {
+          newRatings = [...p.ratings, { userId: user.id, stars }];
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        /* شريط الإعلان العلوي */
-        .ad-top {
-            width: 100%;
-            text-align: center;
-            background-color: #f8f9fa;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* رأس الموقع */
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark-color);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        /* نموذج تسجيل الدخول */
-        .login-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-form {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        /* قسم إضافة منتج جديد */
-        .add-product {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-
-        .add-product h2 {
-            margin-bottom: 15px;
-            color: var(--dark-color);
-        }
-
-        .product-form input,
-        .product-form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .product-form textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .image-upload {
-            margin-bottom: 15px;
-        }
-
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .preview-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        /* قسم المنشورات */
-        .posts-section {
-            margin-bottom: 30px;
-        }
-
-        .posts-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .sort-options select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        /* منشور المنتج */
-        .product-post {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .post-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
-        .post-user-info h4 {
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-
-        .post-user-info span {
-            font-size: 12px;
-            color: #777;
-        }
-
-        .post-content {
-            padding: 15px;
-        }
-
-        .post-title {
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: var(--dark-color);
-        }
-
-        .post-description {
-            margin-bottom: 15px;
-            color: #555;
-        }
-
-        .post-images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .post-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-
-        .post-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 10px;
-        }
-
-        .post-actions {
-            display: flex;
-            border-top: 1px solid #eee;
-        }
-
-        .post-action {
-            flex: 1;
-            text-align: center;
-            padding: 12px 0;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .post-action:hover {
-            background-color: #f5f5f5;
-        }
-
-        .post-action.liked {
-            color: var(--danger-color);
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .star {
-            color: #ddd;
-            cursor: pointer;
-            font-size: 20px;
-        }
-
-        .star.active {
-            color: var(--warning-color);
-        }
-
-        .post-link {
-            display: block;
-            margin-top: 10px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        /* الإعلانات */
-        .ad-middle {
-            width: 100%;
-            text-align: center;
-            margin: 30px 0;
-            padding: 20px 0;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        /* إحصائيات الموقع */
-        .site-stats {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #777;
-        }
-
-        /* تذييل الصفحة */
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 30px 0;
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        /* تصميم متجاوب */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                gap: 10px;
-            }
-
-            .site-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .post-actions {
-                flex-wrap: wrap;
-            }
-
-            .post-action {
-                flex: 0 0 33.33%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- شريط الإعلان العلوي -->
-    <div class="ad-top">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-    </div>
-
-    <!-- رأس الموقع -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">ProductShow</div>
-                <nav class="nav-links">
-                    <a href="#">الرئيسية</a>
-                    <a href="#">استكشف</a>
-                    <a href="#">الفئات</a>
-                    <a href="#">المفضلة</a>
-                </nav>
-                <div class="user-section">
-                    <div class="site-visits">
-                        <span id="visit-count">0</span> زائر
-                    </div>
-                    <div id="user-info" style="display: none;">
-                        <div class="user-avatar" id="user-avatar">م</div>
-                        <span id="username">مستخدم</span>
-                        <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
-                    </div>
-                    <button class="btn btn-primary" id="login-btn">تسجيل الدخول</button>
-                </div>
+        return { ...p, ratings: newRatings };
+      })
+    );
+  }
+
+  function computeScore(p) {
+    // weighting: likes=2, comments=3, shares=1, avgRating * 2
+    const likes = p.likes.length;
+    const comments = p.comments.length;
+    const shares = p.shares || 0;
+    const avgRating = p.ratings && p.ratings.length ? p.ratings.reduce((a, b) => a + b.stars, 0) / p.ratings.length : 0;
+    const score = likes * 2 + comments * 3 + shares * 1 + avgRating * 2;
+    return score;
+  }
+
+  function sortedPosts() {
+    return [...posts].sort((a, b) => computeScore(b) - computeScore(a) || new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  function scrollToPost(id) {
+    const el = document.getElementById(`post-${id}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      {/* Top ad */}
+      <div className="w-full flex justify-center p-2 bg-white shadow-sm sticky top-0 z-40">
+        <div dangerouslySetInnerHTML={{ __html: AD_SCRIPT_TOP }} />
+      </div>
+
+      <div className="max-w-4xl mx-auto p-4">
+        <header className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">ProdPulse</h1>
+          <div className="flex items-center gap-3">
+            <div className="text-sm">Visits: <strong>{visitCount}</strong></div>
+            {user ? (
+              <div className="flex items-center gap-2">
+                {user.avatar ? (<img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />) : (<div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">{user.username[0]?.toUpperCase()}</div>)}
+                <div className="text-sm">{user.username}</div>
+                <button className="px-3 py-1 bg-red-500 text-white rounded" onClick={handleLogout}>Logout</button>
+              </div>
+            ) : (
+              <details className="relative">
+                <summary className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded">Login / Signup</summary>
+                <form onSubmit={handleLogin} className="p-3 bg-white shadow-md mt-2 rounded w-72 absolute right-0">
+                  <label className="text-xs">Username</label>
+                  <input name="username" className="w-full p-1 border rounded text-sm" />
+                  <label className="text-xs mt-2 block">Profile image (optional)</label>
+                  <input name="profile" type="file" accept="image/*" className="w-full text-xs" />
+                  <div className="mt-2 flex justify-end">
+                    <button type="submit" className="px-3 py-1 bg-green-600 text-white rounded">Sign in</button>
+                  </div>
+                </form>
+              </details>
+            )}
+          </div>
+        </header>
+
+        {/* Create post */}
+        <section className="mb-6 bg-white p-4 rounded shadow-sm">
+          <h2 className="font-semibold">Create Product Post</h2>
+          <form onSubmit={handleCreatePost} className="space-y-2">
+            <input value={form.title} onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))} placeholder="Product name" className="w-full p-2 border rounded" />
+            <textarea value={form.desc} onChange={(e) => setForm((s) => ({ ...s, desc: e.target.value }))} placeholder="Product description" className="w-full p-2 border rounded" />
+            <input ref={fileInputRef} multiple type="file" accept="image/*" onChange={handleImagesChange} />
+            <div className="flex gap-2 overflow-x-auto py-2">
+              {form.images.map((img, idx) => (
+                <img key={idx} src={img} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded" />
+              ))}
             </div>
-        </div>
-    </header>
-
-    <!-- نموذج تسجيل الدخول -->
-    <div class="login-modal" id="login-modal">
-        <div class="login-form">
-            <h2>تسجيل الدخول</h2>
-            <div class="form-group">
-                <label for="login-username">اسم المستخدم</label>
-                <input type="text" id="login-username" placeholder="أدخل اسم المستخدم">
+            <div className="flex justify-end">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded">Post</button>
             </div>
-            <div class="form-group">
-                <label for="login-password">كلمة المرور</label>
-                <input type="password" id="login-password" placeholder="أدخل كلمة المرور">
-            </div>
-            <div class="form-group">
-                <label for="avatar-url">رابط صورة البروفايل (اختياري)</label>
-                <input type="text" id="avatar-url" placeholder="https://example.com/avatar.jpg">
-            </div>
-            <div class="form-actions">
-                <button class="btn btn-outline" id="cancel-login">إلغاء</button>
-                <button class="btn btn-primary" id="submit-login">تسجيل الدخول</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- إحصائيات الموقع -->
-        <div class="site-stats">
-            <div class="stat-item">
-                <div class="stat-value" id="total-posts">0</div>
-                <div class="stat-label">منتج معروض</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-likes">0</div>
-                <div class="stat-label">إعجاب</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-comments">0</div>
-                <div class="stat-label">تعليق</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-shares">0</div>
-                <div class="stat-label">مشاركة</div>
-            </div>
-        </div>
-
-        <!-- قسم إضافة منتج جديد -->
-        <section class="add-product" id="add-product-section" style="display: none;">
-            <h2>أضف منتج جديد</h2>
-            <form class="product-form" id="product-form">
-                <input type="text" id="product-name" placeholder="اسم المنتج" required>
-                <textarea id="product-description" placeholder="وصف المنتج" required></textarea>
-                <div class="image-upload">
-                    <label for="product-images">إضافة صور المنتج</label>
-                    <input type="file" id="product-images" multiple accept="image/*">
-                    <div class="image-preview" id="image-preview"></div>
-                </div>
-                <button type="submit" class="btn btn-primary">نشر المنتج</button>
-            </form>
+          </form>
         </section>
 
-        <!-- قسم المنشورات -->
-        <section class="posts-section">
-            <div class="posts-header">
-                <h2>المنتجات المعروضة</h2>
-                <div class="sort-options">
-                    <select id="sort-posts">
-                        <option value="popular">الأكثر تفاعلاً</option>
-                        <option value="recent">الأحدث أولاً</option>
-                    </select>
+        {/* Posts feed */}
+        <section>
+          {sortedPosts().map((post, idx) => (
+            <React.Fragment key={post.id}>
+              {/* insert mid-ad in the middle of the feed */}
+              {idx === Math.floor(sortedPosts().length / 2) && (
+                <div className="w-full flex justify-center my-4">
+                  <div dangerouslySetInnerHTML={{ __html: AD_SCRIPT_TOP }} />
                 </div>
-            </div>
+              )}
 
-            <div id="posts-container">
-                <!-- سيتم إضافة المنشورات هنا ديناميكياً -->
-            </div>
+              <article id={`post-${post.id}`} className="mb-4 bg-white p-4 rounded shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  {post.author.avatar ? (<img src={post.author.avatar} alt="author" className="w-10 h-10 rounded-full" />) : (<div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">{post.author.username[0]?.toUpperCase()}</div>)}
+                  <div>
+                    <div className="font-semibold">{post.author.username}</div>
+                    <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
+                  </div>
+                </div>
+                <h3 className="font-bold text-lg">{post.title}</h3>
+                <p className="my-2 text-sm whitespace-pre-line">{post.desc}</p>
+                {post.images && post.images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    {post.images.map((img, i) => (<img key={i} src={img} alt={`pimg-${i}`} className="w-full h-40 object-cover rounded" />))}
+                  </div>
+                )}
 
-            <!-- إعلان وسط الصفحة -->
-            <div class="ad-middle">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-            </div>
+                {/* Interaction buttons */}
+                <div className="flex items-center gap-3 mt-2">
+                  <button onClick={() => toggleLike(post.id)} className="px-2 py-1 rounded border">Like ({post.likes.length})</button>
+                  <button onClick={() => { const c = prompt("Write a comment:"); if (c) addComment(post.id, c); }} className="px-2 py-1 rounded border">Comment ({post.comments.length})</button>
+                  <button onClick={() => sharePost(post.id)} className="px-2 py-1 rounded border">Share ({post.shares})</button>
+                  <button onClick={() => { const url = `${window.location.origin}${window.location.pathname}#post-${post.id}`; navigator.clipboard?.writeText(url); alert('Link copied: ' + url); }} className="px-2 py-1 rounded border">Permalink</button>
+
+                  {/* Rating stars */}
+                  <div className="ml-auto flex items-center gap-1">
+                    <Stars current={post.ratings} onRate={(s) => ratePost(post.id, s)} />
+                  </div>
+                </div>
+
+                {/* Comments list */}
+                {post.comments.length > 0 && (
+                  <div className="mt-3 border-t pt-2">
+                    {post.comments.map((c) => (
+                      <div key={c.id} className="text-sm py-1">
+                        <strong>{c.user.username}</strong>: {c.text}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            </React.Fragment>
+          ))}
+          {posts.length === 0 && <div className="text-center text-gray-500">No posts yet — be the first to share a product!</div>}
         </section>
+      </div>
     </div>
+  );
+}
 
-    <!-- تذييل الصفحة -->
-    <footer>
-        <div class="container">
-            <p>ProductShow &copy; 2023 - منصة لعرض المنتجات ومشاركتها مع الآخرين</p>
-        </div>
-    </footer>
+// Small helper components and functions
+function Stars({ current, onRate }) {
+  const average = current && current.length ? Math.round(current.reduce((a, b) => a + b.stars, 0) / current.length) : 0;
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button key={s} onClick={() => onRate(s)} aria-label={`Rate ${s}`}> {s <= average ? '★' : '☆'} </button>
+      ))}
+      <span className="text-xs ml-2">({current?.length || 0})</span>
+    </div>
+  );
+}
 
-    <script>
-        // البيانات والمتغيرات
-        let currentUser = null;
-        let posts = JSON.parse(localStorage.getItem('posts')) || [];
-        let visitCount = parseInt(localStorage.getItem('visitCount')) || 0;
+function readFileAsDataURL(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
 
-        // عناصر DOM
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loginModal = document.getElementById('login-modal');
-        const cancelLogin = document.getElementById('cancel-login');
-        const submitLogin = document.getElementById('submit-login');
-        const userInfo = document.getElementById('user-info');
-        const userAvatar = document.getElementById('user-avatar');
-        const usernameSpan = document.getElementById('username');
-        const addProductSection = document.getElementById('add-product-section');
-        const productForm = document.getElementById('product-form');
-        const postsContainer = document.getElementById('posts-container');
-        const sortPosts = document.getElementById('sort-posts');
-        const visitCountSpan = document.getElementById('visit-count');
-        const totalPostsSpan = document.getElementById('total-posts');
-        const totalLikesSpan = document.getElementById('total-likes');
-        const totalCommentsSpan = document.getElementById('total-comments');
-        const totalSharesSpan = document.getElementById('total-shares');
-        const productImagesInput = document.getElementById('product-images');
-        const imagePreview = document.getElementById('image-preview');
-
-        // زيادة عدد الزيارات
-        visitCount++;
-        localStorage.setItem('visitCount', visitCount);
-        visitCountSpan.textContent = visitCount;
-
-        // تحديث الإحصائيات
-        function updateStats() {
-            totalPostsSpan.textContent = posts.length;
-            
-            let totalLikes = 0;
-            let totalComments = 0;
-            let totalShares = 0;
-            
-            posts.forEach(post => {
-                totalLikes += post.likes;
-                totalComments += post.comments.length;
-                totalShares += post.shares;
-            });
-            
-            totalLikesSpan.textContent = totalLikes;
-            totalCommentsSpan.textContent = totalComments;
-            totalSharesSpan.textContent = totalShares;
-        }
-
-        // التحقق من حالة المستخدم
-        function checkUserStatus() {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showUserInfo();
-            }
-        }
-
-        // عرض معلومات المستخدم
-        function showUserInfo() {
-            loginBtn.style.display = 'none';
-            userInfo.style.display = 'flex';
-            usernameSpan.textContent = currentUser.username;
-            
-            if (currentUser.avatar) {
-                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                userAvatar.style.backgroundSize = 'cover';
-                userAvatar.textContent = '';
-            } else {
-                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
-            }
-            
-            addProductSection.style.display = 'block';
-        }
-
-        // إخفاء معلومات المستخدم
-        function hideUserInfo() {
-            loginBtn.style.display = 'block';
-            userInfo.style.display = 'none';
-            addProductSection.style.display = 'none';
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-        }
-
-        // تسجيل الدخول
-        function login() {
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const avatarUrl = document.getElementById('avatar-url').value;
-            
-            if (username && password) {
-                currentUser = {
-                    username: username,
-                    avatar: avatarUrl || null
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showUserInfo();
-                closeLoginModal();
-                
-                // إعادة تعيين الحقول
-                document.getElementById('login-username').value = '';
-                document.getElementById('login-password').value = '';
-                document.getElementById('avatar-url').value = '';
-            } else {
-                alert('يرجى إدخال اسم المستخدم وكلمة المرور');
-            }
-        }
-
-        // تسجيل الخروج
-        function logout() {
-            hideUserInfo();
-        }
-
-        // فتح/إغلاق نافذة تسجيل الدخول
-        function openLoginModal() {
-            loginModal.style.display = 'flex';
-        }
-
-        function closeLoginModal() {
-            loginModal.style.display = 'none';
-        }
-
-        // معاينة الصور قبل الرفع
-        productImagesInput.addEventListener('change', function() {
-            imagePreview.innerHTML = '';
-            const files = this.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'preview-img';
-                    imagePreview.appendChild(img);
-                }
-                
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // نشر منتج جديد
-        function addProduct(e) {
-            e.preventDefault();
-            
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const productName = document.getElementById('product-name').value;
-            const productDescription = document.getElementById('product-description').value;
-            const productImages = document.getElementById('product-images').files;
-            
-            if (!productName || !productDescription) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-            
-            // تحويل الصور إلى base64
-            const images = [];
-            const readers = [];
-            
-            if (productImages.length > 0) {
-                for (let i = 0; i < productImages.length; i++) {
-                    const reader = new FileReader();
-                    readers.push(reader);
-                    
-                    reader.onload = function(e) {
-                        images.push(e.target.result);
-                        
-                        // إذا انتهينا من قراءة جميع الصور، ننشئ المنشور
-                        if (images.length === productImages.length) {
-                            createPost(productName, productDescription, images);
-                        }
-                    }
-                    
-                    reader.readAsDataURL(productImages[i]);
-                }
-            } else {
-                createPost(productName, productDescription, []);
-            }
-        }
-
-        // إنشاء منشور جديد
-        function createPost(name, description, images) {
-            const newPost = {
-                id: Date.now(),
-                productName: name,
-                description: description,
-                images: images,
-                author: currentUser.username,
-                authorAvatar: currentUser.avatar,
-                likes: 0,
-                comments: [],
-                shares: 0,
-                rating: 0,
-                ratingsCount: 0,
-                timestamp: new Date().toISOString(),
-                liked: false
-            };
-            
-            posts.unshift(newPost);
-            localStorage.setItem('posts', JSON.stringify(posts));
-            renderPosts();
-            updateStats();
-            
-            // إعادة تعيين النموذج
-            productForm.reset();
-            imagePreview.innerHTML = '';
-        }
-
-        // عرض المنشورات
-        function renderPosts() {
-            postsContainer.innerHTML = '';
-            
-            // فرز المنشورات حسب الخيار المحدد
-            let sortedPosts = [...posts];
-            
-            if (sortPosts.value === 'popular') {
-                sortedPosts.sort((a, b) => {
-                    const aScore = a.likes + a.comments.length + a.shares;
-                    const bScore = b.likes + b.comments.length + b.shares;
-                    return bScore - aScore;
-                });
-            } else {
-                sortedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            }
-            
-            sortedPosts.forEach(post => {
-                const postElement = createPostElement(post);
-                postsContainer.appendChild(postElement);
-            });
-        }
-
-        // إنشاء عنصر منشور
-        function createPostElement(post) {
-            const postDiv = document.createElement('div');
-            postDiv.className = 'product-post';
-            postDiv.dataset.id = post.id;
-            
-            // رأس المنشور
-            const postHeader = document.createElement('div');
-            postHeader.className = 'post-header';
-            
-            const userAvatar = document.createElement('div');
-            userAvatar.className = 'post-user-avatar';
-            
-            if (post.authorAvatar) {
-                userAvatar.style.backgroundImage = `url(${post.authorAvatar})`;
-                userAvatar.style.backgroundSize = 'cover';
-            } else {
-                userAvatar.textContent = post.author.charAt(0).toUpperCase();
-            }
-            
-            const userInfo = document.createElement('div');
-            userInfo.className = 'post-user-info';
-            
-            const userName = document.createElement('h4');
-            userName.textContent = post.author;
-            
-            const postDate = document.createElement('span');
-            postDate.textContent = new Date(post.timestamp).toLocaleDateString('ar-SA');
-            
-            userInfo.appendChild(userName);
-            userInfo.appendChild(postDate);
-            
-            postHeader.appendChild(userAvatar);
-            postHeader.appendChild(userInfo);
-            
-            // محتوى المنشور
-            const postContent = document.createElement('div');
-            postContent.className = 'post-content';
-            
-            const postTitle = document.createElement('h3');
-            postTitle.className = 'post-title';
-            postTitle.textContent = post.productName;
-            
-            const postDescription = document.createElement('p');
-            postDescription.className = 'post-description';
-            postDescription.textContent = post.description;
-            
-            postContent.appendChild(postTitle);
-            postContent.appendChild(postDescription);
-            
-            // صور المنتج
-            if (post.images && post.images.length > 0) {
-                const postImages = document.createElement('div');
-                postImages.className = 'post-images';
-                
-                post.images.forEach(imageSrc => {
-                    const img = document.createElement('img');
-                    img.src = imageSrc;
-                    img.className = 'post-image';
-                    postImages.appendChild(img);
-                });
-                
-                postContent.appendChild(postImages);
-            }
-            
-            // إحصائيات المنشور
-            const postStats = document.createElement('div');
-            postStats.className = 'post-stats';
-            
-            const likesCount = document.createElement('span');
-            likesCount.textContent = `${post.likes} إعجاب`;
-            
-            const commentsCount = document.createElement('span');
-            commentsCount.textContent = `${post.comments.length} تعليق`;
-            
-            const sharesCount = document.createElement('span');
-            sharesCount.textContent = `${post.shares} مشاركة`;
-            
-            postStats.appendChild(likesCount);
-            postStats.appendChild(commentsCount);
-            postStats.appendChild(sharesCount);
-            
-            postContent.appendChild(postStats);
-            
-            // تقييم النجوم
-            const starRating = document.createElement('div');
-            starRating.className = 'star-rating';
-            
-            for (let i = 1; i <= 5; i++) {
-                const star = document.createElement('span');
-                star.className = 'star';
-                star.innerHTML = '★';
-                star.dataset.rating = i;
-                
-                if (i <= Math.floor(post.rating)) {
-                    star.classList.add('active');
-                }
-                
-                star.addEventListener('click', () => ratePost(post.id, i));
-                starRating.appendChild(star);
-            }
-            
-            const ratingText = document.createElement('span');
-            ratingText.textContent = `(${post.ratingsCount})`;
-            ratingText.style.marginRight = '10px';
-            starRating.appendChild(ratingText);
-            
-            postContent.appendChild(starRating);
-            
-            // رابط المنشور
-            const postLink = document.createElement('a');
-            postLink.href = `#post-${post.id}`;
-            postLink.className = 'post-link';
-            postLink.textContent = 'رابط المنشور';
-            postContent.appendChild(postLink);
-            
-            // أزرار التفاعل
-            const postActions = document.createElement('div');
-            postActions.className = 'post-actions';
-            
-            const likeBtn = document.createElement('div');
-            likeBtn.className = `post-action ${post.liked ? 'liked' : ''}`;
-            likeBtn.innerHTML = `<span>👍</span> إعجاب`;
-            likeBtn.addEventListener('click', () => toggleLike(post.id));
-            
-            const commentBtn = document.createElement('div');
-            commentBtn.className = 'post-action';
-            commentBtn.innerHTML = `<span>💬</span> تعليق`;
-            commentBtn.addEventListener('click', () => addComment(post.id));
-            
-            const shareBtn = document.createElement('div');
-            shareBtn.className = 'post-action';
-            shareBtn.innerHTML = `<span>🔄</span> مشاركة`;
-            shareBtn.addEventListener('click', () => sharePost(post.id));
-            
-            postActions.appendChild(likeBtn);
-            postActions.appendChild(commentBtn);
-            postActions.appendChild(shareBtn);
-            
-            // تجميع كل الأجزاء
-            postDiv.appendChild(postHeader);
-            postDiv.appendChild(postContent);
-            postDiv.appendChild(postActions);
-            
-            return postDiv;
-        }
-
-        // تفعيل/إلغاء الإعجاب
-        function toggleLike(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                if (posts[postIndex].liked) {
-                    posts[postIndex].likes--;
-                    posts[postIndex].liked = false;
-                } else {
-                    posts[postIndex].likes++;
-                    posts[postIndex].liked = true;
-                }
-                
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-                updateStats();
-            }
-        }
-
-        // إضافة تعليق
-        function addComment(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const commentText = prompt('أدخل تعليقك:');
-            if (commentText) {
-                const postIndex = posts.findIndex(p => p.id === postId);
-                if (postIndex !== -1) {
-                    posts[postIndex].comments.push({
-                        user: currentUser.username,
-                        text: commentText,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    localStorage.setItem('posts', JSON.stringify(posts));
-                    renderPosts();
-                    updateStats();
-                }
-            }
-        }
-
-        // مشاركة المنشور
-        function sharePost(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                posts[postIndex].shares++;
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-                updateStats();
-                
-                // في تطبيق حقيقي، هنا يمكن إضافة وظيفة مشاركة حقيقية
-                alert('تمت مشاركة المنشور!');
-            }
-        }
-
-        // تقييم المنشور
-        function ratePost(postId, rating) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                // حساب التقييم الجديد
-                const totalRating = posts[postIndex].rating * posts[postIndex].ratingsCount;
-                posts[postIndex].ratingsCount++;
-                posts[postIndex].rating = (totalRating + rating) / posts[postIndex].ratingsCount;
-                
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-            }
-        }
-
-        // الأحداث
-        loginBtn.addEventListener('click', openLoginModal);
-        cancelLogin.addEventListener('click', closeLoginModal);
-        submitLogin.addEventListener('click', login);
-        logoutBtn.addEventListener('click', logout);
-        productForm.addEventListener('submit', addProduct);
-        sortPosts.addEventListener('change', renderPosts);
-
-        // تهيئة التطبيق
-        checkUserStatus();
-        renderPosts();
-        updateStats();
-
-        // إغلاق نافذة تسجيل الدخول بالنقر خارجها
-        window.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                closeLoginModal();
-            }
-        });
-    </script>
-</body>
-</html>
+function copyToClipboard(text) {
+  if (navigator.clipboard) return navigator.clipboard.writeText(text);
+  const t = document.createElement("textarea");
+  t.value = text;
+  document.body.appendChild(t);
+  t.select();
+  document.execCommand("copy");
+  t.remove();
+}
