@@ -1,580 +1,308 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProductShow - منصة عرض المنتجات</title>
+    <title>ProdShareHub</title>
     <style>
-        /* أنماط CSS */
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        /* شريط الإعلان العلوي */
-        .ad-top {
-            width: 100%;
-            text-align: center;
-            background-color: #f8f9fa;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
+            margin: 0;
             padding: 20px;
+            color: #333;
         }
-
-        /* رأس الموقع */
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark-color);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .user-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        /* نموذج تسجيل الدخول */
-        .login-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-form {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-group {
+        #header-ad { text-align: center; margin-bottom: 20px; }
+        #login-section, #post-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            max-width: 600px;
+            margin: 0 auto 20px;
         }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .avatar-upload {
+        #posts {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
         }
-
-        .avatar-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #eee;
-            background-size: cover;
-            background-position: center;
-            border: 2px solid #ddd;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        /* قسم إضافة منتج جديد */
-        .add-product {
-            background-color: white;
+        .post {
+            background: white;
+            border-radius: 12px;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
-
-        .add-product h2 {
-            margin-bottom: 15px;
-            color: var(--dark-color);
+        .post:hover { transform: translateY(-5px); }
+        .post h3 { color: #007bff; margin-top: 0; }
+        .post img { max-width: 150px; border-radius: 8px; margin: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .images-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .interaction {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
         }
-
-        .product-form input,
-        .product-form textarea {
+        .interaction button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .interaction button:hover { background: #0056b3; }
+        .stars {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .star {
+            font-size: 24px;
+            color: #ccc;
+            transition: color 0.2s;
+        }
+        .star.filled { color: #ffd700; }
+        .star.half-filled {
+            background: linear-gradient(to right, #ffd700 50%, #ccc 50%);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .stars:hover .star { color: #ffcc00; }
+        #visit-count {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+        .comment { margin-left: 20px; background: #f8f9fa; padding: 5px 10px; border-radius: 8px; margin-bottom: 5px; }
+        #middle-ad { text-align: center; margin: 20px 0; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, textarea {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .product-form textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .image-upload {
-            margin-bottom: 15px;
-        }
-
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .preview-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-
-        /* قسم المنشورات */
-        .posts-section {
-            margin-bottom: 30px;
-        }
-
-        .posts-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .sort-options select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        /* منشور المنتج */
-        .product-post {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .post-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-left: 10px;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .post-user-info h4 {
-            font-size: 16px;
-            margin-bottom: 2px;
-        }
-
-        .post-user-info span {
-            font-size: 12px;
-            color: #777;
-        }
-
-        .post-content {
-            padding: 15px;
-        }
-
-        .post-title {
-            font-size: 20px;
             margin-bottom: 10px;
-            color: var(--dark-color);
-        }
-
-        .post-description {
-            margin-bottom: 15px;
-            color: #555;
-        }
-
-        .post-images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .post-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            max-height: 300px;
-        }
-
-        .post-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 10px;
-        }
-
-        .post-actions {
-            display: flex;
-            border-top: 1px solid #eee;
-        }
-
-        .post-action {
-            flex: 1;
-            text-align: center;
-            padding: 12px 0;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .post-action:hover {
-            background-color: #f5f5f5;
-        }
-
-        .post-action.liked {
-            color: var(--danger-color);
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        .star {
-            color: #ddd;
-            cursor: pointer;
-            font-size: 20px;
-        }
-
-        .star.active {
-            color: var(--warning-color);
-        }
-
-        .post-link {
-            display: block;
-            margin-top: 10px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        /* الإعلانات */
-        .ad-middle {
-            width: 100%;
-            text-align: center;
-            margin: 30px 0;
-            padding: 20px 0;
-            background-color: #f8f9fa;
+            border: 1px solid #ccc;
             border-radius: 8px;
+            box-sizing: border-box;
         }
-
-        /* إحصائيات الموقع */
-        .site-stats {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #777;
-        }
-
-        /* تذييل الصفحة */
-        footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 30px 0;
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        /* تصميم متجاوب */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                gap: 10px;
-            }
-
-            .site-stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .post-actions {
-                flex-wrap: wrap;
-            }
-
-            .post-action {
-                flex: 0 0 33.33%;
-            }
+        button { cursor: pointer; }
+        #user-info { display: flex; align-items: center; gap: 10px; }
+        #profile-img { border: 2px solid #007bff; }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .post img { max-width: 100px; }
         }
     </style>
 </head>
 <body>
-    <!-- شريط الإعلان العلوي -->
-    <div class="ad-top">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
+
+<!-- Top Ad -->
+<div id="header-ad">
+    <script type="text/javascript">
+        atOptions = {
+            'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+</div>
+
+<!-- Login Section -->
+<div id="login-section">
+    <h2>Login to ProdShareHub</h2>
+    <input type="text" id="username" placeholder="Username">
+    <label>Profile Picture (optional):</label>
+    <input type="file" id="profile-pic" accept="image/*">
+    <button onclick="login()">Login</button>
+    <button onclick="logout()" id="logout-btn" style="display:none; background: #dc3545;">Logout</button>
+    <div id="user-info" style="display:none; margin-top: 10px;">
+        Logged in as: <span id="logged-username"></span>
+        <img id="profile-img" width="50" height="50" style="border-radius:50%;">
+    </div>
+</div>
+
+<!-- Post Section (visible after login) -->
+<div id="post-section" style="display:none;">
+    <h2>Create a Product Post</h2>
+    <input type="text" id="product-name" placeholder="Product Name">
+    <textarea id="product-desc" placeholder="Description" rows="4"></textarea>
+    <label>Product Images (optional):</label>
+    <input type="file" id="product-images" multiple accept="image/*">
+    <button onclick="createPost()">Post Product</button>
+</div>
+
+<!-- Posts Display -->
+<div id="posts"></div>
+
+<!-- Visit Count Badge -->
+<div id="visit-count">Visits: 0</div>
+
+<script>
+    // Data Structures
+    let users = JSON.parse(localStorage.getItem('users')) || {};
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+    let currentUser = null;
+    let visits = parseInt(localStorage.getItem('visits')) || 0;
+
+    // Increment and display visits
+    visits++;
+    localStorage.setItem('visits', visits);
+    document.getElementById('visit-count').innerText = `Visits: ${visits}`;
+
+    // Login Function
+    function login() {
+        const username = document.getElementById('username').value.trim();
+        if (!username) return alert('Please enter a username');
+        
+        if (!users[username]) {
+            users[username] = { profilePic: 'https://via.placeholder.com/50' };
+        }
+        
+        const file = document.getElementById('profile-pic').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                users[username].profilePic = e.target.result;
+                localStorage.setItem('users', JSON.stringify(users));
+                setCurrentUser(username);
             };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-    </div>
+            reader.readAsDataURL(file);
+        } else {
+            setCurrentUser(username);
+        }
+    }
 
-    <!-- رأس الموقع -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">ProductShow</div>
-                <nav class="nav-links">
-                    <a href="#">الرئيسية</a>
-                    <a href="#">استكشف</a>
-                    <a href="#">الفئات</a>
-                    <a href="#">المفضلة</a>
-                </nav>
-                <div class="user-section">
-                    <div class="site-visits">
-                        <span id="visit-count">0</span> زائر
+    // Set Current User
+    function setCurrentUser(username) {
+        currentUser = username;
+        document.getElementById('logged-username').innerText = username;
+        document.getElementById('profile-img').src = users[username].profilePic;
+        document.getElementById('user-info').style.display = 'flex';
+        document.getElementById('logout-btn').style.display = 'inline-block';
+        document.getElementById('post-section').style.display = 'block';
+        document.querySelectorAll('#login-section input, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'none');
+        renderPosts();
+    }
+
+    // Logout
+    function logout() {
+        currentUser = null;
+        document.getElementById('user-info').style.display = 'none';
+        document.getElementById('logout-btn').style.display = 'none';
+        document.getElementById('post-section').style.display = 'none';
+        document.querySelectorAll('#login-section input, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'block');
+        renderPosts();
+    }
+
+    // Create Post
+    function createPost() {
+        if (!currentUser) return alert('Please login first');
+        
+        const name = document.getElementById('product-name').value.trim();
+        const desc = document.getElementById('product-desc').value.trim();
+        if (!name || !desc) return alert('Please fill in product name and description');
+        
+        const images = [];
+        const files = document.getElementById('product-images').files;
+        const readerPromises = Array.from(files).map(file => {
+            return new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    images.push(e.target.result);
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        Promise.all(readerPromises).then(() => {
+            const post = {
+                id: Date.now() + Math.random().toString(36).substr(2, 9), // More unique ID
+                user: currentUser,
+                name,
+                desc,
+                images,
+                likes: 0,
+                comments: [],
+                shares: 0,
+                ratings: [],
+                averageRating: 0
+            };
+            posts.push(post);
+            savePosts();
+            renderPosts();
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-desc').value = '';
+            document.getElementById('product-images').value = '';
+        });
+    }
+
+    // Save Posts
+    function savePosts() {
+        localStorage.setItem('posts', JSON.stringify(posts));
+    }
+
+    // Render Posts with Sorting
+    function renderPosts() {
+        // Sort by interaction score
+        posts.sort((a, b) => (b.likes + b.comments.length + b.shares) - (a.likes + a.comments.length + a.shares));
+        
+        const container = document.getElementById('posts');
+        container.innerHTML = '';
+        
+        posts.forEach((post, index) => {
+            const avg = post.averageRating;
+            const fullStars = Math.floor(avg);
+            const halfStar = avg % 1 >= 0.5 ? 1 : 0;
+            
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            postDiv.innerHTML = `
+                <h3>${post.name}</h3>
+                <p>${post.desc}</p>
+                <div class="images-container">${post.images.map(img => `<img src="${img}" alt="Product Image">`).join('')}</div>
+                <div class="interaction">
+                    <button onclick="likePost('${post.id}')">Like (${post.likes})</button>
+                    <button onclick="sharePost('${post.id}')">Share (${post.shares})</button>
+                    <div>Share Link: <input type="text" value="${window.location.origin + window.location.pathname + '#' + post.id}" readonly size="30"></div>
+                    <div class="stars" data-post-id="${post.id}">
+                        Rating: ${avg.toFixed(1)} / 5
+                        ${[1,2,3,4,5].map(i => {
+                            let className = 'star';
+                            if (i <= fullStars) className += ' filled';
+                            else if (i === fullStars + 1 && halfStar) className += ' half-filled';
+                            return `<span class="${className}" onclick="ratePost('${post.id}', ${i})">★</span>`;
+                        }).join('')}
                     </div>
-                    <div id="user-info" style="display: none;">
-                        <div class="user-avatar" id="user-avatar">م</div>
-                        <span id="username">مستخدم</span>
-                        <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
-                    </div>
-                    <button class="btn btn-primary" id="login-btn">تسجيل الدخول</button>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- نموذج تسجيل الدخول -->
-    <div class="login-modal" id="login-modal">
-        <div class="login-form">
-            <h2>تسجيل الدخول</h2>
-            <div class="form-group">
-                <label for="login-username">اسم المستخدم</label>
-                <input type="text" id="login-username" placeholder="أدخل اسم المستخدم">
-            </div>
-            <div class="form-group">
-                <label>صورة البروفايل</label>
-                <div class="avatar-upload">
-                    <div class="avatar-preview" id="avatar-preview"></div>
-                    <input type="file" id="avatar-upload" accept="image/*">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn btn-outline" id="cancel-login">إلغاء</button>
-                <button class="btn btn-primary" id="submit-login">تسجيل الدخول</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- إحصائيات الموقع -->
-        <div class="site-stats">
-            <div class="stat-item">
-                <div class="stat-value" id="total-posts">0</div>
-                <div class="stat-label">منتج معروض</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-likes">0</div>
-                <div class="stat-label">إعجاب</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-comments">0</div>
-                <div class="stat-label">تعليق</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="total-shares">0</div>
-                <div class="stat-label">مشاركة</div>
-            </div>
-        </div>
-
-        <!-- قسم إضافة منتج جديد -->
-        <section class="add-product" id="add-product-section" style="display: none;">
-            <h2>أضف منتج جديد</h2>
-            <form class="product-form" id="product-form">
-                <input type="text" id="product-name" placeholder="اسم المنتج" required>
-                <textarea id="product-description" placeholder="وصف المنتج" required></textarea>
-                <div class="image-upload">
-                    <label for="product-images">إضافة صور المنتج</label>
-                    <input type="file" id="product-images" multiple accept="image/*">
-                    <div class="image-preview" id="image-preview"></div>
-                </div>
-                <button type="submit" class="btn btn-primary">نشر المنتج</button>
-            </form>
-        </section>
-
-        <!-- قسم المنشورات -->
-        <section class="posts-section">
-            <div class="posts-header">
-                <h2>المنتجات المعروضة</h2>
-                <div class="sort-options">
-                    <select id="sort-posts">
-                        <option value="popular">الأكثر تفاعلاً</option>
-                        <option value="recent">الأحدث أولاً</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="posts-container">
-                <!-- سيتم إضافة المنشورات هنا ديناميكياً -->
-            </div>
-
-            <!-- إعلان وسط الصفحة -->
-            <div class="ad-middle">
-                <script type="text/javascript">
+                <div>Comments (${post.comments.length}):</div>
+                <div id="comments-${post.id}">${post.comments.map(c => `<div class="comment">${c}</div>`).join('')}</div>
+                <input type="text" id="comment-input-${post.id}" placeholder="Add a comment...">
+                <button onclick="addComment('${post.id}')">Comment</button>
+            `;
+            container.appendChild(postDiv);
+            
+            // Insert middle ad after every 3 posts
+            if ((index + 1) % 3 === 0) {
+                const adDiv = document.createElement('div');
+                adDiv.id = 'middle-ad';
+                const script1 = document.createElement('script');
+                script1.type = 'text/javascript';
+                script1.text = `
                     atOptions = {
                         'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
                         'format' : 'iframe',
@@ -582,522 +310,71 @@
                         'width' : 320,
                         'params' : {}
                     };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-            </div>
-        </section>
-    </div>
-
-    <!-- تذييل الصفحة -->
-    <footer>
-        <div class="container">
-            <p>ProductShow &copy; 2023 - منصة لعرض المنتجات ومشاركتها مع الآخرين</p>
-        </div>
-    </footer>
-
-    <script>
-        // البيانات والمتغيرات
-        let currentUser = null;
-        let posts = JSON.parse(localStorage.getItem('posts')) || [];
-        let visitCount = parseInt(localStorage.getItem('visitCount')) || 0;
-
-        // عناصر DOM
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const loginModal = document.getElementById('login-modal');
-        const cancelLogin = document.getElementById('cancel-login');
-        const submitLogin = document.getElementById('submit-login');
-        const userInfo = document.getElementById('user-info');
-        const userAvatar = document.getElementById('user-avatar');
-        const usernameSpan = document.getElementById('username');
-        const addProductSection = document.getElementById('add-product-section');
-        const productForm = document.getElementById('product-form');
-        const postsContainer = document.getElementById('posts-container');
-        const sortPosts = document.getElementById('sort-posts');
-        const visitCountSpan = document.getElementById('visit-count');
-        const totalPostsSpan = document.getElementById('total-posts');
-        const totalLikesSpan = document.getElementById('total-likes');
-        const totalCommentsSpan = document.getElementById('total-comments');
-        const totalSharesSpan = document.getElementById('total-shares');
-        const productImagesInput = document.getElementById('product-images');
-        const imagePreview = document.getElementById('image-preview');
-        const avatarUpload = document.getElementById('avatar-upload');
-        const avatarPreview = document.getElementById('avatar-preview');
-
-        // زيادة عدد الزيارات
-        visitCount++;
-        localStorage.setItem('visitCount', visitCount);
-        visitCountSpan.textContent = visitCount;
-
-        // تحديث الإحصائيات
-        function updateStats() {
-            totalPostsSpan.textContent = posts.length;
-            
-            let totalLikes = 0;
-            let totalComments = 0;
-            let totalShares = 0;
-            
-            posts.forEach(post => {
-                totalLikes += post.likes;
-                totalComments += post.comments.length;
-                totalShares += post.shares;
-            });
-            
-            totalLikesSpan.textContent = totalLikes;
-            totalCommentsSpan.textContent = totalComments;
-            totalSharesSpan.textContent = totalShares;
-        }
-
-        // التحقق من حالة المستخدم
-        function checkUserStatus() {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showUserInfo();
-            }
-        }
-
-        // عرض معلومات المستخدم
-        function showUserInfo() {
-            loginBtn.style.display = 'none';
-            userInfo.style.display = 'flex';
-            usernameSpan.textContent = currentUser.username;
-            
-            if (currentUser.avatar) {
-                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
-                userAvatar.textContent = '';
-            } else {
-                userAvatar.style.backgroundImage = 'none';
-                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
-            }
-            
-            addProductSection.style.display = 'block';
-        }
-
-        // إخفاء معلومات المستخدم
-        function hideUserInfo() {
-            loginBtn.style.display = 'block';
-            userInfo.style.display = 'none';
-            addProductSection.style.display = 'none';
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-        }
-
-        // تسجيل الدخول
-        function login() {
-            const username = document.getElementById('login-username').value;
-            
-            if (username) {
-                currentUser = {
-                    username: username,
-                    avatar: avatarPreview.style.backgroundImage || null
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showUserInfo();
-                closeLoginModal();
-                
-                // إعادة تعيين الحقول
-                document.getElementById('login-username').value = '';
-                avatarPreview.style.backgroundImage = '';
-                avatarUpload.value = '';
-            } else {
-                alert('يرجى إدخال اسم المستخدم');
-            }
-        }
-
-        // تسجيل الخروج
-        function logout() {
-            hideUserInfo();
-        }
-
-        // فتح/إغلاق نافذة تسجيل الدخول
-        function openLoginModal() {
-            loginModal.style.display = 'flex';
-        }
-
-        function closeLoginModal() {
-            loginModal.style.display = 'none';
-        }
-
-        // معاينة صورة البروفايل
-        avatarUpload.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    avatarPreview.style.backgroundImage = `url(${e.target.result})`;
-                }
-                
-                reader.readAsDataURL(file);
+                `;
+                adDiv.appendChild(script1);
+                const script2 = document.createElement('script');
+                script2.type = 'text/javascript';
+                script2.src = '//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js';
+                adDiv.appendChild(script2);
+                container.appendChild(adDiv);
             }
         });
+    }
 
-        // معاينة صور المنتج قبل الرفع
-        productImagesInput.addEventListener('change', function() {
-            imagePreview.innerHTML = '';
-            const files = this.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'preview-img';
-                    imagePreview.appendChild(img);
-                }
-                
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // نشر منتج جديد
-        function addProduct(e) {
-            e.preventDefault();
-            
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const productName = document.getElementById('product-name').value;
-            const productDescription = document.getElementById('product-description').value;
-            const productImages = document.getElementById('product-images').files;
-            
-            if (!productName || !productDescription) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-            
-            // تحويل الصور إلى base64
-            const images = [];
-            const readers = [];
-            
-            if (productImages.length > 0) {
-                for (let i = 0; i < productImages.length; i++) {
-                    const reader = new FileReader();
-                    readers.push(reader);
-                    
-                    reader.onload = function(e) {
-                        images.push(e.target.result);
-                        
-                        // إذا انتهينا من قراءة جميع الصور، ننشئ المنشور
-                        if (images.length === productImages.length) {
-                            createPost(productName, productDescription, images);
-                        }
-                    }
-                    
-                    reader.readAsDataURL(productImages[i]);
-                }
-            } else {
-                createPost(productName, productDescription, []);
-            }
-        }
-
-        // إنشاء منشور جديد
-        function createPost(name, description, images) {
-            const newPost = {
-                id: Date.now(),
-                productName: name,
-                description: description,
-                images: images,
-                author: currentUser.username,
-                authorAvatar: currentUser.avatar,
-                likes: 0,
-                comments: [],
-                shares: 0,
-                rating: 0,
-                ratingsCount: 0,
-                timestamp: new Date().toISOString(),
-                liked: false
-            };
-            
-            posts.unshift(newPost);
-            localStorage.setItem('posts', JSON.stringify(posts));
+    // Like Post
+    function likePost(id) {
+        if (!currentUser) return alert('Please login to interact');
+        const post = posts.find(p => p.id === id);
+        if (post) {
+            post.likes++;
+            savePosts();
             renderPosts();
-            updateStats();
-            
-            // إعادة تعيين النموذج
-            productForm.reset();
-            imagePreview.innerHTML = '';
         }
+    }
 
-        // عرض المنشورات
-        function renderPosts() {
-            postsContainer.innerHTML = '';
-            
-            // فرز المنشورات حسب الخيار المحدد
-            let sortedPosts = [...posts];
-            
-            if (sortPosts.value === 'popular') {
-                sortedPosts.sort((a, b) => {
-                    const aScore = a.likes + a.comments.length + a.shares;
-                    const bScore = b.likes + b.comments.length + b.shares;
-                    return bScore - aScore;
-                });
-            } else {
-                sortedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            }
-            
-            sortedPosts.forEach(post => {
-                const postElement = createPostElement(post);
-                postsContainer.appendChild(postElement);
-            });
+    // Share Post
+    function sharePost(id) {
+        if (!currentUser) return alert('Please login to interact');
+        const post = posts.find(p => p.id === id);
+        if (post) {
+            post.shares++;
+            const link = window.location.origin + window.location.pathname + '#' + id;
+            navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard!'));
+            savePosts();
+            renderPosts();
         }
+    }
 
-        // إنشاء عنصر منشور
-        function createPostElement(post) {
-            const postDiv = document.createElement('div');
-            postDiv.className = 'product-post';
-            postDiv.dataset.id = post.id;
-            
-            // رأس المنشور
-            const postHeader = document.createElement('div');
-            postHeader.className = 'post-header';
-            
-            const userAvatar = document.createElement('div');
-            userAvatar.className = 'post-user-avatar';
-            
-            if (post.authorAvatar) {
-                userAvatar.style.backgroundImage = post.authorAvatar;
-            } else {
-                userAvatar.textContent = post.author.charAt(0).toUpperCase();
-            }
-            
-            const userInfo = document.createElement('div');
-            userInfo.className = 'post-user-info';
-            
-            const userName = document.createElement('h4');
-            userName.textContent = post.author;
-            
-            const postDate = document.createElement('span');
-            postDate.textContent = new Date(post.timestamp).toLocaleDateString('ar-SA');
-            
-            userInfo.appendChild(userName);
-            userInfo.appendChild(postDate);
-            
-            postHeader.appendChild(userAvatar);
-            postHeader.appendChild(userInfo);
-            
-            // محتوى المنشور
-            const postContent = document.createElement('div');
-            postContent.className = 'post-content';
-            
-            const postTitle = document.createElement('h3');
-            postTitle.className = 'post-title';
-            postTitle.textContent = post.productName;
-            
-            const postDescription = document.createElement('p');
-            postDescription.className = 'post-description';
-            postDescription.textContent = post.description;
-            
-            postContent.appendChild(postTitle);
-            postContent.appendChild(postDescription);
-            
-            // صور المنتج
-            if (post.images && post.images.length > 0) {
-                const postImages = document.createElement('div');
-                postImages.className = 'post-images';
-                
-                post.images.forEach(imageSrc => {
-                    const img = document.createElement('img');
-                    img.src = imageSrc;
-                    img.className = 'post-image';
-                    postImages.appendChild(img);
-                });
-                
-                postContent.appendChild(postImages);
-            }
-            
-            // إحصائيات المنشور
-            const postStats = document.createElement('div');
-            postStats.className = 'post-stats';
-            
-            const likesCount = document.createElement('span');
-            likesCount.textContent = `${post.likes} إعجاب`;
-            
-            const commentsCount = document.createElement('span');
-            commentsCount.textContent = `${post.comments.length} تعليق`;
-            
-            const sharesCount = document.createElement('span');
-            sharesCount.textContent = `${post.shares} مشاركة`;
-            
-            postStats.appendChild(likesCount);
-            postStats.appendChild(commentsCount);
-            postStats.appendChild(sharesCount);
-            
-            postContent.appendChild(postStats);
-            
-            // تقييم النجوم
-            const starRating = document.createElement('div');
-            starRating.className = 'star-rating';
-            
-            for (let i = 1; i <= 5; i++) {
-                const star = document.createElement('span');
-                star.className = 'star';
-                star.innerHTML = '★';
-                star.dataset.rating = i;
-                
-                if (i <= Math.floor(post.rating)) {
-                    star.classList.add('active');
-                }
-                
-                star.addEventListener('click', () => ratePost(post.id, i));
-                starRating.appendChild(star);
-            }
-            
-            const ratingText = document.createElement('span');
-            ratingText.textContent = `(${post.ratingsCount})`;
-            ratingText.style.marginRight = '10px';
-            starRating.appendChild(ratingText);
-            
-            postContent.appendChild(starRating);
-            
-            // رابط المنشور
-            const postLink = document.createElement('a');
-            postLink.href = `#post-${post.id}`;
-            postLink.className = 'post-link';
-            postLink.textContent = 'رابط المنشور';
-            postContent.appendChild(postLink);
-            
-            // أزرار التفاعل
-            const postActions = document.createElement('div');
-            postActions.className = 'post-actions';
-            
-            const likeBtn = document.createElement('div');
-            likeBtn.className = `post-action ${post.liked ? 'liked' : ''}`;
-            likeBtn.innerHTML = `<span>👍</span> إعجاب`;
-            likeBtn.addEventListener('click', () => toggleLike(post.id));
-            
-            const commentBtn = document.createElement('div');
-            commentBtn.className = 'post-action';
-            commentBtn.innerHTML = `<span>💬</span> تعليق`;
-            commentBtn.addEventListener('click', () => addComment(post.id));
-            
-            const shareBtn = document.createElement('div');
-            shareBtn.className = 'post-action';
-            shareBtn.innerHTML = `<span>🔄</span> مشاركة`;
-            shareBtn.addEventListener('click', () => sharePost(post.id));
-            
-            postActions.appendChild(likeBtn);
-            postActions.appendChild(commentBtn);
-            postActions.appendChild(shareBtn);
-            
-            // تجميع كل الأجزاء
-            postDiv.appendChild(postHeader);
-            postDiv.appendChild(postContent);
-            postDiv.appendChild(postActions);
-            
-            return postDiv;
+    // Rate Post
+    function ratePost(id, rating) {
+        if (!currentUser) return alert('Please login to interact');
+        const post = posts.find(p => p.id === id);
+        if (post) {
+            post.ratings.push(rating);
+            post.averageRating = post.ratings.reduce((a, b) => a + b, 0) / post.ratings.length;
+            savePosts();
+            renderPosts();
         }
+    }
 
-        // تفعيل/إلغاء الإعجاب
-        function toggleLike(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                if (posts[postIndex].liked) {
-                    posts[postIndex].likes--;
-                    posts[postIndex].liked = false;
-                } else {
-                    posts[postIndex].likes++;
-                    posts[postIndex].liked = true;
-                }
-                
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-                updateStats();
-            }
+    // Add Comment
+    function addComment(id) {
+        if (!currentUser) return alert('Please login to interact');
+        const input = document.getElementById(`comment-input-${id}`);
+        const comment = input.value.trim();
+        if (!comment) return;
+        const post = posts.find(p => p.id === id);
+        if (post) {
+            post.comments.push(comment);
+            input.value = '';
+            savePosts();
+            renderPosts();
         }
+    }
 
-        // إضافة تعليق
-        function addComment(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const commentText = prompt('أدخل تعليقك:');
-            if (commentText) {
-                const postIndex = posts.findIndex(p => p.id === postId);
-                if (postIndex !== -1) {
-                    posts[postIndex].comments.push({
-                        user: currentUser.username,
-                        text: commentText,
-                        timestamp: new Date().toISOString()
-                    });
-                    
-                    localStorage.setItem('posts', JSON.stringify(posts));
-                    renderPosts();
-                    updateStats();
-                }
-            }
-        }
+    // Initial Render
+    renderPosts();
+</script>
 
-        // مشاركة المنشور
-        function sharePost(postId) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                posts[postIndex].shares++;
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-                updateStats();
-                
-                // في تطبيق حقيقي، هنا يمكن إضافة وظيفة مشاركة حقيقية
-                alert('تمت مشاركة المنشور!');
-            }
-        }
-
-        // تقييم المنشور
-        function ratePost(postId, rating) {
-            if (!currentUser) {
-                alert('يجب تسجيل الدخول أولاً');
-                return;
-            }
-            
-            const postIndex = posts.findIndex(p => p.id === postId);
-            if (postIndex !== -1) {
-                // حساب التقييم الجديد
-                const totalRating = posts[postIndex].rating * posts[postIndex].ratingsCount;
-                posts[postIndex].ratingsCount++;
-                posts[postIndex].rating = (totalRating + rating) / posts[postIndex].ratingsCount;
-                
-                localStorage.setItem('posts', JSON.stringify(posts));
-                renderPosts();
-            }
-        }
-
-        // الأحداث
-        loginBtn.addEventListener('click', openLoginModal);
-        cancelLogin.addEventListener('click', closeLoginModal);
-        submitLogin.addEventListener('click', login);
-        logoutBtn.addEventListener('click', logout);
-        productForm.addEventListener('submit', addProduct);
-        sortPosts.addEventListener('change', renderPosts);
-
-        // تهيئة التطبيق
-        checkUserStatus();
-        renderPosts();
-        updateStats();
-
-        // إغلاق نافذة تسجيل الدخول بالنقر خارجها
-        window.addEventListener('click', (e) => {
-            if (e.target === loginModal) {
-                closeLoginModal();
-            }
-        });
-    </script>
 </body>
 </html>
