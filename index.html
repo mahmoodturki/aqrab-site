@@ -6,7 +6,6 @@
     <title>ShowcaseHub - منصة عرض المنتجات</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* التصميم الأساسي */
         * {
             margin: 0;
             padding: 0;
@@ -27,7 +26,6 @@
             padding: 20px;
         }
         
-        /* الترويسة */
         header {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
@@ -112,7 +110,6 @@
             gap: 5px;
         }
         
-        /* زر الإضافة */
         .add-btn {
             background: linear-gradient(45deg, #ff7e5f, #feb47b);
             color: white;
@@ -129,7 +126,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        /* قسم الترحيب */
         .hero {
             text-align: center;
             padding: 40px 0;
@@ -148,7 +144,6 @@
             opacity: 0.9;
         }
         
-        /* الإعلان */
         .ad-container {
             display: flex;
             justify-content: center;
@@ -158,7 +153,6 @@
             border-radius: 8px;
         }
         
-        /* الشبكة */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -166,7 +160,6 @@
             margin-top: 30px;
         }
         
-        /* بطاقة المنتج */
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -271,7 +264,6 @@
             color: #ff7e5f;
         }
         
-        /* النموذج */
         .modal {
             display: none;
             position: fixed;
@@ -383,7 +375,6 @@
             margin-top: 20px;
         }
         
-        /* التذييل */
         footer {
             text-align: center;
             padding: 30px 0;
@@ -391,7 +382,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* التجاوب */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -426,7 +416,6 @@
             }
         }
         
-        /* تحسينات للهاتف */
         @media (max-width: 480px) {
             .modal-content {
                 padding: 20px;
@@ -447,7 +436,6 @@
             }
         }
         
-        /* إصلاح مشكلة اللمس على الهواتف */
         button, .file-input-label {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
@@ -457,16 +445,14 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        /* تحسينات إضافية للهاتف */
         input, textarea, button {
-            font-size: 16px; /* منع التكبير التلقائي على iOS */
+            font-size: 16px;
         }
         
         .file-input-label {
-            padding: 15px; /* زيادة مساحة اللمس */
+            padding: 15px;
         }
         
-        /* رسالة نجاح */
         .success-message {
             position: fixed;
             top: 20px;
@@ -488,7 +474,6 @@
     </style>
 </head>
 <body>
-    <!-- رسالة نجاح -->
     <div class="success-message" id="successMessage"></div>
     
     <div class="container">
@@ -520,11 +505,8 @@
             </div>
         </header>
         
-        <!-- إعلان غير مزعج -->
         <div class="ad-container">
-            <div id="ad-top">
-                <!-- سيتم إضافة الإعلان هنا عبر JavaScript -->
-            </div>
+            <div id="ad-top"></div>
         </div>
         
         <section class="hero">
@@ -536,16 +518,11 @@
         <main>
             <h2>أحدث المنتجات</h2>
             
-            <!-- إعلان في منتصف الصفحة -->
             <div class="ad-container">
-                <div id="ad-mid">
-                    <!-- سيتم إضافة الإعلان هنا عبر JavaScript -->
-                </div>
+                <div id="ad-mid"></div>
             </div>
             
-            <div class="grid" id="productsGrid">
-                <!-- سيتم إضافة المنتجات هنا عبر JavaScript -->
-            </div>
+            <div class="grid" id="productsGrid"></div>
         </main>
         
         <footer>
@@ -553,7 +530,6 @@
         </footer>
     </div>
     
-    <!-- نموذج تسجيل الدخول -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h2>تسجيل الدخول</h2>
@@ -580,7 +556,6 @@
         </div>
     </div>
     
-    <!-- نموذج إضافة منتج -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <h2>إضافة منتج جديد</h2>
@@ -618,7 +593,6 @@
     </div>
 
     <script>
-        // زيادة عداد الزوار
         function incrementVisitorCount() {
             let count = localStorage.getItem('visitorCount') || 0;
             count = parseInt(count) + 1;
@@ -626,13 +600,11 @@
             document.getElementById('visitorCount').textContent = count;
         }
         
-        // تحميل عداد الزوار
         function loadVisitorCount() {
             let count = localStorage.getItem('visitorCount') || 0;
             document.getElementById('visitorCount').textContent = count;
         }
         
-        // عرض رسالة نجاح
         function showSuccessMessage(message) {
             const successMessage = document.getElementById('successMessage');
             successMessage.textContent = message;
@@ -643,7 +615,6 @@
             }, 3000);
         }
         
-        // بيانات المنتجات والمستخدمين
         let products = JSON.parse(localStorage.getItem('products')) || [
             {
                 id: 1,
@@ -674,7 +645,6 @@
         let users = JSON.parse(localStorage.getItem('users')) || {};
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-        // العناصر في DOM
         const productsGrid = document.getElementById('productsGrid');
         const productModal = document.getElementById('productModal');
         const loginModal = document.getElementById('loginModal');
@@ -689,7 +659,6 @@
         const avatarPreview = document.getElementById('avatarPreview');
         const productImagePreview = document.getElementById('productImagePreview');
 
-        // تحميل الصورة وعرض معاينة
         document.getElementById('avatar').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -714,7 +683,6 @@
             }
         });
 
-        // عرض المنتجات
         function renderProducts() {
             productsGrid.innerHTML = '';
             
@@ -727,7 +695,6 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'card';
                 
-                // التحقق مما إذا كان المستخدم الحالي قد أعجب بهذا المنتج
                 const isLiked = currentUser && product.likedBy && product.likedBy.includes(currentUser.username);
                 
                 productCard.innerHTML = `
@@ -762,11 +729,9 @@
                 productsGrid.appendChild(productCard);
             });
             
-            // حفظ المنتجات في localStorage
             localStorage.setItem('products', JSON.stringify(products));
         }
 
-        // تحديث واجهة المستخدم بناءً على حالة تسجيل الدخول
         function updateUI() {
             if (currentUser) {
                 userGreeting.textContent = `مرحباً، ${currentUser.username}`;
@@ -781,7 +746,6 @@
             }
         }
 
-        // فتح نموذج إضافة منتج
         addProductBtn.addEventListener('click', () => {
             if (!currentUser) {
                 showSuccessMessage('يجب تسجيل الدخول أولاً');
@@ -791,7 +755,6 @@
             productModal.style.display = 'flex';
         });
 
-        // فتح نموذج تسجيل الدخول
         loginBtn.addEventListener('click', () => {
             loginModal.style.display = 'flex';
         });
@@ -800,7 +763,6 @@
             loginModal.style.display = 'flex';
         });
 
-        // إغلاق النماذج
         cancelBtn.addEventListener('click', () => {
             productModal.style.display = 'none';
             productForm.reset();
@@ -813,7 +775,6 @@
             avatarPreview.style.display = 'none';
         });
 
-        // إغلاق النماذج عند النقر خارج المحتوى
         window.addEventListener('click', (e) => {
             if (e.target === productModal) {
                 productModal.style.display = 'none';
@@ -827,7 +788,6 @@
             }
         });
 
-        // تسجيل الدخول
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -839,7 +799,6 @@
                 return;
             }
             
-            // إذا لم يختار المستخدم صورة، نستخدم صورة افتراضية
             let avatarSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iIzMzMyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjIwMCIgcj0iODAiIGZpbGw9IiMzMzMiLz48L3N2Zz4=';
             
             if (avatarFile) {
@@ -855,7 +814,6 @@
         });
 
         function completeLogin(username, avatarSrc) {
-            // حفظ المستخدم إذا لم يكن مسجلاً من قبل
             if (!users[username]) {
                 users[username] = {
                     username: username,
@@ -865,7 +823,6 @@
                 localStorage.setItem('users', JSON.stringify(users));
             }
             
-            // تسجيل الدخول
             currentUser = {
                 username: username,
                 avatar: users[username].avatar
@@ -880,7 +837,6 @@
             showSuccessMessage(`مرحباً ${username}! تم تسجيل الدخول بنجاح.`);
         }
 
-        // إضافة منتج جديد
         productForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -928,7 +884,6 @@
             reader.readAsDataURL(imageFile);
         });
 
-        // وظائف التفاعل
         function likeProduct(productId) {
             if (!currentUser) {
                 showSuccessMessage('يجب تسجيل الدخول أولاً');
@@ -944,12 +899,10 @@
             const userIndex = product.likedBy.indexOf(currentUser.username);
             
             if (userIndex === -1) {
-                // لم يعجب المستخدم بالمنتج من قبل
                 product.likedBy.push(currentUser.username);
                 product.likes = (product.likes || 0) + 1;
                 showSuccessMessage('تم الإعجاب بالمنتج!');
             } else {
-                // إلغاء الإعجاب
                 product.likedBy.splice(userIndex, 1);
                 product.likes = (product.likes || 0) - 1;
                 showSuccessMessage('تم إلغاء الإعجاب بالمنتج!');
@@ -989,10 +942,8 @@
             const product = products.find(p => p.id === productId);
             product.shares = (product.shares || 0) + 1;
             
-            // إنشاء رابط للمشاركة
             const shareUrl = `${window.location.origin}${window.location.pathname}#product-${productId}`;
             
-            // محاولة استخدام واجهة Web Share API إذا كانت متاحة
             if (navigator.share) {
                 navigator.share({
                     title: product.name,
@@ -1014,7 +965,6 @@
         }
         
         function fallbackShare(shareUrl, product) {
-            // نسخ الرابط إلى الحافظة
             navigator.clipboard.writeText(shareUrl)
                 .then(() => {
                     showSuccessMessage(`تم نسخ رابط المنتج: ${product.name}`);
@@ -1029,7 +979,6 @@
                 });
         }
 
-        // وظائف تفاعلية
         function viewProduct(id) {
             const product = products.find(p => p.id === id);
             alert(`عرض المنتج: ${product.name}\nالسعر: ${product.price} ريال\nالوصف: ${product.description}`);
@@ -1040,7 +989,6 @@
             showSuccessMessage(`تمت إضافة ${product.name} إلى سلة التسوق!`);
         }
 
-        // إضافة الإعلانات
         function loadAds() {
             const adScript = document.createElement('script');
             adScript.innerHTML = `
@@ -1059,7 +1007,6 @@
             document.getElementById('ad-top').appendChild(adScript);
             document.getElementById('ad-top').appendChild(adScript2);
             
-            // نسخ الإعلان للمنطقة الوسطى
             const adMid = document.getElementById('ad-mid');
             const adScript3 = adScript.cloneNode(true);
             const adScript4 = adScript2.cloneNode(true);
@@ -1067,7 +1014,6 @@
             adMid.appendChild(adScript4);
         }
 
-        // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', () => {
             incrementVisitorCount();
             loadVisitorCount();
