@@ -1,335 +1,870 @@
-import React, { useEffect, useState, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TrendPost - Product Showcase Platform</title>
+<style>
+  /* Reset & base */
+  * { box-sizing: border-box; }
+  body {
+    margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background:#1a73e8; color:#fff;
+    padding:1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0; z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  header h1 {
+    font-weight: 900;
+    font-size: 1.5rem;
+    user-select: none;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    margin: 0; padding: 0;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    user-select: none;
+    font-size: 1rem;
+  }
+  nav a:hover, nav a:focus {
+    text-decoration: underline;
+    outline: none;
+  }
+  #visitorCount {
+    background: #fff;
+    color: #1a73e8;
+    font-weight: 700;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    user-select: none;
+    font-size: 0.9rem;
+  }
+  #userArea {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  #userArea img {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    user-select: none;
+  }
+  button, input, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+  }
+  button {
+    background: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #1a73e8;
+    transition: background 0.3s;
+    user-select: none;
+  }
+  button:hover, button:focus {
+    background: #d2e3fc;
+    outline: none;
+  }
+  main {
+    flex: 1;
+    padding: 1rem 1.5rem 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  /* Ads banner top */
+  #adTop {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 1rem;
+  }
+  /* Ad inline */
+  #adMid {
+    width: 100%;
+    height: 90px;
+    margin: 1.5rem 0;
+  }
+  /* Product posts */
+  #postsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .post-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1rem;
+    user-select: none;
+  }
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .post-header img {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1a73e8;
+  }
+  .post-header .username {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .post-content {
+    margin-top: 0.8rem;
+  }
+  .post-content h3 {
+    margin: 0 0 0.3rem;
+  }
+  .post-content p.description {
+    margin: 0 0 0.6rem;
+    color: #555;
+  }
+  .post-content .price {
+    font-weight: 700;
+    color: #1a73e8;
+    margin-bottom: 0.6rem;
+  }
+  .post-content img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 0.6rem;
+  }
+  .post-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .post-actions button {
+    flex: 1 1 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    background: #1a73e8;
+    color: #fff;
+    font-weight: 700;
+    transition: background 0.3s;
+  }
+  .post-actions button:hover, .post-actions button:focus {
+    background: #155ab6;
+    outline: none;
+  }
+  .post-actions button.active {
+    background: #124a93;
+  }
+  .comments-list {
+    margin-top: 0.8rem;
+    max-height: 90px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    color: #444;
+    border-top: 1px solid #eee;
+    padding-top: 0.5rem;
+  }
+  .comments-list p {
+    margin: 0 0 0.3rem;
+  }
+  /* Rating stars */
+  .rating {
+    display: flex;
+    gap: 0.2rem;
+    cursor: pointer;
+  }
+  .rating svg {
+    width: 20px;
+    height: 20px;
+    fill: #ddd;
+    transition: fill 0.3s;
+  }
+  .rating svg.filled {
+    fill: #ffc107;
+  }
+  /* Modal */
+  .modal {
+    display:none;
+    position: fixed;
+    top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.7);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+  }
+  .modal.active {
+    display: flex;
+  }
+  .modal-content {
+    background: #fff;
+    padding: 1.5rem 1.8rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    color: #222;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  .modal-content h2 {
+    margin-top: 0;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+  .modal-content label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+  }
+  .modal-content input[type="text"],
+  .modal-content input[type="file"],
+  .modal-content textarea,
+  .modal-content input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  .modal-content textarea {
+    resize: vertical;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  .modal-actions button {
+    flex: none;
+    background: #1a73e8;
+    color: white;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 700;
+  }
+  .modal-actions button.cancel {
+    background: #ccc;
+    color: #333;
+  }
+  .modal-actions button.cancel:hover, .modal-actions button.cancel:focus {
+    background: #aaa;
+    outline: none;
+  }
+  /* Responsive */
+  @media (max-width: 600px) {
+    header {
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+    nav ul {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .post-actions button {
+      flex: 1 1 45%;
+    }
+  }
+</style>
+</head>
+<body>
 
-// Single-file React app (Tailwind CSS classes assumed available)
-// Frontend-only demo: data persisted in localStorage (users, posts, visits)
-// Features:
-// - Signup/login by username + profile picture
-// - Create product post: name, description, multiple images
-// - Like, comment, share (copy link / navigator.share), 5-star rating
-// - Per-post permalink via hash (#post-{id})
-// - Visit counter
-// - Ranking algorithm: sorts posts by weighted interactions
-// - Ad scripts placed at top and mid-feed (as requested)
+<header>
+  <h1>TrendPost</h1>
+  <nav aria-label="Main navigation">
+    <ul>
+      <li><a href="#" id="navHome" tabindex="0">Home</a></li>
+      <li><a href="#" id="navPosts" tabindex="0">Posts</a></li>
+    </ul>
+  </nav>
+  <div id="visitorCount" aria-label="Visitor count">0</div>
+  <div id="userArea" aria-live="polite" aria-atomic="true">
+    <button id="btnLogin">Login</button>
+  </div>
+</header>
 
-const AD_SCRIPT_TOP = `
+<!-- Ad top -->
+<div id="adTop" aria-label="Advertisement Top"></div>
+
+<main>
+  <section id="homeSection" aria-label="Home section">
+    <h2>Welcome to TrendPost</h2>
+    <p>A dynamic platform for showcasing your products with rich interaction and real-time ranking.</p>
+  </section>
+
+  <section id="postsSection" aria-label="Posts section" style="display:none;">
+    <!-- Ad mid -->
+    <div id="adMid" aria-label="Advertisement Mid"></div>
+    <div id="postsGrid" aria-live="polite" aria-relevant="additions"></div>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" tabindex="-1">
+  <div class="modal-content">
+    <h2 id="loginModalTitle">Login</h2>
+    <form id="loginForm" novalidate>
+      <label for="usernameInput">Username</label>
+      <input type="text" id="usernameInput" required autocomplete="username" />
+      <label for="avatarInput">Profile Picture</label>
+      <input type="file" id="avatarInput" accept="image/*" />
+      <img id="avatarPreview" alt="Profile picture preview" style="width:80px;height:80px;border-radius:50%;display:none;margin-bottom:1rem;object-fit:cover;border:2px solid #1a73e8;" />
+      <div class="modal-actions">
+        <button type="button" class="cancel" id="cancelLoginBtn">Cancel</button>
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Post Modal -->
+<div id="addPostModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addPostModalTitle" tabindex="-1">
+  <div class="modal-content">
+    <h2 id="addPostModalTitle">Add Product Post</h2>
+    <form id="addPostForm" novalidate>
+      <label for="productName">Product Name</label>
+      <input type="text" id="productName" required />
+      <label for="productDescription">Description</label>
+      <textarea id="productDescription" rows="3" required></textarea>
+      <label for="productPrice">Price (USD)</label>
+      <input type="number" id="productPrice" min="0" step="0.01" required />
+      <label for="productImages">Product Image</label>
+      <input type="file" id="productImages" accept="image/*" required />
+      <img id="productImagePreview" alt="Product image preview" style="width:100%;max-height:220px;object-fit:contain;border-radius:12px;display:none;margin-bottom:1rem;" />
+      <div class="modal-actions">
+        <button type="button" class="cancel" id="cancelAddPostBtn">Cancel</button>
+        <button type="submit">Add Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script type="text/javascript">
-	atOptions = {
-		'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
+  // Insert Ad scripts safely
+  (function insertAds(){
+    const adTop = document.getElementById('adTop');
+    const adMid = document.getElementById('adMid');
+
+    try {
+      // Top ad script container
+      const script1 = document.createElement('script');
+      script1.type = 'text/javascript';
+      script1.text = `
+        atOptions = {
+          'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      `;
+      const script2 = document.createElement('script');
+      script2.type = 'text/javascript';
+      script2.src = '//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js';
+      script2.async = true;
+
+      // Append top ad scripts
+      adTop.appendChild(script1);
+      adTop.appendChild(script2);
+
+      // Clone for mid ad
+      const script1Mid = script1.cloneNode(true);
+      const script2Mid = script2.cloneNode(true);
+      adMid.appendChild(script1Mid);
+      adMid.appendChild(script2Mid);
+    } catch(e){
+      console.warn('Ads failed to load:', e);
+    }
+  })();
 </script>
-<script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-`;
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [visitCount, setVisitCount] = useState(0);
-  const [form, setForm] = useState({ title: "", desc: "", images: [] });
-  const [commentText, setCommentText] = useState("");
-  const fileInputRef = useRef(null);
+<script>
+(() => {
+  // Elements
+  const visitorCountEl = document.getElementById('visitorCount');
+  const userAreaEl = document.getElementById('userArea');
+  const btnLogin = document.getElementById('btnLogin');
+  const navHome = document.getElementById('navHome');
+  const navPosts = document.getElementById('navPosts');
+  const homeSection = document.getElementById('homeSection');
+  const postsSection = document.getElementById('postsSection');
+  const postsGrid = document.getElementById('postsGrid');
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const rawUsers = localStorage.getItem("pp_users");
-    const rawPosts = localStorage.getItem("pp_posts");
-    const rawVisit = localStorage.getItem("pp_visits");
-    if (rawUsers) setUsers(JSON.parse(rawUsers));
-    if (rawPosts) setPosts(JSON.parse(rawPosts));
-    const visits = rawVisit ? parseInt(rawVisit, 10) : 0;
-    const newVisits = visits + 1;
-    setVisitCount(newVisits);
-    localStorage.setItem("pp_visits", String(newVisits));
+  const loginModal = document.getElementById('loginModal');
+  const loginForm = document.getElementById('loginForm');
+  const usernameInput = document.getElementById('usernameInput');
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const cancelLoginBtn = document.getElementById('cancelLoginBtn');
 
-    // deep-linking to a post
-    const hash = window.location.hash;
-    if (hash.startsWith("#post-")) {
-      const id = hash.replace("#post-", "");
-      // scroll handled below after posts loaded
-      setTimeout(() => scrollToPost(id), 300);
+  const addPostModal = document.getElementById('addPostModal');
+  const addPostForm = document.getElementById('addPostForm');
+  const productNameInput = document.getElementById('productName');
+  const productDescriptionInput = document.getElementById('productDescription');
+  const productPriceInput = document.getElementById('productPrice');
+  const productImagesInput = document.getElementById('productImages');
+  const productImagePreview = document.getElementById('productImagePreview');
+  const cancelAddPostBtn = document.getElementById('cancelAddPostBtn');
+
+  let currentUser = null;
+  let posts = [];
+
+  // Visitor counter
+  function incrementVisitorCount() {
+    let count = localStorage.getItem('visitorCount') || 0;
+    count = parseInt(count) + 1;
+    localStorage.setItem('visitorCount', count);
+    visitorCountEl.textContent = count;
+  }
+  function loadVisitorCount() {
+    let count = localStorage.getItem('visitorCount') || 0;
+    visitorCountEl.textContent = count;
+  }
+
+  // Save/load user and posts
+  function saveUser() {
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+  function loadUser() {
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
+      currentUser = JSON.parse(stored);
+      updateUserArea();
     }
-  }, []);
+  }
+  function savePosts() {
+    localStorage.setItem('posts', JSON.stringify(posts));
+  }
+  function loadPosts() {
+    const stored = localStorage.getItem('posts');
+    if (stored) posts = JSON.parse(stored);
+    else posts = [];
+  }
 
-  // persist users
-  useEffect(() => {
-    localStorage.setItem("pp_users", JSON.stringify(users));
-  }, [users]);
-  // persist posts
-  useEffect(() => {
-    localStorage.setItem("pp_posts", JSON.stringify(posts));
-  }, [posts]);
+  // Update user area UI
+  function updateUserArea() {
+    userAreaEl.innerHTML = '';
+    if (currentUser) {
+      const img = document.createElement('img');
+      img.src = currentUser.avatar || 'https://via.placeholder.com/40?text=User';
+      img.alt = `Profile picture of ${currentUser.username}`;
+      const span = document.createElement('span');
+      span.textContent = currentUser.username;
+      span.style.userSelect = 'text';
 
-  function saveUser(username, profileDataUrl) {
-    const existing = users.find((u) => u.username === username);
-    if (!existing) {
-      const newUser = { id: Date.now().toString(), username, avatar: profileDataUrl };
-      setUsers((s) => [...s, newUser]);
-      setUser(newUser);
+      const btnAddPost = document.createElement('button');
+      btnAddPost.textContent = 'Add Post';
+      btnAddPost.addEventListener('click', () => openModal(addPostModal));
+
+      const btnLogout = document.createElement('button');
+      btnLogout.textContent = 'Logout';
+      btnLogout.addEventListener('click', () => {
+        currentUser = null;
+        saveUser();
+        updateUserArea();
+        alert('Logged out');
+      });
+
+      userAreaEl.append(img, span, btnAddPost, btnLogout);
     } else {
-      setUser(existing);
+      const btn = document.createElement('button');
+      btn.textContent = 'Login';
+      btn.addEventListener('click', () => openModal(loginModal));
+      userAreaEl.appendChild(btn);
     }
   }
 
-  async function handleProfileImageUpload(file) {
-    const dataUrl = await readFileAsDataURL(file);
-    return dataUrl;
+  // Open/close modals
+  function openModal(modal) {
+    modal.classList.add('active');
+    const focusable = modal.querySelector('input, button, textarea');
+    if (focusable) focusable.focus();
+  }
+  function closeModal(modal) {
+    modal.classList.remove('active');
   }
 
-  function handleLogin(e) {
-    e.preventDefault();
-    const username = e.target.username.value.trim();
-    const file = e.target.profile.files[0];
-    if (!username) return alert("Enter a username");
-    if (file) {
-      handleProfileImageUpload(file).then((dataUrl) => saveUser(username, dataUrl));
+  // Avatar preview login
+  avatarInput.addEventListener('change', () => {
+    const file = avatarInput.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        avatarPreview.src = e.target.result;
+        avatarPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
     } else {
-      saveUser(username, null);
+      avatarPreview.style.display = 'none';
     }
-    e.target.reset();
-  }
+  });
 
-  function handleLogout() {
-    setUser(null);
-  }
+  // Preview for product image
+  productImagesInput.addEventListener('change', () => {
+    const file = productImagesInput.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        productImagePreview.src = e.target.result;
+        productImagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      productImagePreview.style.display = 'none';
+    }
+  });
 
-  async function handleCreatePost(e) {
+  // Login form submit
+  loginForm.addEventListener('submit', e => {
     e.preventDefault();
-    if (!user) return alert("Please log in to post");
-    if (!form.title.trim()) return alert("Product name required");
-    const newPost = {
-      id: Date.now().toString(),
-      author: { id: user.id, username: user.username, avatar: user.avatar },
-      title: form.title,
-      desc: form.desc,
-      images: form.images, // data URLs
-      likes: [],
-      comments: [],
-      shares: 0,
-      ratings: [],
-      createdAt: new Date().toISOString(),
+    const username = usernameInput.value.trim();
+    if (!username) {
+      alert('Please enter a username');
+      return;
+    }
+    let avatar = 'https://via.placeholder.com/40?text=User';
+    if (avatarInput.files[0]) {
+      const file = avatarInput.files[0];
+      const reader = new FileReader();
+      reader.onload = e => {
+        avatar = e.target.result;
+        finishLogin(username, avatar);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      finishLogin(username, avatar);
+    }
+  });
+  function finishLogin(username, avatar) {
+    currentUser = { username, avatar };
+    saveUser();
+    updateUserArea();
+    closeModal(loginModal);
+    loginForm.reset();
+    avatarPreview.style.display = 'none';
+    alert(`Welcome ${username}, you are logged in!`);
+  }
+  cancelLoginBtn.addEventListener('click', () => {
+    closeModal(loginModal);
+    loginForm.reset();
+    avatarPreview.style.display = 'none';
+  });
+
+  // Add post form submit
+  addPostForm.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!currentUser) {
+      alert('You must login to add a post');
+      closeModal(addPostModal);
+      openModal(loginModal);
+      return;
+    }
+    const name = productNameInput.value.trim();
+    const desc = productDescriptionInput.value.trim();
+    const price = parseFloat(productPriceInput.value);
+    if (!name || !desc || isNaN(price) || price < 0) {
+      alert('Please fill all fields correctly');
+      return;
+    }
+    if (!productImagesInput.files[0]) {
+      alert('Please select a product image');
+      return;
+    }
+    const file = productImagesInput.files[0];
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const newPost = {
+        id: Date.now(),
+        user: currentUser.username,
+        userAvatar: currentUser.avatar,
+        name,
+        description: desc,
+        price,
+        image: e.target.result,
+        likes: 0,
+        likedBy: [],
+        comments: [],
+        shares: 0,
+        rating: 0
+      };
+      posts.push(newPost);
+      sortPosts();
+      savePosts();
+      renderPosts();
+      closeModal(addPostModal);
+      addPostForm.reset();
+      productImagePreview.style.display = 'none';
+      alert('Post added successfully!');
     };
-    setPosts((s) => [newPost, ...s]);
-    setForm({ title: "", desc: "", images: [] });
-    fileInputRef.current.value = null;
+    reader.readAsDataURL(file);
+  });
+  cancelAddPostBtn.addEventListener('click', () => {
+    closeModal(addPostModal);
+    addPostForm.reset();
+    productImagePreview.style.display = 'none';
+  });
+
+  // Sort posts by engagement (likes + comments + shares desc)
+  function sortPosts() {
+    posts.sort((a,b) => {
+      const scoreA = a.likes + a.comments.length + a.shares;
+      const scoreB = b.likes + b.comments.length + b.shares;
+      return scoreB - scoreA;
+    });
   }
 
-  async function handleImagesChange(e) {
-    const files = Array.from(e.target.files || []);
-    const urls = await Promise.all(files.map((f) => readFileAsDataURL(f)));
-    setForm((s) => ({ ...s, images: [...s.images, ...urls] }));
+  // Render posts
+  function renderPosts() {
+    postsGrid.innerHTML = '';
+    if (posts.length === 0) {
+      postsGrid.textContent = 'No posts available.';
+      return;
+    }
+    posts.forEach(post => {
+      const card = document.createElement('article');
+      card.className = 'post-card';
+      card.id = `post-${post.id}`;
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'post-header';
+      const userImg = document.createElement('img');
+      userImg.src = post.userAvatar || 'https://via.placeholder.com/48?text=User';
+      userImg.alt = `Profile picture of ${post.user}`;
+      const username = document.createElement('span');
+      username.className = 'username';
+      username.textContent = post.user;
+      header.append(userImg, username);
+
+      // Content
+      const content = document.createElement('div');
+      content.className = 'post-content';
+      const title = document.createElement('h3');
+      title.textContent = post.name;
+      const desc = document.createElement('p');
+      desc.className = 'description';
+      desc.textContent = post.description;
+      const price = document.createElement('div');
+      price.className = 'price';
+      price.textContent = `$${post.price.toFixed(2)}`;
+      const img = document.createElement('img');
+      img.src = post.image;
+      img.alt = `Image of ${post.name}`;
+
+      content.append(title, desc, price, img);
+
+      // Actions
+      const actions = document.createElement('div');
+      actions.className = 'post-actions';
+
+      // Like button
+      const likeBtn = document.createElement('button');
+      likeBtn.type = 'button';
+      likeBtn.title = 'Like';
+      likeBtn.innerHTML = `👍 <span>${post.likes}</span>`;
+      if (currentUser && post.likedBy.includes(currentUser.username)) {
+        likeBtn.classList.add('active');
+      }
+      likeBtn.addEventListener('click', () => toggleLike(post.id, likeBtn));
+
+      // Comment button
+      const commentBtn = document.createElement('button');
+      commentBtn.type = 'button';
+      commentBtn.title = 'Comment';
+      commentBtn.textContent = `💬 ${post.comments.length}`;
+      commentBtn.addEventListener('click', () => addComment(post.id));
+
+      // Share button
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.title = 'Share';
+      shareBtn.textContent = `🔗 Share`;
+      shareBtn.addEventListener('click', () => sharePost(post.id));
+
+      // Rating stars
+      const ratingDiv = document.createElement('div');
+      ratingDiv.className = 'rating';
+      ratingDiv.setAttribute('aria-label', `Rating: ${post.rating} out of 5 stars`);
+      for(let i=1; i<=5; i++){
+        const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        star.setAttribute('viewBox','0 0 20 20');
+        star.setAttribute('role','img');
+        star.setAttribute('aria-hidden','true');
+        star.innerHTML = `<polygon points="10,1.5 12.95,7.1 19.2,7.75 14,12.2 15.25,18.5 10,15.1 4.75,18.5 6,12.2 0.8,7.75 7.05,7.1"/>`;
+        if(i <= post.rating) star.classList.add('filled');
+        star.style.cursor = 'pointer';
+        star.addEventListener('click', () => ratePost(post.id, i));
+        ratingDiv.appendChild(star);
+      }
+
+      actions.append(likeBtn, commentBtn, shareBtn, ratingDiv);
+
+      // Comments preview
+      const commentsList = document.createElement('div');
+      commentsList.className = 'comments-list';
+      const lastComments = post.comments.slice(-3);
+      lastComments.forEach(cmt => {
+        const p = document.createElement('p');
+        p.textContent = `${cmt.user}: ${cmt.text}`;
+        commentsList.appendChild(p);
+      });
+
+      card.append(header, content, actions, commentsList);
+      postsGrid.appendChild(card);
+    });
   }
 
-  function toggleLike(postId) {
-    if (!user) return alert("Please log in to like");
-    setPosts((ps) =>
-      ps.map((p) => {
-        if (p.id !== postId) return p;
-        const liked = p.likes.includes(user.id);
-        return { ...p, likes: liked ? p.likes.filter((id) => id !== user.id) : [...p.likes, user.id] };
-      })
-    );
+  // Toggle like
+  function toggleLike(postId, btn) {
+    if (!currentUser) {
+      alert('Please login to like posts');
+      openModal(loginModal);
+      return;
+    }
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    const likedIndex = post.likedBy.indexOf(currentUser.username);
+    if (likedIndex === -1) {
+      post.likedBy.push(currentUser.username);
+      post.likes++;
+      btn.classList.add('active');
+    } else {
+      post.likedBy.splice(likedIndex, 1);
+      post.likes = Math.max(0, post.likes - 1);
+      btn.classList.remove('active');
+    }
+    btn.querySelector('span').textContent = post.likes;
+    sortPosts();
+    savePosts();
+    renderPosts();
   }
 
-  function addComment(postId, text) {
-    if (!user) return alert("Please log in to comment");
-    if (!text.trim()) return;
-    const comment = { id: Date.now().toString(), user: { id: user.id, username: user.username }, text, createdAt: new Date().toISOString() };
-    setPosts((ps) => ps.map((p) => (p.id === postId ? { ...p, comments: [...p.comments, comment] } : p)));
-    setCommentText("");
+  // Add comment
+  function addComment(postId) {
+    if (!currentUser) {
+      alert('Please login to comment');
+      openModal(loginModal);
+      return;
+    }
+    const text = prompt('Enter your comment:');
+    if (!text || !text.trim()) return;
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    post.comments.push({ user: currentUser.username, text: text.trim() });
+    sortPosts();
+    savePosts();
+    renderPosts();
+    alert('Comment added!');
   }
 
+  // Share post (copy URL)
   function sharePost(postId) {
     const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
-    setPosts((ps) => ps.map((p) => (p.id === postId ? { ...p, shares: p.shares + 1 } : p)));
-    if (navigator.share) {
-      navigator.share({ title: "Check this product", url }).catch(() => {});
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Post URL copied to clipboard!');
+      }).catch(() => {
+        prompt('Copy the link:', url);
+      });
     } else {
-      copyToClipboard(url);
-      alert("Link copied to clipboard: " + url);
+      prompt('Copy the link:', url);
+    }
+    const post = posts.find(p => p.id === postId);
+    if(post) {
+      post.shares++;
+      sortPosts();
+      savePosts();
+      renderPosts();
     }
   }
 
-  function ratePost(postId, stars) {
-    if (!user) return alert("Please log in to rate");
-    setPosts((ps) =>
-      ps.map((p) => {
-        if (p.id !== postId) return p;
-        const existing = p.ratings.find((r) => r.userId === user.id);
-        let newRatings;
-        if (existing) {
-          newRatings = p.ratings.map((r) => (r.userId === user.id ? { ...r, stars } : r));
-        } else {
-          newRatings = [...p.ratings, { userId: user.id, stars }];
-        }
-        return { ...p, ratings: newRatings };
-      })
-    );
+  // Rate post
+  function ratePost(postId, rating) {
+    if (!currentUser) {
+      alert('Please login to rate posts');
+      openModal(loginModal);
+      return;
+    }
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    post.rating = rating;
+    savePosts();
+    renderPosts();
+    alert(`You rated this post ${rating} star${rating>1?'s':''}.`);
   }
 
-  function computeScore(p) {
-    // weighting: likes=2, comments=3, shares=1, avgRating * 2
-    const likes = p.likes.length;
-    const comments = p.comments.length;
-    const shares = p.shares || 0;
-    const avgRating = p.ratings && p.ratings.length ? p.ratings.reduce((a, b) => a + b.stars, 0) / p.ratings.length : 0;
-    const score = likes * 2 + comments * 3 + shares * 1 + avgRating * 2;
-    return score;
-  }
-
-  function sortedPosts() {
-    return [...posts].sort((a, b) => computeScore(b) - computeScore(a) || new Date(b.createdAt) - new Date(a.createdAt));
-  }
-
-  function scrollToPost(id) {
-    const el = document.getElementById(`post-${id}`);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Top ad */}
-      <div className="w-full flex justify-center p-2 bg-white shadow-sm sticky top-0 z-40">
-        <div dangerouslySetInnerHTML={{ __html: AD_SCRIPT_TOP }} />
-      </div>
-
-      <div className="max-w-4xl mx-auto p-4">
-        <header className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">ProdPulse</h1>
-          <div className="flex items-center gap-3">
-            <div className="text-sm">Visits: <strong>{visitCount}</strong></div>
-            {user ? (
-              <div className="flex items-center gap-2">
-                {user.avatar ? (<img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full" />) : (<div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">{user.username[0]?.toUpperCase()}</div>)}
-                <div className="text-sm">{user.username}</div>
-                <button className="px-3 py-1 bg-red-500 text-white rounded" onClick={handleLogout}>Logout</button>
-              </div>
-            ) : (
-              <details className="relative">
-                <summary className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded">Login / Signup</summary>
-                <form onSubmit={handleLogin} className="p-3 bg-white shadow-md mt-2 rounded w-72 absolute right-0">
-                  <label className="text-xs">Username</label>
-                  <input name="username" className="w-full p-1 border rounded text-sm" />
-                  <label className="text-xs mt-2 block">Profile image (optional)</label>
-                  <input name="profile" type="file" accept="image/*" className="w-full text-xs" />
-                  <div className="mt-2 flex justify-end">
-                    <button type="submit" className="px-3 py-1 bg-green-600 text-white rounded">Sign in</button>
-                  </div>
-                </form>
-              </details>
-            )}
-          </div>
-        </header>
-
-        {/* Create post */}
-        <section className="mb-6 bg-white p-4 rounded shadow-sm">
-          <h2 className="font-semibold">Create Product Post</h2>
-          <form onSubmit={handleCreatePost} className="space-y-2">
-            <input value={form.title} onChange={(e) => setForm((s) => ({ ...s, title: e.target.value }))} placeholder="Product name" className="w-full p-2 border rounded" />
-            <textarea value={form.desc} onChange={(e) => setForm((s) => ({ ...s, desc: e.target.value }))} placeholder="Product description" className="w-full p-2 border rounded" />
-            <input ref={fileInputRef} multiple type="file" accept="image/*" onChange={handleImagesChange} />
-            <div className="flex gap-2 overflow-x-auto py-2">
-              {form.images.map((img, idx) => (
-                <img key={idx} src={img} alt={`preview-${idx}`} className="w-24 h-24 object-cover rounded" />
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <button className="px-4 py-2 bg-indigo-600 text-white rounded">Post</button>
-            </div>
-          </form>
-        </section>
-
-        {/* Posts feed */}
-        <section>
-          {sortedPosts().map((post, idx) => (
-            <React.Fragment key={post.id}>
-              {/* insert mid-ad in the middle of the feed */}
-              {idx === Math.floor(sortedPosts().length / 2) && (
-                <div className="w-full flex justify-center my-4">
-                  <div dangerouslySetInnerHTML={{ __html: AD_SCRIPT_TOP }} />
-                </div>
-              )}
-
-              <article id={`post-${post.id}`} className="mb-4 bg-white p-4 rounded shadow-sm">
-                <div className="flex items-center gap-3 mb-2">
-                  {post.author.avatar ? (<img src={post.author.avatar} alt="author" className="w-10 h-10 rounded-full" />) : (<div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">{post.author.username[0]?.toUpperCase()}</div>)}
-                  <div>
-                    <div className="font-semibold">{post.author.username}</div>
-                    <div className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString()}</div>
-                  </div>
-                </div>
-                <h3 className="font-bold text-lg">{post.title}</h3>
-                <p className="my-2 text-sm whitespace-pre-line">{post.desc}</p>
-                {post.images && post.images.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    {post.images.map((img, i) => (<img key={i} src={img} alt={`pimg-${i}`} className="w-full h-40 object-cover rounded" />))}
-                  </div>
-                )}
-
-                {/* Interaction buttons */}
-                <div className="flex items-center gap-3 mt-2">
-                  <button onClick={() => toggleLike(post.id)} className="px-2 py-1 rounded border">Like ({post.likes.length})</button>
-                  <button onClick={() => { const c = prompt("Write a comment:"); if (c) addComment(post.id, c); }} className="px-2 py-1 rounded border">Comment ({post.comments.length})</button>
-                  <button onClick={() => sharePost(post.id)} className="px-2 py-1 rounded border">Share ({post.shares})</button>
-                  <button onClick={() => { const url = `${window.location.origin}${window.location.pathname}#post-${post.id}`; navigator.clipboard?.writeText(url); alert('Link copied: ' + url); }} className="px-2 py-1 rounded border">Permalink</button>
-
-                  {/* Rating stars */}
-                  <div className="ml-auto flex items-center gap-1">
-                    <Stars current={post.ratings} onRate={(s) => ratePost(post.id, s)} />
-                  </div>
-                </div>
-
-                {/* Comments list */}
-                {post.comments.length > 0 && (
-                  <div className="mt-3 border-t pt-2">
-                    {post.comments.map((c) => (
-                      <div key={c.id} className="text-sm py-1">
-                        <strong>{c.user.username}</strong>: {c.text}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-            </React.Fragment>
-          ))}
-          {posts.length === 0 && <div className="text-center text-gray-500">No posts yet — be the first to share a product!</div>}
-        </section>
-      </div>
-    </div>
-  );
-}
-
-// Small helper components and functions
-function Stars({ current, onRate }) {
-  const average = current && current.length ? Math.round(current.reduce((a, b) => a + b.stars, 0) / current.length) : 0;
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <button key={s} onClick={() => onRate(s)} aria-label={`Rate ${s}`}> {s <= average ? '★' : '☆'} </button>
-      ))}
-      <span className="text-xs ml-2">({current?.length || 0})</span>
-    </div>
-  );
-}
-
-function readFileAsDataURL(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
+  // Navigation
+  navHome.addEventListener('click', e => {
+    e.preventDefault();
+    homeSection.style.display = '';
+    postsSection.style.display = 'none';
+    navHome.setAttribute('aria-current', 'page');
+    navPosts.removeAttribute('aria-current');
   });
-}
+  navPosts.addEventListener('click', e => {
+    e.preventDefault();
+    homeSection.style.display = 'none';
+    postsSection.style.display = '';
+    navPosts.setAttribute('aria-current', 'page');
+    navHome.removeAttribute('aria-current');
+  });
 
-function copyToClipboard(text) {
-  if (navigator.clipboard) return navigator.clipboard.writeText(text);
-  const t = document.createElement("textarea");
-  t.value = text;
-  document.body.appendChild(t);
-  t.select();
-  document.execCommand("copy");
-  t.remove();
-}
+  // Close modals on outside click or Escape
+  [loginModal, addPostModal].forEach(modal => {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal(modal);
+    });
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      [loginModal, addPostModal].forEach(modal => {
+        if (modal.classList.contains('active')) closeModal(modal);
+      });
+    }
+  });
+
+  // Init
+  function init() {
+    incrementVisitorCount();
+    loadVisitorCount();
+    loadUser();
+    loadPosts();
+    updateUserArea();
+    sortPosts();
+    renderPosts();
+    navHome.click();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
