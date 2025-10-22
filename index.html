@@ -155,13 +155,18 @@
     // Data Structures
     let users = JSON.parse(localStorage.getItem('users')) || {};
     let posts = JSON.parse(localStorage.getItem('posts')) || [];
-    let currentUser = null;
+    let currentUser = localStorage.getItem('currentUser');
     let visits = parseInt(localStorage.getItem('visits')) || 0;
 
     // Increment and display visits
     visits++;
     localStorage.setItem('visits', visits);
     document.getElementById('visit-count').innerText = `Visits: ${visits}`;
+
+    // Restore login state on load
+    if (currentUser && users[currentUser]) {
+        setCurrentUser(currentUser);
+    }
 
     // Login Function
     function login() {
@@ -189,22 +194,24 @@
     // Set Current User
     function setCurrentUser(username) {
         currentUser = username;
+        localStorage.setItem('currentUser', username);
         document.getElementById('logged-username').innerText = username;
         document.getElementById('profile-img').src = users[username].profilePic;
         document.getElementById('user-info').style.display = 'flex';
         document.getElementById('logout-btn').style.display = 'inline-block';
         document.getElementById('post-section').style.display = 'block';
-        document.querySelectorAll('#login-section input, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#login-section input, #login-section label, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'none');
         renderPosts();
     }
 
     // Logout
     function logout() {
         currentUser = null;
+        localStorage.removeItem('currentUser');
         document.getElementById('user-info').style.display = 'none';
         document.getElementById('logout-btn').style.display = 'none';
         document.getElementById('post-section').style.display = 'none';
-        document.querySelectorAll('#login-section input, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('#login-section input, #login-section label, #login-section button:not(#logout-btn)').forEach(el => el.style.display = 'block');
         renderPosts();
     }
 
@@ -231,7 +238,7 @@
         
         Promise.all(readerPromises).then(() => {
             const post = {
-                id: Date.now() + Math.random().toString(36).substr(2, 9), // More unique ID
+                id: Date.now().toString(36) + Math.random().toString(36).substr(2),
                 user: currentUser,
                 name,
                 desc,
@@ -299,18 +306,10 @@
             // Insert middle ad after every 3 posts
             if ((index + 1) % 3 === 0) {
                 const adDiv = document.createElement('div');
-                adDiv.id = 'middle-ad';
+                adDiv.className = 'middle-ad'; // Changed to class for potential multiple
                 const script1 = document.createElement('script');
                 script1.type = 'text/javascript';
-                script1.text = `
-                    atOptions = {
-                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                `;
+                script1.innerHTML = `atOptions = {'key' : '2d5deaded3e62ebc9943db8d8b49f74e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};`;
                 adDiv.appendChild(script1);
                 const script2 = document.createElement('script');
                 script2.type = 'text/javascript';
