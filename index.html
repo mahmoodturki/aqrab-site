@@ -1,870 +1,1103 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>TrendPost - Product Showcase Platform</title>
-<style>
-  /* Reset & base */
-  * { box-sizing: border-box; }
-  body {
-    margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
-    color: #222;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    background:#1a73e8; color:#fff;
-    padding:1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0; z-index: 1000;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
-  header h1 {
-    font-weight: 900;
-    font-size: 1.5rem;
-    user-select: none;
-  }
-  nav ul {
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
-    margin: 0; padding: 0;
-  }
-  nav a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 600;
-    user-select: none;
-    font-size: 1rem;
-  }
-  nav a:hover, nav a:focus {
-    text-decoration: underline;
-    outline: none;
-  }
-  #visitorCount {
-    background: #fff;
-    color: #1a73e8;
-    font-weight: 700;
-    padding: 0.3rem 0.7rem;
-    border-radius: 20px;
-    user-select: none;
-    font-size: 0.9rem;
-  }
-  #userArea {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  #userArea img {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #fff;
-    user-select: none;
-  }
-  button, input, textarea {
-    font-family: inherit;
-    font-size: 1rem;
-  }
-  button {
-    background: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 700;
-    color: #1a73e8;
-    transition: background 0.3s;
-    user-select: none;
-  }
-  button:hover, button:focus {
-    background: #d2e3fc;
-    outline: none;
-  }
-  main {
-    flex: 1;
-    padding: 1rem 1.5rem 4rem;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  /* Ads banner top */
-  #adTop {
-    width: 100%;
-    height: 50px;
-    margin-bottom: 1rem;
-  }
-  /* Ad inline */
-  #adMid {
-    width: 100%;
-    height: 90px;
-    margin: 1.5rem 0;
-  }
-  /* Product posts */
-  #postsGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .post-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    padding: 1rem;
-    user-select: none;
-  }
-  .post-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .post-header img {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #1a73e8;
-  }
-  .post-header .username {
-    font-weight: 700;
-    font-size: 1.1rem;
-  }
-  .post-content {
-    margin-top: 0.8rem;
-  }
-  .post-content h3 {
-    margin: 0 0 0.3rem;
-  }
-  .post-content p.description {
-    margin: 0 0 0.6rem;
-    color: #555;
-  }
-  .post-content .price {
-    font-weight: 700;
-    color: #1a73e8;
-    margin-bottom: 0.6rem;
-  }
-  .post-content img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: contain;
-    border-radius: 10px;
-    margin-bottom: 0.6rem;
-  }
-  .post-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-  .post-actions button {
-    flex: 1 1 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.3rem;
-    border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    background: #1a73e8;
-    color: #fff;
-    font-weight: 700;
-    transition: background 0.3s;
-  }
-  .post-actions button:hover, .post-actions button:focus {
-    background: #155ab6;
-    outline: none;
-  }
-  .post-actions button.active {
-    background: #124a93;
-  }
-  .comments-list {
-    margin-top: 0.8rem;
-    max-height: 90px;
-    overflow-y: auto;
-    font-size: 0.9rem;
-    color: #444;
-    border-top: 1px solid #eee;
-    padding-top: 0.5rem;
-  }
-  .comments-list p {
-    margin: 0 0 0.3rem;
-  }
-  /* Rating stars */
-  .rating {
-    display: flex;
-    gap: 0.2rem;
-    cursor: pointer;
-  }
-  .rating svg {
-    width: 20px;
-    height: 20px;
-    fill: #ddd;
-    transition: fill 0.3s;
-  }
-  .rating svg.filled {
-    fill: #ffc107;
-  }
-  /* Modal */
-  .modal {
-    display:none;
-    position: fixed;
-    top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.7);
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 1rem;
-  }
-  .modal.active {
-    display: flex;
-  }
-  .modal-content {
-    background: #fff;
-    padding: 1.5rem 1.8rem;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 400px;
-    color: #222;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  }
-  .modal-content h2 {
-    margin-top: 0;
-    font-weight: 900;
-    margin-bottom: 1rem;
-    user-select: none;
-  }
-  .modal-content label {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-weight: 700;
-  }
-  .modal-content input[type="text"],
-  .modal-content input[type="file"],
-  .modal-content textarea,
-  .modal-content input[type="number"] {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    margin-bottom: 1rem;
-    font-size: 1rem;
-  }
-  .modal-content textarea {
-    resize: vertical;
-  }
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-  }
-  .modal-actions button {
-    flex: none;
-    background: #1a73e8;
-    color: white;
-    border-radius: 6px;
-    padding: 0.5rem 1.2rem;
-    font-weight: 700;
-  }
-  .modal-actions button.cancel {
-    background: #ccc;
-    color: #333;
-  }
-  .modal-actions button.cancel:hover, .modal-actions button.cancel:focus {
-    background: #aaa;
-    outline: none;
-  }
-  /* Responsive */
-  @media (max-width: 600px) {
-    header {
-      flex-wrap: wrap;
-      gap: 0.7rem;
-    }
-    nav ul {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .post-actions button {
-      flex: 1 1 45%;
-    }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductShow - منصة عرض المنتجات</title>
+    <style>
+        /* أنماط CSS */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* شريط الإعلان العلوي */
+        .ad-top {
+            width: 100%;
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* رأس الموقع */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* نموذج تسجيل الدخول */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #eee;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid #ddd;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        /* قسم إضافة منتج جديد */
+        .add-product {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .add-product h2 {
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+
+        .product-form input,
+        .product-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .product-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .image-upload {
+            margin-bottom: 15px;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        /* قسم المنشورات */
+        .posts-section {
+            margin-bottom: 30px;
+        }
+
+        .posts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sort-options select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* منشور المنتج */
+        .product-post {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .post-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .post-user-info h4 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .post-user-info span {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .post-content {
+            padding: 15px;
+        }
+
+        .post-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--dark-color);
+        }
+
+        .post-description {
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .post-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            max-height: 300px;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            border-top: 1px solid #eee;
+        }
+
+        .post-action {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .post-action:hover {
+            background-color: #f5f5f5;
+        }
+
+        .post-action.liked {
+            color: var(--danger-color);
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .star {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .star.active {
+            color: var(--warning-color);
+        }
+
+        .post-link {
+            display: block;
+            margin-top: 10px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* الإعلانات */
+        .ad-middle {
+            width: 100%;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        /* إحصائيات الموقع */
+        .site-stats {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* تذييل الصفحة */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 10px;
+            }
+
+            .site-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .post-actions {
+                flex-wrap: wrap;
+            }
+
+            .post-action {
+                flex: 0 0 33.33%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- شريط الإعلان العلوي -->
+    <div class="ad-top">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+    </div>
 
-<header>
-  <h1>TrendPost</h1>
-  <nav aria-label="Main navigation">
-    <ul>
-      <li><a href="#" id="navHome" tabindex="0">Home</a></li>
-      <li><a href="#" id="navPosts" tabindex="0">Posts</a></li>
-    </ul>
-  </nav>
-  <div id="visitorCount" aria-label="Visitor count">0</div>
-  <div id="userArea" aria-live="polite" aria-atomic="true">
-    <button id="btnLogin">Login</button>
-  </div>
-</header>
+    <!-- رأس الموقع -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">ProductShow</div>
+                <nav class="nav-links">
+                    <a href="#">الرئيسية</a>
+                    <a href="#">استكشف</a>
+                    <a href="#">الفئات</a>
+                    <a href="#">المفضلة</a>
+                </nav>
+                <div class="user-section">
+                    <div class="site-visits">
+                        <span id="visit-count">0</span> زائر
+                    </div>
+                    <div id="user-info" style="display: none;">
+                        <div class="user-avatar" id="user-avatar">م</div>
+                        <span id="username">مستخدم</span>
+                        <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
+                    </div>
+                    <button class="btn btn-primary" id="login-btn">تسجيل الدخول</button>
+                </div>
+            </div>
+        </div>
+    </header>
 
-<!-- Ad top -->
-<div id="adTop" aria-label="Advertisement Top"></div>
+    <!-- نموذج تسجيل الدخول -->
+    <div class="login-modal" id="login-modal">
+        <div class="login-form">
+            <h2>تسجيل الدخول</h2>
+            <div class="form-group">
+                <label for="login-username">اسم المستخدم</label>
+                <input type="text" id="login-username" placeholder="أدخل اسم المستخدم">
+            </div>
+            <div class="form-group">
+                <label>صورة البروفايل</label>
+                <div class="avatar-upload">
+                    <div class="avatar-preview" id="avatar-preview"></div>
+                    <input type="file" id="avatar-upload" accept="image/*">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" id="cancel-login">إلغاء</button>
+                <button class="btn btn-primary" id="submit-login">تسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
 
-<main>
-  <section id="homeSection" aria-label="Home section">
-    <h2>Welcome to TrendPost</h2>
-    <p>A dynamic platform for showcasing your products with rich interaction and real-time ranking.</p>
-  </section>
+    <div class="container">
+        <!-- إحصائيات الموقع -->
+        <div class="site-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-posts">0</div>
+                <div class="stat-label">منتج معروض</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-likes">0</div>
+                <div class="stat-label">إعجاب</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-comments">0</div>
+                <div class="stat-label">تعليق</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-shares">0</div>
+                <div class="stat-label">مشاركة</div>
+            </div>
+        </div>
 
-  <section id="postsSection" aria-label="Posts section" style="display:none;">
-    <!-- Ad mid -->
-    <div id="adMid" aria-label="Advertisement Mid"></div>
-    <div id="postsGrid" aria-live="polite" aria-relevant="additions"></div>
-  </section>
-</main>
+        <!-- قسم إضافة منتج جديد -->
+        <section class="add-product" id="add-product-section" style="display: none;">
+            <h2>أضف منتج جديد</h2>
+            <form class="product-form" id="product-form">
+                <input type="text" id="product-name" placeholder="اسم المنتج" required>
+                <textarea id="product-description" placeholder="وصف المنتج" required></textarea>
+                <div class="image-upload">
+                    <label for="product-images">إضافة صور المنتج</label>
+                    <input type="file" id="product-images" multiple accept="image/*">
+                    <div class="image-preview" id="image-preview"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">نشر المنتج</button>
+            </form>
+        </section>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" tabindex="-1">
-  <div class="modal-content">
-    <h2 id="loginModalTitle">Login</h2>
-    <form id="loginForm" novalidate>
-      <label for="usernameInput">Username</label>
-      <input type="text" id="usernameInput" required autocomplete="username" />
-      <label for="avatarInput">Profile Picture</label>
-      <input type="file" id="avatarInput" accept="image/*" />
-      <img id="avatarPreview" alt="Profile picture preview" style="width:80px;height:80px;border-radius:50%;display:none;margin-bottom:1rem;object-fit:cover;border:2px solid #1a73e8;" />
-      <div class="modal-actions">
-        <button type="button" class="cancel" id="cancelLoginBtn">Cancel</button>
-        <button type="submit">Login</button>
-      </div>
-    </form>
-  </div>
-</div>
+        <!-- قسم المنشورات -->
+        <section class="posts-section">
+            <div class="posts-header">
+                <h2>المنتجات المعروضة</h2>
+                <div class="sort-options">
+                    <select id="sort-posts">
+                        <option value="popular">الأكثر تفاعلاً</option>
+                        <option value="recent">الأحدث أولاً</option>
+                    </select>
+                </div>
+            </div>
 
-<!-- Add Post Modal -->
-<div id="addPostModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="addPostModalTitle" tabindex="-1">
-  <div class="modal-content">
-    <h2 id="addPostModalTitle">Add Product Post</h2>
-    <form id="addPostForm" novalidate>
-      <label for="productName">Product Name</label>
-      <input type="text" id="productName" required />
-      <label for="productDescription">Description</label>
-      <textarea id="productDescription" rows="3" required></textarea>
-      <label for="productPrice">Price (USD)</label>
-      <input type="number" id="productPrice" min="0" step="0.01" required />
-      <label for="productImages">Product Image</label>
-      <input type="file" id="productImages" accept="image/*" required />
-      <img id="productImagePreview" alt="Product image preview" style="width:100%;max-height:220px;object-fit:contain;border-radius:12px;display:none;margin-bottom:1rem;" />
-      <div class="modal-actions">
-        <button type="button" class="cancel" id="cancelAddPostBtn">Cancel</button>
-        <button type="submit">Add Post</button>
-      </div>
-    </form>
-  </div>
-</div>
+            <div id="posts-container">
+                <!-- سيتم إضافة المنشورات هنا ديناميكياً -->
+            </div>
 
-<script type="text/javascript">
-  // Insert Ad scripts safely
-  (function insertAds(){
-    const adTop = document.getElementById('adTop');
-    const adMid = document.getElementById('adMid');
+            <!-- إعلان وسط الصفحة -->
+            <div class="ad-middle">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                        'format' : 'iframe',
+                        'height' : 50,
+                        'width' : 320,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+            </div>
+        </section>
+    </div>
 
-    try {
-      // Top ad script container
-      const script1 = document.createElement('script');
-      script1.type = 'text/javascript';
-      script1.text = `
-        atOptions = {
-          'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-          'format' : 'iframe',
-          'height' : 50,
-          'width' : 320,
-          'params' : {}
-        };
-      `;
-      const script2 = document.createElement('script');
-      script2.type = 'text/javascript';
-      script2.src = '//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js';
-      script2.async = true;
+    <!-- تذييل الصفحة -->
+    <footer>
+        <div class="container">
+            <p>ProductShow &copy; 2023 - منصة لعرض المنتجات ومشاركتها مع الآخرين</p>
+        </div>
+    </footer>
 
-      // Append top ad scripts
-      adTop.appendChild(script1);
-      adTop.appendChild(script2);
+    <script>
+        // البيانات والمتغيرات
+        let currentUser = null;
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+        let visitCount = parseInt(localStorage.getItem('visitCount')) || 0;
 
-      // Clone for mid ad
-      const script1Mid = script1.cloneNode(true);
-      const script2Mid = script2.cloneNode(true);
-      adMid.appendChild(script1Mid);
-      adMid.appendChild(script2Mid);
-    } catch(e){
-      console.warn('Ads failed to load:', e);
-    }
-  })();
-</script>
+        // عناصر DOM
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginModal = document.getElementById('login-modal');
+        const cancelLogin = document.getElementById('cancel-login');
+        const submitLogin = document.getElementById('submit-login');
+        const userInfo = document.getElementById('user-info');
+        const userAvatar = document.getElementById('user-avatar');
+        const usernameSpan = document.getElementById('username');
+        const addProductSection = document.getElementById('add-product-section');
+        const productForm = document.getElementById('product-form');
+        const postsContainer = document.getElementById('posts-container');
+        const sortPosts = document.getElementById('sort-posts');
+        const visitCountSpan = document.getElementById('visit-count');
+        const totalPostsSpan = document.getElementById('total-posts');
+        const totalLikesSpan = document.getElementById('total-likes');
+        const totalCommentsSpan = document.getElementById('total-comments');
+        const totalSharesSpan = document.getElementById('total-shares');
+        const productImagesInput = document.getElementById('product-images');
+        const imagePreview = document.getElementById('image-preview');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const avatarPreview = document.getElementById('avatar-preview');
 
-<script>
-(() => {
-  // Elements
-  const visitorCountEl = document.getElementById('visitorCount');
-  const userAreaEl = document.getElementById('userArea');
-  const btnLogin = document.getElementById('btnLogin');
-  const navHome = document.getElementById('navHome');
-  const navPosts = document.getElementById('navPosts');
-  const homeSection = document.getElementById('homeSection');
-  const postsSection = document.getElementById('postsSection');
-  const postsGrid = document.getElementById('postsGrid');
+        // زيادة عدد الزيارات
+        visitCount++;
+        localStorage.setItem('visitCount', visitCount);
+        visitCountSpan.textContent = visitCount;
 
-  const loginModal = document.getElementById('loginModal');
-  const loginForm = document.getElementById('loginForm');
-  const usernameInput = document.getElementById('usernameInput');
-  const avatarInput = document.getElementById('avatarInput');
-  const avatarPreview = document.getElementById('avatarPreview');
-  const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+        // تحديث الإحصائيات
+        function updateStats() {
+            totalPostsSpan.textContent = posts.length;
+            
+            let totalLikes = 0;
+            let totalComments = 0;
+            let totalShares = 0;
+            
+            posts.forEach(post => {
+                totalLikes += post.likes;
+                totalComments += post.comments.length;
+                totalShares += post.shares;
+            });
+            
+            totalLikesSpan.textContent = totalLikes;
+            totalCommentsSpan.textContent = totalComments;
+            totalSharesSpan.textContent = totalShares;
+        }
 
-  const addPostModal = document.getElementById('addPostModal');
-  const addPostForm = document.getElementById('addPostForm');
-  const productNameInput = document.getElementById('productName');
-  const productDescriptionInput = document.getElementById('productDescription');
-  const productPriceInput = document.getElementById('productPrice');
-  const productImagesInput = document.getElementById('productImages');
-  const productImagePreview = document.getElementById('productImagePreview');
-  const cancelAddPostBtn = document.getElementById('cancelAddPostBtn');
+        // التحقق من حالة المستخدم
+        function checkUserStatus() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showUserInfo();
+            }
+        }
 
-  let currentUser = null;
-  let posts = [];
+        // عرض معلومات المستخدم
+        function showUserInfo() {
+            loginBtn.style.display = 'none';
+            userInfo.style.display = 'flex';
+            usernameSpan.textContent = currentUser.username;
+            
+            if (currentUser.avatar) {
+                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.style.backgroundImage = 'none';
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            }
+            
+            addProductSection.style.display = 'block';
+        }
 
-  // Visitor counter
-  function incrementVisitorCount() {
-    let count = localStorage.getItem('visitorCount') || 0;
-    count = parseInt(count) + 1;
-    localStorage.setItem('visitorCount', count);
-    visitorCountEl.textContent = count;
-  }
-  function loadVisitorCount() {
-    let count = localStorage.getItem('visitorCount') || 0;
-    visitorCountEl.textContent = count;
-  }
+        // إخفاء معلومات المستخدم
+        function hideUserInfo() {
+            loginBtn.style.display = 'block';
+            userInfo.style.display = 'none';
+            addProductSection.style.display = 'none';
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+        }
 
-  // Save/load user and posts
-  function saveUser() {
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-  }
-  function loadUser() {
-    const stored = localStorage.getItem('currentUser');
-    if (stored) {
-      currentUser = JSON.parse(stored);
-      updateUserArea();
-    }
-  }
-  function savePosts() {
-    localStorage.setItem('posts', JSON.stringify(posts));
-  }
-  function loadPosts() {
-    const stored = localStorage.getItem('posts');
-    if (stored) posts = JSON.parse(stored);
-    else posts = [];
-  }
+        // تسجيل الدخول
+        function login() {
+            const username = document.getElementById('login-username').value;
+            
+            if (username) {
+                currentUser = {
+                    username: username,
+                    avatar: avatarPreview.style.backgroundImage || null
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showUserInfo();
+                closeLoginModal();
+                
+                // إعادة تعيين الحقول
+                document.getElementById('login-username').value = '';
+                avatarPreview.style.backgroundImage = '';
+                avatarUpload.value = '';
+            } else {
+                alert('يرجى إدخال اسم المستخدم');
+            }
+        }
 
-  // Update user area UI
-  function updateUserArea() {
-    userAreaEl.innerHTML = '';
-    if (currentUser) {
-      const img = document.createElement('img');
-      img.src = currentUser.avatar || 'https://via.placeholder.com/40?text=User';
-      img.alt = `Profile picture of ${currentUser.username}`;
-      const span = document.createElement('span');
-      span.textContent = currentUser.username;
-      span.style.userSelect = 'text';
+        // تسجيل الخروج
+        function logout() {
+            hideUserInfo();
+        }
 
-      const btnAddPost = document.createElement('button');
-      btnAddPost.textContent = 'Add Post';
-      btnAddPost.addEventListener('click', () => openModal(addPostModal));
+        // فتح/إغلاق نافذة تسجيل الدخول
+        function openLoginModal() {
+            loginModal.style.display = 'flex';
+        }
 
-      const btnLogout = document.createElement('button');
-      btnLogout.textContent = 'Logout';
-      btnLogout.addEventListener('click', () => {
-        currentUser = null;
-        saveUser();
-        updateUserArea();
-        alert('Logged out');
-      });
+        function closeLoginModal() {
+            loginModal.style.display = 'none';
+        }
 
-      userAreaEl.append(img, span, btnAddPost, btnLogout);
-    } else {
-      const btn = document.createElement('button');
-      btn.textContent = 'Login';
-      btn.addEventListener('click', () => openModal(loginModal));
-      userAreaEl.appendChild(btn);
-    }
-  }
+        // معاينة صورة البروفايل
+        avatarUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    avatarPreview.style.backgroundImage = `url(${e.target.result})`;
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
 
-  // Open/close modals
-  function openModal(modal) {
-    modal.classList.add('active');
-    const focusable = modal.querySelector('input, button, textarea');
-    if (focusable) focusable.focus();
-  }
-  function closeModal(modal) {
-    modal.classList.remove('active');
-  }
+        // معاينة صور المنتج قبل الرفع
+        productImagesInput.addEventListener('change', function() {
+            imagePreview.innerHTML = '';
+            const files = this.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                    imagePreview.appendChild(img);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
 
-  // Avatar preview login
-  avatarInput.addEventListener('change', () => {
-    const file = avatarInput.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        avatarPreview.src = e.target.result;
-        avatarPreview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    } else {
-      avatarPreview.style.display = 'none';
-    }
-  });
+        // نشر منتج جديد
+        function addProduct(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const productName = document.getElementById('product-name').value;
+            const productDescription = document.getElementById('product-description').value;
+            const productImages = document.getElementById('product-images').files;
+            
+            if (!productName || !productDescription) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            // تحويل الصور إلى base64
+            const images = [];
+            const readers = [];
+            
+            if (productImages.length > 0) {
+                for (let i = 0; i < productImages.length; i++) {
+                    const reader = new FileReader();
+                    readers.push(reader);
+                    
+                    reader.onload = function(e) {
+                        images.push(e.target.result);
+                        
+                        // إذا انتهينا من قراءة جميع الصور، ننشئ المنشور
+                        if (images.length === productImages.length) {
+                            createPost(productName, productDescription, images);
+                        }
+                    }
+                    
+                    reader.readAsDataURL(productImages[i]);
+                }
+            } else {
+                createPost(productName, productDescription, []);
+            }
+        }
 
-  // Preview for product image
-  productImagesInput.addEventListener('change', () => {
-    const file = productImagesInput.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        productImagePreview.src = e.target.result;
-        productImagePreview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    } else {
-      productImagePreview.style.display = 'none';
-    }
-  });
+        // إنشاء منشور جديد
+        function createPost(name, description, images) {
+            const newPost = {
+                id: Date.now(),
+                productName: name,
+                description: description,
+                images: images,
+                author: currentUser.username,
+                authorAvatar: currentUser.avatar,
+                likes: 0,
+                comments: [],
+                shares: 0,
+                rating: 0,
+                ratingsCount: 0,
+                timestamp: new Date().toISOString(),
+                liked: false
+            };
+            
+            posts.unshift(newPost);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            renderPosts();
+            updateStats();
+            
+            // إعادة تعيين النموذج
+            productForm.reset();
+            imagePreview.innerHTML = '';
+        }
 
-  // Login form submit
-  loginForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const username = usernameInput.value.trim();
-    if (!username) {
-      alert('Please enter a username');
-      return;
-    }
-    let avatar = 'https://via.placeholder.com/40?text=User';
-    if (avatarInput.files[0]) {
-      const file = avatarInput.files[0];
-      const reader = new FileReader();
-      reader.onload = e => {
-        avatar = e.target.result;
-        finishLogin(username, avatar);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      finishLogin(username, avatar);
-    }
-  });
-  function finishLogin(username, avatar) {
-    currentUser = { username, avatar };
-    saveUser();
-    updateUserArea();
-    closeModal(loginModal);
-    loginForm.reset();
-    avatarPreview.style.display = 'none';
-    alert(`Welcome ${username}, you are logged in!`);
-  }
-  cancelLoginBtn.addEventListener('click', () => {
-    closeModal(loginModal);
-    loginForm.reset();
-    avatarPreview.style.display = 'none';
-  });
+        // عرض المنشورات
+        function renderPosts() {
+            postsContainer.innerHTML = '';
+            
+            // فرز المنشورات حسب الخيار المحدد
+            let sortedPosts = [...posts];
+            
+            if (sortPosts.value === 'popular') {
+                sortedPosts.sort((a, b) => {
+                    const aScore = a.likes + a.comments.length + a.shares;
+                    const bScore = b.likes + b.comments.length + b.shares;
+                    return bScore - aScore;
+                });
+            } else {
+                sortedPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }
+            
+            sortedPosts.forEach(post => {
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            });
+        }
 
-  // Add post form submit
-  addPostForm.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!currentUser) {
-      alert('You must login to add a post');
-      closeModal(addPostModal);
-      openModal(loginModal);
-      return;
-    }
-    const name = productNameInput.value.trim();
-    const desc = productDescriptionInput.value.trim();
-    const price = parseFloat(productPriceInput.value);
-    if (!name || !desc || isNaN(price) || price < 0) {
-      alert('Please fill all fields correctly');
-      return;
-    }
-    if (!productImagesInput.files[0]) {
-      alert('Please select a product image');
-      return;
-    }
-    const file = productImagesInput.files[0];
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
-      const newPost = {
-        id: Date.now(),
-        user: currentUser.username,
-        userAvatar: currentUser.avatar,
-        name,
-        description: desc,
-        price,
-        image: e.target.result,
-        likes: 0,
-        likedBy: [],
-        comments: [],
-        shares: 0,
-        rating: 0
-      };
-      posts.push(newPost);
-      sortPosts();
-      savePosts();
-      renderPosts();
-      closeModal(addPostModal);
-      addPostForm.reset();
-      productImagePreview.style.display = 'none';
-      alert('Post added successfully!');
-    };
-    reader.readAsDataURL(file);
-  });
-  cancelAddPostBtn.addEventListener('click', () => {
-    closeModal(addPostModal);
-    addPostForm.reset();
-    productImagePreview.style.display = 'none';
-  });
+        // إنشاء عنصر منشور
+        function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'product-post';
+            postDiv.dataset.id = post.id;
+            
+            // رأس المنشور
+            const postHeader = document.createElement('div');
+            postHeader.className = 'post-header';
+            
+            const userAvatar = document.createElement('div');
+            userAvatar.className = 'post-user-avatar';
+            
+            if (post.authorAvatar) {
+                userAvatar.style.backgroundImage = post.authorAvatar;
+            } else {
+                userAvatar.textContent = post.author.charAt(0).toUpperCase();
+            }
+            
+            const userInfo = document.createElement('div');
+            userInfo.className = 'post-user-info';
+            
+            const userName = document.createElement('h4');
+            userName.textContent = post.author;
+            
+            const postDate = document.createElement('span');
+            postDate.textContent = new Date(post.timestamp).toLocaleDateString('ar-SA');
+            
+            userInfo.appendChild(userName);
+            userInfo.appendChild(postDate);
+            
+            postHeader.appendChild(userAvatar);
+            postHeader.appendChild(userInfo);
+            
+            // محتوى المنشور
+            const postContent = document.createElement('div');
+            postContent.className = 'post-content';
+            
+            const postTitle = document.createElement('h3');
+            postTitle.className = 'post-title';
+            postTitle.textContent = post.productName;
+            
+            const postDescription = document.createElement('p');
+            postDescription.className = 'post-description';
+            postDescription.textContent = post.description;
+            
+            postContent.appendChild(postTitle);
+            postContent.appendChild(postDescription);
+            
+            // صور المنتج
+            if (post.images && post.images.length > 0) {
+                const postImages = document.createElement('div');
+                postImages.className = 'post-images';
+                
+                post.images.forEach(imageSrc => {
+                    const img = document.createElement('img');
+                    img.src = imageSrc;
+                    img.className = 'post-image';
+                    postImages.appendChild(img);
+                });
+                
+                postContent.appendChild(postImages);
+            }
+            
+            // إحصائيات المنشور
+            const postStats = document.createElement('div');
+            postStats.className = 'post-stats';
+            
+            const likesCount = document.createElement('span');
+            likesCount.textContent = `${post.likes} إعجاب`;
+            
+            const commentsCount = document.createElement('span');
+            commentsCount.textContent = `${post.comments.length} تعليق`;
+            
+            const sharesCount = document.createElement('span');
+            sharesCount.textContent = `${post.shares} مشاركة`;
+            
+            postStats.appendChild(likesCount);
+            postStats.appendChild(commentsCount);
+            postStats.appendChild(sharesCount);
+            
+            postContent.appendChild(postStats);
+            
+            // تقييم النجوم
+            const starRating = document.createElement('div');
+            starRating.className = 'star-rating';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.innerHTML = '★';
+                star.dataset.rating = i;
+                
+                if (i <= Math.floor(post.rating)) {
+                    star.classList.add('active');
+                }
+                
+                star.addEventListener('click', () => ratePost(post.id, i));
+                starRating.appendChild(star);
+            }
+            
+            const ratingText = document.createElement('span');
+            ratingText.textContent = `(${post.ratingsCount})`;
+            ratingText.style.marginRight = '10px';
+            starRating.appendChild(ratingText);
+            
+            postContent.appendChild(starRating);
+            
+            // رابط المنشور
+            const postLink = document.createElement('a');
+            postLink.href = `#post-${post.id}`;
+            postLink.className = 'post-link';
+            postLink.textContent = 'رابط المنشور';
+            postContent.appendChild(postLink);
+            
+            // أزرار التفاعل
+            const postActions = document.createElement('div');
+            postActions.className = 'post-actions';
+            
+            const likeBtn = document.createElement('div');
+            likeBtn.className = `post-action ${post.liked ? 'liked' : ''}`;
+            likeBtn.innerHTML = `<span>👍</span> إعجاب`;
+            likeBtn.addEventListener('click', () => toggleLike(post.id));
+            
+            const commentBtn = document.createElement('div');
+            commentBtn.className = 'post-action';
+            commentBtn.innerHTML = `<span>💬</span> تعليق`;
+            commentBtn.addEventListener('click', () => addComment(post.id));
+            
+            const shareBtn = document.createElement('div');
+            shareBtn.className = 'post-action';
+            shareBtn.innerHTML = `<span>🔄</span> مشاركة`;
+            shareBtn.addEventListener('click', () => sharePost(post.id));
+            
+            postActions.appendChild(likeBtn);
+            postActions.appendChild(commentBtn);
+            postActions.appendChild(shareBtn);
+            
+            // تجميع كل الأجزاء
+            postDiv.appendChild(postHeader);
+            postDiv.appendChild(postContent);
+            postDiv.appendChild(postActions);
+            
+            return postDiv;
+        }
 
-  // Sort posts by engagement (likes + comments + shares desc)
-  function sortPosts() {
-    posts.sort((a,b) => {
-      const scoreA = a.likes + a.comments.length + a.shares;
-      const scoreB = b.likes + b.comments.length + b.shares;
-      return scoreB - scoreA;
-    });
-  }
+        // تفعيل/إلغاء الإعجاب
+        function toggleLike(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                if (posts[postIndex].liked) {
+                    posts[postIndex].likes--;
+                    posts[postIndex].liked = false;
+                } else {
+                    posts[postIndex].likes++;
+                    posts[postIndex].liked = true;
+                }
+                
+                localStorage.setItem('posts', JSON.stringify(posts));
+                renderPosts();
+                updateStats();
+            }
+        }
 
-  // Render posts
-  function renderPosts() {
-    postsGrid.innerHTML = '';
-    if (posts.length === 0) {
-      postsGrid.textContent = 'No posts available.';
-      return;
-    }
-    posts.forEach(post => {
-      const card = document.createElement('article');
-      card.className = 'post-card';
-      card.id = `post-${post.id}`;
+        // إضافة تعليق
+        function addComment(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const commentText = prompt('أدخل تعليقك:');
+            if (commentText) {
+                const postIndex = posts.findIndex(p => p.id === postId);
+                if (postIndex !== -1) {
+                    posts[postIndex].comments.push({
+                        user: currentUser.username,
+                        text: commentText,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    localStorage.setItem('posts', JSON.stringify(posts));
+                    renderPosts();
+                    updateStats();
+                }
+            }
+        }
 
-      // Header
-      const header = document.createElement('div');
-      header.className = 'post-header';
-      const userImg = document.createElement('img');
-      userImg.src = post.userAvatar || 'https://via.placeholder.com/48?text=User';
-      userImg.alt = `Profile picture of ${post.user}`;
-      const username = document.createElement('span');
-      username.className = 'username';
-      username.textContent = post.user;
-      header.append(userImg, username);
+        // مشاركة المنشور
+        function sharePost(postId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                posts[postIndex].shares++;
+                localStorage.setItem('posts', JSON.stringify(posts));
+                renderPosts();
+                updateStats();
+                
+                // في تطبيق حقيقي، هنا يمكن إضافة وظيفة مشاركة حقيقية
+                alert('تمت مشاركة المنشور!');
+            }
+        }
 
-      // Content
-      const content = document.createElement('div');
-      content.className = 'post-content';
-      const title = document.createElement('h3');
-      title.textContent = post.name;
-      const desc = document.createElement('p');
-      desc.className = 'description';
-      desc.textContent = post.description;
-      const price = document.createElement('div');
-      price.className = 'price';
-      price.textContent = `$${post.price.toFixed(2)}`;
-      const img = document.createElement('img');
-      img.src = post.image;
-      img.alt = `Image of ${post.name}`;
+        // تقييم المنشور
+        function ratePost(postId, rating) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول أولاً');
+                return;
+            }
+            
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                // حساب التقييم الجديد
+                const totalRating = posts[postIndex].rating * posts[postIndex].ratingsCount;
+                posts[postIndex].ratingsCount++;
+                posts[postIndex].rating = (totalRating + rating) / posts[postIndex].ratingsCount;
+                
+                localStorage.setItem('posts', JSON.stringify(posts));
+                renderPosts();
+            }
+        }
 
-      content.append(title, desc, price, img);
+        // الأحداث
+        loginBtn.addEventListener('click', openLoginModal);
+        cancelLogin.addEventListener('click', closeLoginModal);
+        submitLogin.addEventListener('click', login);
+        logoutBtn.addEventListener('click', logout);
+        productForm.addEventListener('submit', addProduct);
+        sortPosts.addEventListener('change', renderPosts);
 
-      // Actions
-      const actions = document.createElement('div');
-      actions.className = 'post-actions';
+        // تهيئة التطبيق
+        checkUserStatus();
+        renderPosts();
+        updateStats();
 
-      // Like button
-      const likeBtn = document.createElement('button');
-      likeBtn.type = 'button';
-      likeBtn.title = 'Like';
-      likeBtn.innerHTML = `👍 <span>${post.likes}</span>`;
-      if (currentUser && post.likedBy.includes(currentUser.username)) {
-        likeBtn.classList.add('active');
-      }
-      likeBtn.addEventListener('click', () => toggleLike(post.id, likeBtn));
-
-      // Comment button
-      const commentBtn = document.createElement('button');
-      commentBtn.type = 'button';
-      commentBtn.title = 'Comment';
-      commentBtn.textContent = `💬 ${post.comments.length}`;
-      commentBtn.addEventListener('click', () => addComment(post.id));
-
-      // Share button
-      const shareBtn = document.createElement('button');
-      shareBtn.type = 'button';
-      shareBtn.title = 'Share';
-      shareBtn.textContent = `🔗 Share`;
-      shareBtn.addEventListener('click', () => sharePost(post.id));
-
-      // Rating stars
-      const ratingDiv = document.createElement('div');
-      ratingDiv.className = 'rating';
-      ratingDiv.setAttribute('aria-label', `Rating: ${post.rating} out of 5 stars`);
-      for(let i=1; i<=5; i++){
-        const star = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        star.setAttribute('viewBox','0 0 20 20');
-        star.setAttribute('role','img');
-        star.setAttribute('aria-hidden','true');
-        star.innerHTML = `<polygon points="10,1.5 12.95,7.1 19.2,7.75 14,12.2 15.25,18.5 10,15.1 4.75,18.5 6,12.2 0.8,7.75 7.05,7.1"/>`;
-        if(i <= post.rating) star.classList.add('filled');
-        star.style.cursor = 'pointer';
-        star.addEventListener('click', () => ratePost(post.id, i));
-        ratingDiv.appendChild(star);
-      }
-
-      actions.append(likeBtn, commentBtn, shareBtn, ratingDiv);
-
-      // Comments preview
-      const commentsList = document.createElement('div');
-      commentsList.className = 'comments-list';
-      const lastComments = post.comments.slice(-3);
-      lastComments.forEach(cmt => {
-        const p = document.createElement('p');
-        p.textContent = `${cmt.user}: ${cmt.text}`;
-        commentsList.appendChild(p);
-      });
-
-      card.append(header, content, actions, commentsList);
-      postsGrid.appendChild(card);
-    });
-  }
-
-  // Toggle like
-  function toggleLike(postId, btn) {
-    if (!currentUser) {
-      alert('Please login to like posts');
-      openModal(loginModal);
-      return;
-    }
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    const likedIndex = post.likedBy.indexOf(currentUser.username);
-    if (likedIndex === -1) {
-      post.likedBy.push(currentUser.username);
-      post.likes++;
-      btn.classList.add('active');
-    } else {
-      post.likedBy.splice(likedIndex, 1);
-      post.likes = Math.max(0, post.likes - 1);
-      btn.classList.remove('active');
-    }
-    btn.querySelector('span').textContent = post.likes;
-    sortPosts();
-    savePosts();
-    renderPosts();
-  }
-
-  // Add comment
-  function addComment(postId) {
-    if (!currentUser) {
-      alert('Please login to comment');
-      openModal(loginModal);
-      return;
-    }
-    const text = prompt('Enter your comment:');
-    if (!text || !text.trim()) return;
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    post.comments.push({ user: currentUser.username, text: text.trim() });
-    sortPosts();
-    savePosts();
-    renderPosts();
-    alert('Comment added!');
-  }
-
-  // Share post (copy URL)
-  function sharePost(postId) {
-    const url = `${window.location.origin}${window.location.pathname}#post-${postId}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).then(() => {
-        alert('Post URL copied to clipboard!');
-      }).catch(() => {
-        prompt('Copy the link:', url);
-      });
-    } else {
-      prompt('Copy the link:', url);
-    }
-    const post = posts.find(p => p.id === postId);
-    if(post) {
-      post.shares++;
-      sortPosts();
-      savePosts();
-      renderPosts();
-    }
-  }
-
-  // Rate post
-  function ratePost(postId, rating) {
-    if (!currentUser) {
-      alert('Please login to rate posts');
-      openModal(loginModal);
-      return;
-    }
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    post.rating = rating;
-    savePosts();
-    renderPosts();
-    alert(`You rated this post ${rating} star${rating>1?'s':''}.`);
-  }
-
-  // Navigation
-  navHome.addEventListener('click', e => {
-    e.preventDefault();
-    homeSection.style.display = '';
-    postsSection.style.display = 'none';
-    navHome.setAttribute('aria-current', 'page');
-    navPosts.removeAttribute('aria-current');
-  });
-  navPosts.addEventListener('click', e => {
-    e.preventDefault();
-    homeSection.style.display = 'none';
-    postsSection.style.display = '';
-    navPosts.setAttribute('aria-current', 'page');
-    navHome.removeAttribute('aria-current');
-  });
-
-  // Close modals on outside click or Escape
-  [loginModal, addPostModal].forEach(modal => {
-    modal.addEventListener('click', e => {
-      if (e.target === modal) closeModal(modal);
-    });
-  });
-  window.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      [loginModal, addPostModal].forEach(modal => {
-        if (modal.classList.contains('active')) closeModal(modal);
-      });
-    }
-  });
-
-  // Init
-  function init() {
-    incrementVisitorCount();
-    loadVisitorCount();
-    loadUser();
-    loadPosts();
-    updateUserArea();
-    sortPosts();
-    renderPosts();
-    navHome.click();
-  }
-  init();
-})();
-</script>
+        // إغلاق نافذة تسجيل الدخول بالنقر خارجها
+        window.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                closeLoginModal();
+            }
+        });
+    </script>
 </body>
 </html>
