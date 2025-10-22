@@ -185,14 +185,6 @@
     let currentUser = localStorage.getItem(PREFIX + 'currentUser');
     let visits = parseInt(localStorage.getItem(PREFIX + 'visits')) || 0;
 
-    // Forbidden keywords for moderation (violations like nudity, seduction, crimes, etc.)
-    const forbiddenKeywords = [
-        'nudity', 'naked', 'porn', 'sex', 'seduction', 'erotic', 'adult',
-        'crime', 'murder', 'theft', 'robbery', 'assault', 'violence', 'kill',
-        'drugs', 'narcotics', 'illegal', 'weapon', 'bomb', 'explosive',
-        'hate', 'racism', 'discrimination', 'terror', 'extremism', 'harassment'
-    ]; // Add more as needed; case-insensitive check
-
     // Increment and display visits
     visits++;
     localStorage.setItem(PREFIX + 'visits', visits);
@@ -256,19 +248,12 @@
         renderPosts();
     }
 
-    // Create Post with Moderation
+    // Create Post
     function createPost() {
         if (!currentUser) return alert('Please login first');
         const name = document.getElementById('product-name').value.trim();
         const desc = document.getElementById('product-desc').value.trim();
         if (!name || !desc) return alert('Please fill in product name and description');
-
-        // Check for violations
-        const lowerDesc = desc.toLowerCase();
-        const isViolating = forbiddenKeywords.some(keyword => lowerDesc.includes(keyword));
-        if (isViolating) {
-            return alert('Post blocked: Content violates community guidelines (e.g., no nudity, crimes, or harmful topics).');
-        }
 
         const images = [];
         const files = document.getElementById('product-images').files;
@@ -330,6 +315,7 @@
                 <div class="interaction">
                     <button onclick="likePost('${post.id}')">Like (${post.likes})</button>
                     <button onclick="sharePost('${post.id}')">Share (${post.shares})</button>
+                    <div>Share Link: <input type="text" value="${window.location.origin + window.location.pathname + '#' + post.id}" readonly size="30"></div>
                     <div class="stars" data-post-id="${post.id}">
                         Rating: ${avg.toFixed(1)} / 5
                         ${[1,2,3,4,5].map(i => {
@@ -374,14 +360,14 @@
         }
     }
 
-    // Share Post (copies hidden link)
+    // Share Post
     function sharePost(id) {
         if (!currentUser) return alert('Please login to interact');
         const post = posts.find(p => p.id === id);
         if (post) {
             post.shares++;
             const link = window.location.origin + window.location.pathname + '#' + id;
-            navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard! Share it anywhere.'));
+            navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard!'));
             savePosts();
             renderPosts();
         }
