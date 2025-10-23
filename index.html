@@ -1,55 +1,35 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>ShopHub - المنصة الاجتماعية للمنتجات</title>
 <style>
-  body {
-    font-family: "Tajawal", sans-serif;
-    background: #f4f6f8;
-    margin: 0;
-    padding: 0;
-  }
+  body {font-family: "Tajawal", sans-serif; background: #f4f6f8; margin: 0; padding: 0;}
   header {
-    background: #fff;
-    border-bottom: 1px solid #ddd;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    background: #fff; border-bottom: 1px solid #ddd; padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 10;
   }
   .title { font-size: 22px; font-weight: bold; color: #0070f3; }
   #visitorCounter { color: #555; font-size: 14px; }
   #userInfo { display: flex; align-items: center; gap: 10px; }
-  #userInfo img {
-    width: 35px; height: 35px; border-radius: 50%; object-fit: cover;
-  }
+  #userInfo img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
   main {
     max-width: 750px; margin: 20px auto; background: #fff;
     padding: 20px; border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   }
-  .login-box, .new-post {
-    margin-bottom: 20px; background: #fafafa;
-    padding: 15px; border-radius: 8px;
-  }
+  .login-box, .new-post { margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 8px; }
   input[type="text"], input[type="file"], textarea {
-    width: 100%; padding: 8px; border-radius: 6px;
-    border: 1px solid #ccc; margin-bottom: 10px;
+    width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;
   }
   button {
-    background-color: #0070f3; color: #fff;
-    border: none; padding: 7px 14px;
-    border-radius: 6px; cursor: pointer;
+    background-color: #0070f3; color: #fff; border: none;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
   }
   button:hover { background-color: #0059c9; }
-  .post {
-    border-bottom: 1px solid #eee; padding: 15px 0;
-  }
+  .post { border-bottom: 1px solid #eee; padding: 15px 0; }
   .post:last-child { border-bottom: none; }
   .post h3 { margin: 0; color: #111; }
   .post img.post-image {
@@ -60,24 +40,14 @@
     background: none; border: none; color: #0070f3;
     cursor: pointer; margin-inline-end: 10px; font-size: 14px;
   }
-  .rating span {
-    font-size: 22px; cursor: pointer; color: #ccc;
-  }
+  .rating span { font-size: 22px; cursor: pointer; color: #ccc; }
   .rating span.active { color: gold; }
   .comment-box { margin-top: 8px; }
-  .hidden-link {
-    font-size: 12px; color: #777;
-    user-select: all; display: none;
-  }
+  .hidden-link { font-size: 12px; color: #777; user-select: all; display: none; }
   .comments { margin-top: 10px; }
-  .comments p {
-    background: #f2f2f2; padding: 5px;
-    border-radius: 6px;
-  }
+  .comments p { background: #f2f2f2; padding: 5px; border-radius: 6px; }
   #profilePreview {
-    display: none; margin-bottom: 10px;
-    width: 60px; height: 60px; border-radius: 50%;
-    object-fit: cover;
+    display: none; margin-bottom: 10px; width: 60px; height: 60px; border-radius: 50%; object-fit: cover;
   }
   footer { text-align: center; color: #888; margin: 20px; }
 </style>
@@ -101,7 +71,7 @@
     <img id="profilePreview" alt="صورة المعاينة">
     <input type="text" id="usernameInput" placeholder="أدخل اسم المستخدم">
     <input type="file" id="profileImageInput" accept="image/*">
-    <button onclick="login()">دخول</button>
+    <button id="loginBtn">دخول</button>
   </div>
 
   <!-- إنشاء منشور -->
@@ -110,7 +80,7 @@
     <input type="text" id="postTitle" placeholder="اسم المنتج">
     <textarea id="postDescription" placeholder="وصف المنتج"></textarea>
     <input type="file" id="postImage" accept="image/*">
-    <button onclick="createPost()">نشر</button>
+    <button id="createBtn">نشر</button>
   </div>
 
   <div id="posts"></div>
@@ -125,10 +95,34 @@
   localStorage.setItem("visitCount", visits);
   document.getElementById("visitCount").textContent = visits;
 
-  // === بيانات المستخدم ===
+  // === تهيئة المستخدم والمنشورات من التخزين المحلي ===
   let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-  updateUserUI();
+  let posts = JSON.parse(localStorage.getItem("posts")) || [];
 
+  // === تحديث واجهة المستخدم حسب حالة الدخول ===
+  function updateUserUI() {
+    const loginBox = document.getElementById("loginBox");
+    const postBox = document.getElementById("newPostBox");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const usernameLabel = document.getElementById("usernameLabel");
+    const userImage = document.getElementById("userImage");
+
+    if (currentUser) {
+      usernameLabel.textContent = currentUser.name;
+      userImage.src = currentUser.image;
+      loginBox.style.display = "none";
+      postBox.style.display = "block";
+      logoutBtn.style.display = "inline-block";
+    } else {
+      usernameLabel.textContent = "الزائر";
+      userImage.src = "https://via.placeholder.com/35";
+      loginBox.style.display = "block";
+      postBox.style.display = "none";
+      logoutBtn.style.display = "none";
+    }
+  }
+
+  // === معاينة صورة البروفايل فور اختيارها ===
   document.getElementById("profileImageInput").addEventListener("change", function() {
     const file = this.files[0];
     if (file) {
@@ -142,65 +136,44 @@
     }
   });
 
-  function login() {
+  // === تسجيل الدخول ===
+  document.getElementById("loginBtn").addEventListener("click", () => {
     const name = document.getElementById("usernameInput").value.trim();
     const file = document.getElementById("profileImageInput").files[0];
     if (!name) return alert("يرجى إدخال اسم المستخدم");
 
-    const setUser = (image) => {
-      currentUser = { name, image };
+    // إنشاء المستخدم بعد التأكد من الصورة
+    const finalizeLogin = (imageURL) => {
+      currentUser = { name, image: imageURL || "https://via.placeholder.com/35" };
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
       updateUserUI();
     };
 
     if (file) {
       const reader = new FileReader();
-      reader.onload = e => setUser(e.target.result);
+      reader.onload = e => finalizeLogin(e.target.result);
       reader.readAsDataURL(file);
     } else {
-      setUser("https://via.placeholder.com/35");
+      finalizeLogin();
     }
-  }
+  });
 
-  function logout() {
-    currentUser = null;
+  // === زر الخروج ===
+  document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.removeItem("currentUser");
+    currentUser = null;
     updateUserUI();
-  }
+  });
 
-  function updateUserUI() {
-    if (currentUser) {
-      document.getElementById("usernameLabel").textContent = currentUser.name;
-      document.getElementById("userImage").src = currentUser.image;
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("newPostBox").style.display = "block";
-      document.getElementById("logoutBtn").style.display = "inline-block";
-    } else {
-      document.getElementById("usernameLabel").textContent = "الزائر";
-      document.getElementById("userImage").src = "https://via.placeholder.com/35";
-      document.getElementById("loginBox").style.display = "block";
-      document.getElementById("newPostBox").style.display = "none";
-      document.getElementById("logoutBtn").style.display = "none";
-    }
-  }
-  document.getElementById("logoutBtn").onclick = logout;
-
-  // === المنشورات ===
-  let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-  function savePosts() {
-    localStorage.setItem("posts", JSON.stringify(posts));
-  }
-
-  function createPost() {
-    if (!currentUser) return alert("يجب تسجيل الدخول أولاً");
+  // === إنشاء منشور ===
+  document.getElementById("createBtn").addEventListener("click", () => {
+    if (!currentUser) return alert("يرجى تسجيل الدخول أولاً");
     const title = document.getElementById("postTitle").value.trim();
     const desc = document.getElementById("postDescription").value.trim();
     const file = document.getElementById("postImage").files[0];
     if (!title || !desc) return alert("يرجى إدخال عنوان ووصف المنشور");
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
+    const finalizePost = (imageURL) => {
       const id = "post-" + Date.now();
       const newPost = {
         id,
@@ -208,7 +181,7 @@
         userImage: currentUser.image,
         title,
         desc,
-        image: file ? e.target.result : "",
+        image: imageURL || "",
         likes: [],
         comments: [],
         rating: 0,
@@ -217,38 +190,47 @@
         link: location.origin + "/#" + id
       };
       posts.unshift(newPost);
-      savePosts();
+      localStorage.setItem("posts", JSON.stringify(posts));
       renderPosts();
       document.getElementById("postTitle").value = "";
       document.getElementById("postDescription").value = "";
       document.getElementById("postImage").value = "";
     };
-    if (file) reader.readAsDataURL(file);
-    else reader.onload({ target: { result: "" } });
-  }
 
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => finalizePost(e.target.result);
+      reader.readAsDataURL(file);
+    } else {
+      finalizePost("");
+    }
+  });
+
+  // === عرض المنشورات ===
   function renderPosts() {
     const container = document.getElementById("posts");
     container.innerHTML = "";
     posts.forEach(post => {
+      const avgRating = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
       const div = document.createElement("div");
       div.className = "post";
-      const avgRating = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
       div.innerHTML = `
         <div style="display:flex; align-items:center; gap:8px;">
           <img src="${post.userImage}" width="40" height="40" style="border-radius:50%;">
           <strong>${post.user}</strong>
-          ${currentUser && post.user !== currentUser.name
-            ? `<button onclick="followUser('${post.id}')">متابعة (${post.followers.length})</button>`
-            : `<span style="color:#777;">المتابعون: ${post.followers.length}</span>`}
+          ${
+            currentUser && post.user !== currentUser.name
+              ? `<button onclick="followUser('${post.id}')">متابعة (${post.followers.length})</button>`
+              : `<span style="color:#777;">المتابعون: ${post.followers.length}</span>`
+          }
         </div>
         <h3>${post.title}</h3>
         <p>${post.desc}</p>
-        ${post.image ? `<img src="${post.image}" alt="صورة المنتج" class="post-image"/>` : ""}
+        ${post.image ? `<img src="${post.image}" alt="صورة المنتج" class="post-image">` : ""}
         <div class="actions">
           <button onclick="likePost('${post.id}')">❤️ ${post.likes.length}</button>
           <button onclick="copyLink('${post.id}')">🔗 نسخ الرابط</button>
-          <button onclick="showHiddenLink('${post.id}')">👁️ عرض الرابط</button>
+          <button onclick="toggleLink('${post.id}')">👁️ عرض الرابط</button>
         </div>
         <div class="rating" id="rating-${post.id}">
           ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})" class="${i <= avgRating ? 'active' : ''}">&#9733;</span>`).join("")}
@@ -267,12 +249,12 @@
   }
 
   function likePost(id) {
-    const post = posts.find(p => p.id === id);
     if (!currentUser) return alert("سجّل الدخول أولاً");
+    const post = posts.find(p => p.id === id);
     const idx = post.likes.indexOf(currentUser.name);
     if (idx === -1) post.likes.push(currentUser.name);
     else post.likes.splice(idx, 1);
-    savePosts();
+    localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
@@ -283,42 +265,43 @@
     const post = posts.find(p => p.id === id);
     post.comments.push({ user: currentUser.name, text });
     input.value = "";
-    savePosts();
+    localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
-  }
-
-  function copyLink(id) {
-    const post = posts.find(p => p.id === id);
-    navigator.clipboard.writeText(post.link);
-    alert("تم نسخ رابط المنشور!");
-  }
-
-  function showHiddenLink(id) {
-    const el = document.getElementById(`link-${id}`);
-    el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
   }
 
   function ratePost(id, value) {
     const post = posts.find(p => p.id === id);
     post.rating += value;
     post.ratingCount++;
-    savePosts();
+    localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
   function followUser(id) {
-    const post = posts.find(p => p.id === id);
     if (!currentUser) return alert("سجّل الدخول أولاً");
+    const post = posts.find(p => p.id === id);
     if (!post.followers.includes(currentUser.name)) {
       post.followers.push(currentUser.name);
     } else {
       post.followers = post.followers.filter(f => f !== currentUser.name);
     }
-    savePosts();
+    localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
-  // عرض المنشورات عند فتح الصفحة
+  function copyLink(id) {
+    const post = posts.find(p => p.id === id);
+    navigator.clipboard.writeText(post.link);
+    alert("تم نسخ الرابط!");
+  }
+
+  function toggleLink(id) {
+    const el = document.getElementById(`link-${id}`);
+    el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
+  }
+
+  // === تحميل أولي للواجهة ===
+  updateUserUI();
   renderPosts();
 </script>
 
