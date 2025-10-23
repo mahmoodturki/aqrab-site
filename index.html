@@ -3,53 +3,34 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ShopHub - المنصة الاجتماعية للمنتجات</title>
+<title>ShopHub - المنصة الاجتماعية</title>
 <style>
-  body {font-family: "Tajawal", sans-serif; background: #f4f6f8; margin: 0; padding: 0;}
+  body {font-family: "Tajawal", sans-serif; background: #f5f5f5; margin: 0; padding: 0;}
   header {
     background: #fff; border-bottom: 1px solid #ddd; padding: 10px 20px;
     display: flex; justify-content: space-between; align-items: center;
     position: sticky; top: 0; z-index: 10;
   }
-  .title { font-size: 22px; font-weight: bold; color: #0070f3; }
-  #visitorCounter { color: #555; font-size: 14px; }
-  #userInfo { display: flex; align-items: center; gap: 10px; }
-  #userInfo img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
-  main {
-    max-width: 750px; margin: 20px auto; background: #fff;
-    padding: 20px; border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  }
-  .login-box, .new-post { margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 8px; }
-  input[type="text"], input[type="file"], textarea {
-    width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;
-  }
-  button {
-    background-color: #0070f3; color: #fff; border: none;
-    padding: 7px 14px; border-radius: 6px; cursor: pointer;
-  }
-  button:hover { background-color: #0059c9; }
-  .post { border-bottom: 1px solid #eee; padding: 15px 0; }
-  .post:last-child { border-bottom: none; }
-  .post h3 { margin: 0; color: #111; }
-  .post img.post-image {
-    width: 100%; border-radius: 8px; margin: 8px 0;
-    object-fit: cover; max-height: 400px;
-  }
-  .actions button {
-    background: none; border: none; color: #0070f3;
-    cursor: pointer; margin-inline-end: 10px; font-size: 14px;
-  }
-  .rating span { font-size: 22px; cursor: pointer; color: #ccc; }
-  .rating span.active { color: gold; }
-  .comment-box { margin-top: 8px; }
-  .hidden-link { font-size: 12px; color: #777; user-select: all; display: none; }
-  .comments { margin-top: 10px; }
-  .comments p { background: #f2f2f2; padding: 5px; border-radius: 6px; }
-  #profilePreview {
-    display: none; margin-bottom: 10px; width: 60px; height: 60px; border-radius: 50%; object-fit: cover;
-  }
-  footer { text-align: center; color: #888; margin: 20px; }
+  .title {font-size: 22px; font-weight: bold; color: #0070f3;}
+  #visitorCounter {color: #555; font-size: 14px;}
+  #userInfo {display: flex; align-items: center; gap: 10px;}
+  #userInfo img {width: 35px; height: 35px; border-radius: 50%; object-fit: cover;}
+  main {max-width: 750px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);}
+  input[type="text"], input[type="file"], textarea {width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;}
+  button {background-color: #0070f3; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer;}
+  button:hover {background-color: #0059c9;}
+  .login-box, .new-post {margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 8px;}
+  .post {border-bottom: 1px solid #eee; padding: 15px 0;}
+  .post:last-child {border-bottom: none;}
+  .post h3 {margin: 0; color: #111;}
+  .post img.post-image {width: 100%; border-radius: 8px; margin: 8px 0; object-fit: cover; max-height: 400px;}
+  .actions button {background: none; border: none; color: #0070f3; cursor: pointer; margin-inline-end: 10px; font-size: 14px;}
+  .rating span {font-size: 22px; cursor: pointer; color: #ccc;}
+  .rating span.active {color: gold;}
+  .comment-box {margin-top: 8px;}
+  .comments p {background: #f2f2f2; padding: 5px; border-radius: 6px;}
+  #profilePreview {display: none; margin-bottom: 10px; width: 60px; height: 60px; border-radius: 50%; object-fit: cover;}
+  footer {text-align: center; color: #888; margin: 20px;}
 </style>
 </head>
 <body>
@@ -65,16 +46,14 @@
 </header>
 
 <main>
-  <!-- تسجيل الدخول -->
   <div class="login-box" id="loginBox">
     <h3>تسجيل الدخول</h3>
     <img id="profilePreview" alt="صورة المعاينة">
-    <input type="text" id="usernameInput" placeholder="أدخل اسم المستخدم">
+    <input type="text" id="usernameInput" placeholder="اسم المستخدم">
     <input type="file" id="profileImageInput" accept="image/*">
     <button id="loginBtn">دخول</button>
   </div>
 
-  <!-- إنشاء منشور -->
   <div class="new-post" id="newPostBox" style="display:none;">
     <h3>إنشاء منشور جديد</h3>
     <input type="text" id="postTitle" placeholder="اسم المنتج">
@@ -90,19 +69,18 @@
 
 <script>
   // === عداد الزيارات ===
-  let visits = localStorage.getItem("visitCount") || 0;
+  let visits = parseInt(localStorage.getItem("visitCount") || "0");
   visits++;
   localStorage.setItem("visitCount", visits);
   document.getElementById("visitCount").textContent = visits;
 
-  // === تهيئة المستخدم والمنشورات من التخزين المحلي ===
+  // === تحميل المستخدم والمنشورات ===
   let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
   let posts = JSON.parse(localStorage.getItem("posts")) || [];
 
-  // === تحديث واجهة المستخدم حسب حالة الدخول ===
-  function updateUserUI() {
+  function updateUI() {
     const loginBox = document.getElementById("loginBox");
-    const postBox = document.getElementById("newPostBox");
+    const newPostBox = document.getElementById("newPostBox");
     const logoutBtn = document.getElementById("logoutBtn");
     const usernameLabel = document.getElementById("usernameLabel");
     const userImage = document.getElementById("userImage");
@@ -111,82 +89,58 @@
       usernameLabel.textContent = currentUser.name;
       userImage.src = currentUser.image;
       loginBox.style.display = "none";
-      postBox.style.display = "block";
+      newPostBox.style.display = "block";
       logoutBtn.style.display = "inline-block";
     } else {
       usernameLabel.textContent = "الزائر";
       userImage.src = "https://via.placeholder.com/35";
       loginBox.style.display = "block";
-      postBox.style.display = "none";
+      newPostBox.style.display = "none";
       logoutBtn.style.display = "none";
     }
   }
 
-  // === معاينة صورة البروفايل فور اختيارها ===
-  document.getElementById("profileImageInput").addEventListener("change", function() {
-    const file = this.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const preview = document.getElementById("profilePreview");
-        preview.src = e.target.result;
-        preview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
   // === تسجيل الدخول ===
-  document.getElementById("loginBtn").addEventListener("click", () => {
+  document.getElementById("loginBtn").onclick = function() {
     const name = document.getElementById("usernameInput").value.trim();
     const file = document.getElementById("profileImageInput").files[0];
-    if (!name) return alert("يرجى إدخال اسم المستخدم");
+    if (!name) return alert("الرجاء إدخال اسم المستخدم");
 
-    // إنشاء المستخدم بعد التأكد من الصورة
-    const finalizeLogin = (imageURL) => {
-      currentUser = { name, image: imageURL || "https://via.placeholder.com/35" };
+    const saveUser = (img) => {
+      currentUser = { name, image: img || "https://via.placeholder.com/35" };
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      updateUserUI();
+      updateUI();
     };
 
     if (file) {
       const reader = new FileReader();
-      reader.onload = e => finalizeLogin(e.target.result);
+      reader.onload = e => saveUser(e.target.result);
       reader.readAsDataURL(file);
-    } else {
-      finalizeLogin();
-    }
-  });
+    } else saveUser();
+  };
 
-  // === زر الخروج ===
-  document.getElementById("logoutBtn").addEventListener("click", () => {
+  document.getElementById("logoutBtn").onclick = function() {
     localStorage.removeItem("currentUser");
     currentUser = null;
-    updateUserUI();
-  });
+    updateUI();
+  };
 
-  // === إنشاء منشور ===
-  document.getElementById("createBtn").addEventListener("click", () => {
-    if (!currentUser) return alert("يرجى تسجيل الدخول أولاً");
+  // === نشر منشور ===
+  document.getElementById("createBtn").onclick = function() {
+    if (!currentUser) return alert("سجّل الدخول أولاً");
     const title = document.getElementById("postTitle").value.trim();
     const desc = document.getElementById("postDescription").value.trim();
     const file = document.getElementById("postImage").files[0];
-    if (!title || !desc) return alert("يرجى إدخال عنوان ووصف المنشور");
+    if (!title || !desc) return alert("يرجى إدخال عنوان ووصف");
 
-    const finalizePost = (imageURL) => {
+    const finalizePost = (image) => {
       const id = "post-" + Date.now();
       const newPost = {
-        id,
+        id, title, desc,
+        image: image || "",
         user: currentUser.name,
         userImage: currentUser.image,
-        title,
-        desc,
-        image: imageURL || "",
-        likes: [],
-        comments: [],
-        rating: 0,
-        ratingCount: 0,
-        followers: [],
+        likes: [], comments: [], rating: 0, ratingCount: 0, followers: [],
         link: location.origin + "/#" + id
       };
       posts.unshift(newPost);
@@ -195,23 +149,22 @@
       document.getElementById("postTitle").value = "";
       document.getElementById("postDescription").value = "";
       document.getElementById("postImage").value = "";
+      alert("✅ تم نشر المنشور بنجاح!");
     };
 
     if (file) {
       const reader = new FileReader();
       reader.onload = e => finalizePost(e.target.result);
       reader.readAsDataURL(file);
-    } else {
-      finalizePost("");
-    }
-  });
+    } else finalizePost("");
+  };
 
   // === عرض المنشورات ===
   function renderPosts() {
     const container = document.getElementById("posts");
     container.innerHTML = "";
     posts.forEach(post => {
-      const avgRating = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
+      const avg = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
       const div = document.createElement("div");
       div.className = "post";
       div.innerHTML = `
@@ -220,8 +173,8 @@
           <strong>${post.user}</strong>
           ${
             currentUser && post.user !== currentUser.name
-              ? `<button onclick="followUser('${post.id}')">متابعة (${post.followers.length})</button>`
-              : `<span style="color:#777;">المتابعون: ${post.followers.length}</span>`
+            ? `<button onclick="followUser('${post.id}')">متابعة (${post.followers.length})</button>`
+            : `<span style="color:#777;">المتابعون: ${post.followers.length}</span>`
           }
         </div>
         <h3>${post.title}</h3>
@@ -230,10 +183,9 @@
         <div class="actions">
           <button onclick="likePost('${post.id}')">❤️ ${post.likes.length}</button>
           <button onclick="copyLink('${post.id}')">🔗 نسخ الرابط</button>
-          <button onclick="toggleLink('${post.id}')">👁️ عرض الرابط</button>
         </div>
-        <div class="rating" id="rating-${post.id}">
-          ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})" class="${i <= avgRating ? 'active' : ''}">&#9733;</span>`).join("")}
+        <div class="rating">
+          ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})" class="${i<=avg?'active':''}">&#9733;</span>`).join("")}
         </div>
         <div class="comment-box">
           <input type="text" id="comment-${post.id}" placeholder="أضف تعليقًا...">
@@ -242,18 +194,17 @@
         <div class="comments">
           ${post.comments.map(c => `<p><strong>${c.user}</strong>: ${c.text}</p>`).join("")}
         </div>
-        <div class="hidden-link" id="link-${post.id}">${post.link}</div>
       `;
       container.appendChild(div);
     });
   }
 
+  // === التفاعلات ===
   function likePost(id) {
     if (!currentUser) return alert("سجّل الدخول أولاً");
     const post = posts.find(p => p.id === id);
-    const idx = post.likes.indexOf(currentUser.name);
-    if (idx === -1) post.likes.push(currentUser.name);
-    else post.likes.splice(idx, 1);
+    const i = post.likes.indexOf(currentUser.name);
+    if (i === -1) post.likes.push(currentUser.name); else post.likes.splice(i, 1);
     localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
@@ -264,27 +215,24 @@
     if (!text || !currentUser) return;
     const post = posts.find(p => p.id === id);
     post.comments.push({ user: currentUser.name, text });
-    input.value = "";
     localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
-  function ratePost(id, value) {
+  function ratePost(id, stars) {
     const post = posts.find(p => p.id === id);
-    post.rating += value;
+    post.rating += stars;
     post.ratingCount++;
     localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
 
   function followUser(id) {
-    if (!currentUser) return alert("سجّل الدخول أولاً");
     const post = posts.find(p => p.id === id);
-    if (!post.followers.includes(currentUser.name)) {
-      post.followers.push(currentUser.name);
-    } else {
+    if (!currentUser) return alert("سجّل الدخول أولاً");
+    if (post.followers.includes(currentUser.name))
       post.followers = post.followers.filter(f => f !== currentUser.name);
-    }
+    else post.followers.push(currentUser.name);
     localStorage.setItem("posts", JSON.stringify(posts));
     renderPosts();
   }
@@ -295,13 +243,7 @@
     alert("تم نسخ الرابط!");
   }
 
-  function toggleLink(id) {
-    const el = document.getElementById(`link-${id}`);
-    el.style.display = el.style.display === "none" || !el.style.display ? "block" : "none";
-  }
-
-  // === تحميل أولي للواجهة ===
-  updateUserUI();
+  updateUI();
   renderPosts();
 </script>
 
