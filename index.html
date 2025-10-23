@@ -91,6 +91,21 @@ function ShopHubContent() {
     });
   };
 
+  const handleCopy = (postId: string) => {
+    setPosts(
+      posts.map((post) => {
+        if (post.id === postId) {
+          return { ...post, copies: post.copies + 1 };
+        }
+        return post;
+      })
+    );
+
+    toast({
+      description: 'Link copied to clipboard!',
+    });
+  };
+
   const handleRate = (postId: string, userId: string, rating: number) => {
     setPosts(
       posts.map((post) => {
@@ -107,6 +122,42 @@ function ShopHubContent() {
 
     toast({
       description: `You rated this product ${rating} stars.`,
+    });
+  };
+
+  const handleFollow = (postUserId: string, currentUserId: string) => {
+    setPosts(
+      posts.map((post) => {
+        if (post.userId === postUserId) {
+          return {
+            ...post,
+            userFollowers: [...post.userFollowers, currentUserId],
+          };
+        }
+        return post;
+      })
+    );
+
+    toast({
+      description: 'You are now following this user.',
+    });
+  };
+
+  const handleUnfollow = (postUserId: string, currentUserId: string) => {
+    setPosts(
+      posts.map((post) => {
+        if (post.userId === postUserId) {
+          return {
+            ...post,
+            userFollowers: post.userFollowers.filter((id) => id !== currentUserId),
+          };
+        }
+        return post;
+      })
+    );
+
+    toast({
+      description: 'You unfollowed this user.',
     });
   };
 
@@ -150,7 +201,10 @@ function ShopHubContent() {
           onLike={handleLike}
           onComment={handleComment}
           onShare={handleShare}
+          onCopy={handleCopy}
           onRate={handleRate}
+          onFollow={handleFollow}
+          onUnfollow={handleUnfollow}
         />
       </main>
 
