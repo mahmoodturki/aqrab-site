@@ -1,224 +1,1556 @@
-'use client';
-
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Toaster } from '@/components/ui/toaster';
-import { useToast } from '@/hooks/use-toast';
-import { AuthProvider, useAuth } from '@/contexts/auth-context';
-import { LoginDialog } from '@/components/auth/login-dialog';
-import { ProfileMenu } from '@/components/profile/profile-menu';
-import { CreatePostDialog } from '@/components/post/create-post-dialog';
-import { Feed } from '@/components/feed/feed';
-import { AdBanner } from '@/components/ads/ad-banner';
-import { VisitorCounter } from '@/components/stats/visitor-counter';
-import { ProductPost, Comment } from '@/types';
-import { useData } from '@uibakery/data';
-
-function ShopHubContent() {
-  const { currentUser, isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  const initialPosts = useData('posts', []) as ProductPost[];
-  const [posts, setPosts] = useState<ProductPost[]>(initialPosts);
-
-  const handleCreatePost = (newPost: ProductPost) => {
-    setPosts([newPost, ...posts]);
-    toast({
-      title: 'Post created!',
-      description: 'Your product has been shared successfully.',
-    });
-  };
-
-  const handleLike = (postId: string, userId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          const likes = post.likes.includes(userId)
-            ? post.likes.filter((id) => id !== userId)
-            : [...post.likes, userId];
-          return { ...post, likes };
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopHub - منصة عرض المنتجات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --error: #ef4444;
+            --success: #10b981;
         }
-        return post;
-      })
-    );
-  };
 
-  const handleComment = (
-    postId: string,
-    userId: string,
-    username: string,
-    userProfileImage: string,
-    text: string
-  ) => {
-    if (!currentUser) return;
-
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      userId,
-      username: currentUser.username,
-      userProfileImage: currentUser.profileImage,
-      text,
-      createdAt: new Date().toISOString(),
-    };
-
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          return { ...post, comments: [...post.comments, newComment] };
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        return post;
-      })
-    );
 
-    toast({
-      description: 'Comment added successfully.',
-    });
-  };
-
-  const handleShare = (postId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          return { ...post, shares: post.shares + 1 };
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
         }
-        return post;
-      })
-    );
 
-    toast({
-      title: 'Post shared!',
-      description: 'The post has been shared.',
-    });
-  };
-
-  const handleCopy = (postId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          return { ...post, copies: post.copies + 1 };
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        return post;
-      })
-    );
 
-    toast({
-      description: 'Link copied to clipboard!',
-    });
-  };
-
-  const handleRate = (postId: string, userId: string, rating: number) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            rating: post.rating + rating,
-            ratingCount: post.ratingCount + 1,
-          };
+        /* Header Styles */
+        header {
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        return post;
-      })
-    );
 
-    toast({
-      description: `You rated this product ${rating} stars.`,
-    });
-  };
-
-  const handleFollow = (postUserId: string, currentUserId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.userId === postUserId) {
-          return {
-            ...post,
-            userFollowers: [...post.userFollowers, currentUserId],
-          };
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
         }
-        return post;
-      })
-    );
 
-    toast({
-      description: 'You are now following this user.',
-    });
-  };
-
-  const handleUnfollow = (postUserId: string, currentUserId: string) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.userId === postUserId) {
-          return {
-            ...post,
-            userFollowers: post.userFollowers.filter((id) => id !== currentUserId),
-          };
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
         }
-        return post;
-      })
-    );
 
-    toast({
-      description: 'You unfollowed this user.',
-    });
-  };
+        .logo i {
+            font-size: 28px;
+        }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-primary">ShopHub</h1>
-            <VisitorCounter />
-          </div>
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? <ProfileMenu /> : <LoginDialog />}
-          </div>
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .visitor-counter {
+            background-color: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            display: none;
+            z-index: 10;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--background);
+        }
+
+        /* Ad Banner */
+        .ad-banner {
+            width: 100%;
+            text-align: center;
+            background-color: #f1f5f9;
+            padding: 10px 0;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 30px 0;
+        }
+
+        .welcome-card {
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .create-post-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .create-post-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .separator {
+            height: 1px;
+            background-color: var(--border);
+            margin: 25px 0;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--card);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .image-upload {
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary);
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid var(--border);
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Feed Styles */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            gap: 12px;
+        }
+
+        .post-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .post-date {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .follow-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .follow-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .post-content {
+            padding: 0 20px 15px;
+        }
+
+        .post-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .post-description {
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+
+        .post-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            max-height: 300px;
+        }
+
+        .post-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            border-top: 1px solid var(--border);
+        }
+
+        .post-action {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: var(--text-light);
+        }
+
+        .post-action:hover {
+            background-color: var(--background);
+            color: var(--text);
+        }
+
+        .post-action.active {
+            color: var(--primary);
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .star {
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 20px;
+            transition: color 0.2s;
+        }
+
+        .star.active {
+            color: var(--accent);
+        }
+
+        .post-link {
+            display: block;
+            margin-top: 10px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .comments-section {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .comments-section.show {
+            display: block;
+        }
+
+        .comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .comment-username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .add-comment {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .comment-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: var(--card);
+            border-radius: 8px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .toast-icon {
+            font-size: 18px;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--error);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .toast-description {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                height: auto;
+                padding: 15px 0;
+                gap: 15px;
+            }
+
+            .post-actions {
+                flex-wrap: wrap;
+            }
+
+            .post-action {
+                flex: 0 0 33.33%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>ShopHub</span>
+                </div>
+                <div class="user-section">
+                    <div class="visitor-counter">
+                        <i class="fas fa-eye"></i>
+                        <span id="visit-count">0</span> زائر
+                    </div>
+                    <div id="user-info" style="display: none;">
+                        <div class="user-menu">
+                            <div class="user-avatar" id="user-avatar"></div>
+                            <div class="dropdown-menu" id="user-dropdown">
+                                <div class="dropdown-item" id="logout-btn">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    تسجيل الخروج
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="login-btn">
+                        <i class="fas fa-user"></i>
+                        تسجيل الدخول
+                    </button>
+                </div>
+            </div>
         </div>
-      </header>
+    </header>
 
-      <AdBanner position="top" />
-
-      <main className="container max-w-2xl py-6 px-4">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-2xl">Welcome to ShopHub</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 pt-0">
-            {isAuthenticated ? (
-              <CreatePostDialog onCreatePost={handleCreatePost} />
-            ) : (
-              <p className="text-muted-foreground">
-                Login to share your products with the community
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Separator className="my-6" />
-
-        <Feed
-          posts={posts}
-          currentUserId={currentUser?.id}
-          onLike={handleLike}
-          onComment={handleComment}
-          onShare={handleShare}
-          onCopy={handleCopy}
-          onRate={handleRate}
-          onFollow={handleFollow}
-          onUnfollow={handleUnfollow}
-        />
-      </main>
-
-      <Toaster />
+    <!-- Ad Banner Top -->
+    <div class="container">
+        <div class="ad-banner" id="ad-top">
+            <!-- سيتم إضافة الإعلان هنا ديناميكياً -->
+        </div>
     </div>
-  );
-}
 
-function App() {
-  return (
-    <AuthProvider>
-      <ShopHubContent />
-    </AuthProvider>
-  );
-}
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="card-header">
+                <h2 class="card-title">مرحباً بك في ShopHub</h2>
+            </div>
+            <div class="card-content">
+                <div id="auth-content">
+                    <!-- سيتم تعديل المحتوى بناءً على حالة المستخدم -->
+                </div>
+            </div>
+        </div>
 
-export default App;
+        <div class="separator"></div>
+
+        <!-- Feed -->
+        <div class="feed" id="posts-feed">
+            <!-- سيتم إضافة المنشورات هنا ديناميكياً -->
+        </div>
+
+        <!-- Ad Banner Middle -->
+        <div class="ad-banner" id="ad-middle">
+            <!-- سيتم إضافة الإعلان هنا ديناميكياً -->
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">تسجيل الدخول</h3>
+                <button class="close-btn" id="close-login-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" class="form-input" id="login-username" placeholder="أدخل اسم المستخدم">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">صورة البروفايل</label>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="avatar-preview"></div>
+                        <input type="file" id="avatar-upload" accept="image/*">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-login">إلغاء</button>
+                <button class="btn btn-primary" id="submit-login">تسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Post Modal -->
+    <div class="modal" id="create-post-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">إضافة منتج جديد</h3>
+                <button class="close-btn" id="close-post-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="post-form">
+                    <div class="form-group">
+                        <label class="form-label">اسم المنتج</label>
+                        <input type="text" class="form-input" id="product-name" placeholder="أدخل اسم المنتج" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">وصف المنتج</label>
+                        <textarea class="form-textarea" id="product-description" placeholder="أدخل وصف المنتج" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">صور المنتج</label>
+                        <div class="image-upload" id="image-upload-area">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px; color: #64748b;"></i>
+                            <p>انقر لرفع الصور أو اسحبها هنا</p>
+                            <input type="file" id="product-images" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div class="image-preview" id="image-preview"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-post">إلغاء</button>
+                <button class="btn btn-primary" id="submit-post">نشر المنتج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Ad Scripts -->
+    <script type="text/javascript">
+        // إعلان أعلى الصفحة
+        var adTop = document.getElementById('ad-top');
+        var adScript1 = document.createElement('script');
+        adScript1.innerHTML = `
+            atOptions = {
+                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        `;
+        adTop.appendChild(adScript1);
+        
+        var adScript2 = document.createElement('script');
+        adScript2.src = "//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js";
+        adTop.appendChild(adScript2);
+
+        // إعلان وسط الصفحة
+        var adMiddle = document.getElementById('ad-middle');
+        var adScript3 = document.createElement('script');
+        adScript3.innerHTML = `
+            atOptions = {
+                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        `;
+        adMiddle.appendChild(adScript3);
+        
+        var adScript4 = document.createElement('script');
+        adScript4.src = "//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js";
+        adMiddle.appendChild(adScript4);
+    </script>
+
+    <script>
+        // البيانات والمتغيرات
+        let currentUser = null;
+        let posts = JSON.parse(localStorage.getItem('shopHubPosts')) || [];
+        let visitCount = parseInt(localStorage.getItem('shopHubVisitCount')) || 0;
+
+        // عناصر DOM
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginModal = document.getElementById('login-modal');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const cancelLogin = document.getElementById('cancel-login');
+        const submitLogin = document.getElementById('submit-login');
+        const userInfo = document.getElementById('user-info');
+        const userAvatar = document.getElementById('user-avatar');
+        const userDropdown = document.getElementById('user-dropdown');
+        const authContent = document.getElementById('auth-content');
+        const createPostModal = document.getElementById('create-post-modal');
+        const closePostModal = document.getElementById('close-post-modal');
+        const cancelPost = document.getElementById('cancel-post');
+        const submitPost = document.getElementById('submit-post');
+        const postForm = document.getElementById('post-form');
+        const postsFeed = document.getElementById('posts-feed');
+        const visitCountSpan = document.getElementById('visit-count');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const imageUploadArea = document.getElementById('image-upload-area');
+        const productImagesInput = document.getElementById('product-images');
+        const imagePreview = document.getElementById('image-preview');
+        const toastContainer = document.getElementById('toast-container');
+
+        // زيادة عدد الزيارات
+        visitCount++;
+        localStorage.setItem('shopHubVisitCount', visitCount);
+        visitCountSpan.textContent = visitCount;
+
+        // وظائف المساعدة
+        function showToast(title, description, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // إضافة الحدث لإغلاق التنبيه
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', () => {
+                toast.remove();
+            });
+            
+            // إزالة التنبيه تلقائياً بعد 5 ثواني
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        function openModal(modal) {
+            modal.classList.add('show');
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('show');
+        }
+
+        function checkUserStatus() {
+            const savedUser = localStorage.getItem('shopHubCurrentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showUserInfo();
+            } else {
+                showLoginPrompt();
+            }
+        }
+
+        function showUserInfo() {
+            loginBtn.style.display = 'none';
+            userInfo.style.display = 'block';
+            
+            if (currentUser.avatar) {
+                userAvatar.style.backgroundImage = `url(${currentUser.avatar})`;
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.style.backgroundImage = 'none';
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+            }
+            
+            // تحديث محتوى قسم المصادقة
+            authContent.innerHTML = `
+                <button class="create-post-btn" id="open-post-modal">
+                    <i class="fas fa-plus"></i>
+                    إضافة منتج جديد
+                </button>
+            `;
+            
+            // إضافة حدث لفتح نافذة إنشاء المنشور
+            document.getElementById('open-post-modal').addEventListener('click', () => {
+                openModal(createPostModal);
+            });
+        }
+
+        function showLoginPrompt() {
+            authContent.innerHTML = `
+                <p style="color: var(--text-light); text-align: center;">
+                    سجل الدخول لمشاركة منتجاتك مع المجتمع
+                </p>
+            `;
+        }
+
+        function hideUserInfo() {
+            loginBtn.style.display = 'block';
+            userInfo.style.display = 'none';
+            currentUser = null;
+            localStorage.removeItem('shopHubCurrentUser');
+            showLoginPrompt();
+        }
+
+        function login() {
+            const username = document.getElementById('login-username').value;
+            
+            if (!username) {
+                showToast('خطأ', 'يرجى إدخال اسم المستخدم', 'error');
+                return;
+            }
+            
+            currentUser = {
+                id: Date.now().toString(),
+                username: username,
+                avatar: avatarPreview.style.backgroundImage || null
+            };
+            
+            localStorage.setItem('shopHubCurrentUser', JSON.stringify(currentUser));
+            showUserInfo();
+            closeModal(loginModal);
+            showToast('تم تسجيل الدخول', `مرحباً ${username}!`);
+            
+            // إعادة تعيين الحقول
+            document.getElementById('login-username').value = '';
+            avatarPreview.style.backgroundImage = '';
+            avatarUpload.value = '';
+        }
+
+        function logout() {
+            hideUserInfo();
+            showToast('تم تسجيل الخروج', 'تم تسجيل خروجك بنجاح');
+            userDropdown.classList.remove('show');
+        }
+
+        function createPost() {
+            const productName = document.getElementById('product-name').value;
+            const productDescription = document.getElementById('product-description').value;
+            const productImages = document.getElementById('product-images').files;
+            
+            if (!productName || !productDescription) {
+                showToast('خطأ', 'يرجى ملء جميع الحقول المطلوبة', 'error');
+                return;
+            }
+            
+            // تحويل الصور إلى base64
+            const images = [];
+            const readers = [];
+            
+            if (productImages.length > 0) {
+                for (let i = 0; i < productImages.length; i++) {
+                    const reader = new FileReader();
+                    readers.push(reader);
+                    
+                    reader.onload = function(e) {
+                        images.push(e.target.result);
+                        
+                        // إذا انتهينا من قراءة جميع الصور، ننشئ المنشور
+                        if (images.length === productImages.length) {
+                            savePost(productName, productDescription, images);
+                        }
+                    }
+                    
+                    reader.readAsDataURL(productImages[i]);
+                }
+            } else {
+                savePost(productName, productDescription, []);
+            }
+        }
+
+        function savePost(name, description, images) {
+            const newPost = {
+                id: Date.now().toString(),
+                productName: name,
+                description: description,
+                images: images,
+                userId: currentUser.id,
+                username: currentUser.username,
+                userAvatar: currentUser.avatar,
+                likes: [],
+                comments: [],
+                shares: 0,
+                copies: 0,
+                rating: 0,
+                ratingCount: 0,
+                userFollowers: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            posts.unshift(newPost);
+            localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+            renderPosts();
+            closeModal(createPostModal);
+            showToast('تم النشر', 'تم نشر منتجك بنجاح');
+            
+            // إعادة تعيين النموذج
+            postForm.reset();
+            imagePreview.innerHTML = '';
+        }
+
+        function renderPosts() {
+            postsFeed.innerHTML = '';
+            
+            if (posts.length === 0) {
+                postsFeed.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-box-open" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <p>لا توجد منتجات معروضة بعد. كن أول من يعرض منتجه!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            posts.forEach(post => {
+                const postElement = createPostElement(post);
+                postsFeed.appendChild(postElement);
+            });
+        }
+
+        function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post-card';
+            postDiv.dataset.id = post.id;
+            
+            const isLiked = currentUser && post.likes.includes(currentUser.id);
+            const isFollowing = currentUser && post.userFollowers.includes(currentUser.id);
+            const userRating = 0; // في تطبيق حقيقي، سيتم تخزين تقييم كل مستخدم
+            
+            // رأس المنشور
+            const postHeader = document.createElement('div');
+            postHeader.className = 'post-header';
+            
+            const userAvatar = document.createElement('div');
+            userAvatar.className = 'post-user-avatar';
+            
+            if (post.userAvatar) {
+                userAvatar.style.backgroundImage = post.userAvatar;
+            } else {
+                userAvatar.textContent = post.username.charAt(0).toUpperCase();
+            }
+            
+            const userInfo = document.createElement('div');
+            userInfo.className = 'post-user-info';
+            
+            const userName = document.createElement('div');
+            userName.className = 'post-username';
+            userName.textContent = post.username;
+            
+            const postDate = document.createElement('div');
+            postDate.className = 'post-date';
+            postDate.textContent = new Date(post.createdAt).toLocaleDateString('ar-SA');
+            
+            userInfo.appendChild(userName);
+            userInfo.appendChild(postDate);
+            
+            const followBtn = document.createElement('button');
+            followBtn.className = 'follow-btn';
+            followBtn.textContent = isFollowing ? 'ملغي المتابعة' : 'متابعة';
+            followBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showToast('خطأ', 'يجب تسجيل الدخول أولاً', 'error');
+                    return;
+                }
+                
+                if (isFollowing) {
+                    handleUnfollow(post.userId, currentUser.id);
+                    followBtn.textContent = 'متابعة';
+                } else {
+                    handleFollow(post.userId, currentUser.id);
+                    followBtn.textContent = 'ملغي المتابعة';
+                }
+            });
+            
+            postHeader.appendChild(userAvatar);
+            postHeader.appendChild(userInfo);
+            if (currentUser && post.userId !== currentUser.id) {
+                postHeader.appendChild(followBtn);
+            }
+            
+            // محتوى المنشور
+            const postContent = document.createElement('div');
+            postContent.className = 'post-content';
+            
+            const postTitle = document.createElement('h3');
+            postTitle.className = 'post-title';
+            postTitle.textContent = post.productName;
+            
+            const postDescription = document.createElement('p');
+            postDescription.className = 'post-description';
+            postDescription.textContent = post.description;
+            
+            postContent.appendChild(postTitle);
+            postContent.appendChild(postDescription);
+            
+            // صور المنتج
+            if (post.images && post.images.length > 0) {
+                const postImages = document.createElement('div');
+                postImages.className = 'post-images';
+                
+                post.images.forEach(imageSrc => {
+                    const img = document.createElement('img');
+                    img.src = imageSrc;
+                    img.className = 'post-image';
+                    postImages.appendChild(img);
+                });
+                
+                postContent.appendChild(postImages);
+            }
+            
+            // إحصائيات المنشور
+            const postStats = document.createElement('div');
+            postStats.className = 'post-stats';
+            
+            const likesCount = document.createElement('span');
+            likesCount.textContent = `${post.likes.length} إعجاب`;
+            
+            const commentsCount = document.createElement('span');
+            commentsCount.textContent = `${post.comments.length} تعليق`;
+            
+            const sharesCount = document.createElement('span');
+            sharesCount.textContent = `${post.shares} مشاركة`;
+            
+            postStats.appendChild(likesCount);
+            postStats.appendChild(commentsCount);
+            postStats.appendChild(sharesCount);
+            
+            postContent.appendChild(postStats);
+            
+            // تقييم النجوم
+            const starRating = document.createElement('div');
+            starRating.className = 'star-rating';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star';
+                star.innerHTML = '★';
+                star.dataset.rating = i;
+                
+                if (i <= Math.floor(post.rating)) {
+                    star.classList.add('active');
+                }
+                
+                star.addEventListener('click', () => {
+                    if (!currentUser) {
+                        showToast('خطأ', 'يجب تسجيل الدخول أولاً', 'error');
+                        return;
+                    }
+                    handleRate(post.id, currentUser.id, i);
+                });
+                starRating.appendChild(star);
+            }
+            
+            const ratingText = document.createElement('span');
+            ratingText.textContent = `(${post.ratingCount})`;
+            ratingText.style.marginRight = '10px';
+            starRating.appendChild(ratingText);
+            
+            postContent.appendChild(starRating);
+            
+            // رابط المنشور
+            const postLink = document.createElement('a');
+            postLink.href = `#post-${post.id}`;
+            postLink.className = 'post-link';
+            postLink.textContent = 'رابط المنشور';
+            postLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleCopy(post.id);
+            });
+            postContent.appendChild(postLink);
+            
+            // أزرار التفاعل
+            const postActions = document.createElement('div');
+            postActions.className = 'post-actions';
+            
+            const likeBtn = document.createElement('div');
+            likeBtn.className = `post-action ${isLiked ? 'active' : ''}`;
+            likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> إعجاب`;
+            likeBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showToast('خطأ', 'يجب تسجيل الدخول أولاً', 'error');
+                    return;
+                }
+                handleLike(post.id, currentUser.id);
+                likeBtn.classList.toggle('active');
+            });
+            
+            const commentBtn = document.createElement('div');
+            commentBtn.className = 'post-action';
+            commentBtn.innerHTML = `<i class="fas fa-comment"></i> تعليق`;
+            commentBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showToast('خطأ', 'يجب تسجيل الدخول أولاً', 'error');
+                    return;
+                }
+                toggleComments(post.id);
+            });
+            
+            const shareBtn = document.createElement('div');
+            shareBtn.className = 'post-action';
+            shareBtn.innerHTML = `<i class="fas fa-share"></i> مشاركة`;
+            shareBtn.addEventListener('click', () => {
+                if (!currentUser) {
+                    showToast('خطأ', 'يجب تسجيل الدخول أولاً', 'error');
+                    return;
+                }
+                handleShare(post.id);
+            });
+            
+            postActions.appendChild(likeBtn);
+            postActions.appendChild(commentBtn);
+            postActions.appendChild(shareBtn);
+            
+            // قسم التعليقات
+            const commentsSection = document.createElement('div');
+            commentsSection.className = 'comments-section';
+            commentsSection.id = `comments-${post.id}`;
+            
+            // عرض التعليقات الحالية
+            post.comments.forEach(comment => {
+                const commentElement = createCommentElement(comment);
+                commentsSection.appendChild(commentElement);
+            });
+            
+            // إضافة تعليق جديد
+            const addComment = document.createElement('div');
+            addComment.className = 'add-comment';
+            
+            const commentInput = document.createElement('input');
+            commentInput.type = 'text';
+            commentInput.className = 'comment-input';
+            commentInput.placeholder = 'أضف تعليقاً...';
+            
+            const commentBtnInner = document.createElement('button');
+            commentBtnInner.className = 'comment-btn';
+            commentBtnInner.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            commentBtnInner.addEventListener('click', () => {
+                if (!commentInput.value.trim()) return;
+                
+                handleComment(
+                    post.id,
+                    currentUser.id,
+                    currentUser.username,
+                    currentUser.avatar,
+                    commentInput.value
+                );
+                
+                commentInput.value = '';
+            });
+            
+            addComment.appendChild(commentInput);
+            addComment.appendChild(commentBtnInner);
+            commentsSection.appendChild(addComment);
+            
+            // تجميع كل الأجزاء
+            postDiv.appendChild(postHeader);
+            postDiv.appendChild(postContent);
+            postDiv.appendChild(postActions);
+            postDiv.appendChild(commentsSection);
+            
+            return postDiv;
+        }
+
+        function createCommentElement(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment';
+            
+            const commentAvatar = document.createElement('div');
+            commentAvatar.className = 'comment-avatar';
+            
+            if (comment.userProfileImage) {
+                commentAvatar.style.backgroundImage = `url(${comment.userProfileImage})`;
+            } else {
+                commentAvatar.textContent = comment.username.charAt(0).toUpperCase();
+                commentAvatar.style.display = 'flex';
+                commentAvatar.style.alignItems = 'center';
+                commentAvatar.style.justifyContent = 'center';
+                commentAvatar.style.color = 'white';
+                commentAvatar.style.fontWeight = 'bold';
+            }
+            
+            const commentContent = document.createElement('div');
+            commentContent.className = 'comment-content';
+            
+            const commentHeader = document.createElement('div');
+            commentHeader.className = 'comment-header';
+            
+            const commentUsername = document.createElement('div');
+            commentUsername.className = 'comment-username';
+            commentUsername.textContent = comment.username;
+            
+            const commentDate = document.createElement('div');
+            commentDate.className = 'comment-date';
+            commentDate.textContent = new Date(comment.createdAt).toLocaleDateString('ar-SA');
+            
+            commentHeader.appendChild(commentUsername);
+            commentHeader.appendChild(commentDate);
+            
+            const commentText = document.createElement('div');
+            commentText.className = 'comment-text';
+            commentText.textContent = comment.text;
+            
+            commentContent.appendChild(commentHeader);
+            commentContent.appendChild(commentText);
+            
+            commentDiv.appendChild(commentAvatar);
+            commentDiv.appendChild(commentContent);
+            
+            return commentDiv;
+        }
+
+        function toggleComments(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            commentsSection.classList.toggle('show');
+        }
+
+        function handleLike(postId, userId) {
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                if (posts[postIndex].likes.includes(userId)) {
+                    posts[postIndex].likes = posts[postIndex].likes.filter(id => id !== userId);
+                    showToast('تم الإزالة', 'تم إزالة الإعجاب');
+                } else {
+                    posts[postIndex].likes.push(userId);
+                    showToast('تم الإعجاب', 'أعجبت بهذا المنتج');
+                }
+                
+                localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+                renderPosts();
+            }
+        }
+
+        function handleComment(postId, userId, username, userProfileImage, text) {
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                const newComment = {
+                    id: Date.now().toString(),
+                    userId,
+                    username,
+                    userProfileImage,
+                    text,
+                    createdAt: new Date().toISOString()
+                };
+                
+                posts[postIndex].comments.push(newComment);
+                localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+                renderPosts();
+                showToast('تم التعليق', 'تمت إضافة تعليقك');
+            }
+        }
+
+        function handleShare(postId) {
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                posts[postIndex].shares++;
+                localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+                renderPosts();
+                showToast('تمت المشاركة', 'تم مشاركة المنشور');
+            }
+        }
+
+        function handleCopy(postId) {
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                posts[postIndex].copies++;
+                localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+                
+                // نسخ الرابط إلى الحافظة
+                const url = `${window.location.href}#post-${postId}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('تم النسخ', 'تم نسخ الرابط إلى الحافظة');
+                });
+            }
+        }
+
+        function handleRate(postId, userId, rating) {
+            const postIndex = posts.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                // في تطبيق حقيقي، سنحتاج لتخزين تقييم كل مستخدم لمنع التقييم المتعدد
+                const totalRating = posts[postIndex].rating * posts[postIndex].ratingCount;
+                posts[postIndex].ratingCount++;
+                posts[postIndex].rating = (totalRating + rating) / posts[postIndex].ratingCount;
+                
+                localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+                renderPosts();
+                showToast('تم التقييم', `قمت بتقييم المنتج ${rating} نجوم`);
+            }
+        }
+
+        function handleFollow(postUserId, currentUserId) {
+            posts.forEach(post => {
+                if (post.userId === postUserId) {
+                    if (!post.userFollowers.includes(currentUserId)) {
+                        post.userFollowers.push(currentUserId);
+                    }
+                }
+            });
+            
+            localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+            showToast('تم المتابعة', 'أنت الآن تتابع هذا المستخدم');
+        }
+
+        function handleUnfollow(postUserId, currentUserId) {
+            posts.forEach(post => {
+                if (post.userId === postUserId) {
+                    post.userFollowers = post.userFollowers.filter(id => id !== currentUserId);
+                }
+            });
+            
+            localStorage.setItem('shopHubPosts', JSON.stringify(posts));
+            showToast('تم إلغاء المتابعة', 'لم تعد تتابع هذا المستخدم');
+        }
+
+        // الأحداث
+        loginBtn.addEventListener('click', () => openModal(loginModal));
+        closeLoginModal.addEventListener('click', () => closeModal(loginModal));
+        cancelLogin.addEventListener('click', () => closeModal(loginModal));
+        submitLogin.addEventListener('click', login);
+        
+        logoutBtn.addEventListener('click', logout);
+        userAvatar.addEventListener('click', () => {
+            userDropdown.classList.toggle('show');
+        });
+        
+        closePostModal.addEventListener('click', () => closeModal(createPostModal));
+        cancelPost.addEventListener('click', () => closeModal(createPostModal));
+        submitPost.addEventListener('click', createPost);
+        
+        // معاينة صورة البروفايل
+        avatarUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    avatarPreview.style.backgroundImage = `url(${e.target.result})`;
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // معاينة صور المنتج
+        imageUploadArea.addEventListener('click', () => {
+            productImagesInput.click();
+        });
+        
+        productImagesInput.addEventListener('change', function() {
+            imagePreview.innerHTML = '';
+            const files = this.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                    imagePreview.appendChild(img);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // إغلاق النوافذ المنبثقة بالنقر خارجها
+        window.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                closeModal(loginModal);
+            }
+            if (e.target === createPostModal) {
+                closeModal(createPostModal);
+            }
+            if (!e.target.closest('.user-menu')) {
+                userDropdown.classList.remove('show');
+            }
+        });
+
+        // تهيئة التطبيق
+        checkUserStatus();
+        renderPosts();
+    </script>
+</body>
+</html>
