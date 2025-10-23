@@ -40,6 +40,7 @@
     width: 35px;
     height: 35px;
     border-radius: 50%;
+    object-fit: cover;
   }
   main {
     max-width: 750px;
@@ -77,7 +78,13 @@
   }
   .post:last-child { border-bottom: none; }
   .post h3 { margin: 0; color: #111; }
-  .post img { width: 100%; border-radius: 8px; margin: 8px 0; }
+  .post img.post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin: 8px 0;
+    object-fit: cover;
+    max-height: 400px;
+  }
   .actions button {
     background: none;
     border: none;
@@ -101,6 +108,14 @@
   }
   .comments { margin-top: 10px; }
   .comments p { background: #f2f2f2; padding: 5px; border-radius: 6px; }
+  #profilePreview {
+    display: none;
+    margin-bottom: 10px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
   footer { text-align: center; color: #888; margin: 20px; }
 </style>
 </head>
@@ -120,6 +135,7 @@
   <!-- تسجيل الدخول -->
   <div class="login-box" id="loginBox">
     <h3>تسجيل الدخول</h3>
+    <img id="profilePreview" alt="صورة المعاينة" />
     <input type="text" id="usernameInput" placeholder="أدخل اسم المستخدم" />
     <input type="file" id="profileImageInput" accept="image/*" />
     <button onclick="login()">دخول</button>
@@ -148,6 +164,21 @@
 
   // === تسجيل الدخول ===
   let currentUser = null;
+
+  // معاينة صورة البروفايل مباشرة
+  document.getElementById("profileImageInput").addEventListener("change", function() {
+    const file = this.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const preview = document.getElementById("profilePreview");
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
   function login() {
     const name = document.getElementById("usernameInput").value.trim();
     const file = document.getElementById("profileImageInput").files[0];
@@ -163,7 +194,13 @@
       document.getElementById("logoutBtn").style.display = "inline-block";
     };
     if (file) reader.readAsDataURL(file);
-    else reader.onload({ target: { result: "https://via.placeholder.com/35" } });
+    else {
+      currentUser = { name, image: "https://via.placeholder.com/35" };
+      document.getElementById("usernameLabel").textContent = name;
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("newPostBox").style.display = "block";
+      document.getElementById("logoutBtn").style.display = "inline-block";
+    }
   }
 
   // === زر الخروج ===
@@ -195,7 +232,7 @@
         userImage: currentUser.image,
         title,
         desc,
-        image: e.target.result,
+        image: file ? e.target.result : "",
         likes: [],
         comments: [],
         rating: 0,
@@ -219,6 +256,7 @@
     posts.forEach(post => {
       const div = document.createElement("div");
       div.className = "post";
+      const avgRating = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
       div.innerHTML = `
         <div style="display:flex; align-items:center; gap:8px;">
           <img src="${post.userImage}" width="40" height="40" style="border-radius:50%;">
@@ -227,14 +265,14 @@
         </div>
         <h3>${post.title}</h3>
         <p>${post.desc}</p>
-        ${post.image ? `<img src="${post.image}" alt="صورة المنتج" />` : ""}
+        ${post.image ? `<img src="${post.image}" alt="صورة المنتج" class="post-image"/>` : ""}
         <div class="actions">
           <button onclick="likePost('${post.id}')">❤️ ${post.likes.length}</button>
           <button onclick="copyLink('${post.id}')">🔗 نسخ الرابط</button>
           <button onclick="showHiddenLink('${post.id}')">👁️ عرض الرابط</button>
         </div>
-        <div class="rating">
-          ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})">&#9733;</span>`).join("")}
+        <div class="rating" id="rating-${post.id}">
+          ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})" class="${i <= avgRating ? 'active' : ''}">&#9733;</span>`).join("")}
         </div>
         <div class="comment-box">
           <input type="text" id="comment-${post.id}" placeholder="أضف تعليقًا..." />
@@ -283,7 +321,7 @@
     const post = posts.find(p => p.id === id);
     post.rating += value;
     post.ratingCount++;
-    alert(`قيّمت المنتج ${value} نجوم`);
+    renderPosts();
   }
 
   function followUser(id) {
