@@ -1,251 +1,545 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ShopHub - المنصة الاجتماعية</title>
-<style>
-  body {font-family: "Tajawal", sans-serif; background: #f5f5f5; margin: 0; padding: 0;}
-  header {
-    background: #fff; border-bottom: 1px solid #ddd; padding: 10px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 10;
-  }
-  .title {font-size: 22px; font-weight: bold; color: #0070f3;}
-  #visitorCounter {color: #555; font-size: 14px;}
-  #userInfo {display: flex; align-items: center; gap: 10px;}
-  #userInfo img {width: 35px; height: 35px; border-radius: 50%; object-fit: cover;}
-  main {max-width: 750px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);}
-  input[type="text"], input[type="file"], textarea {width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 10px;}
-  button {background-color: #0070f3; color: #fff; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer;}
-  button:hover {background-color: #0059c9;}
-  .login-box, .new-post {margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 8px;}
-  .post {border-bottom: 1px solid #eee; padding: 15px 0;}
-  .post:last-child {border-bottom: none;}
-  .post h3 {margin: 0; color: #111;}
-  .post img.post-image {width: 100%; border-radius: 8px; margin: 8px 0; object-fit: cover; max-height: 400px;}
-  .actions button {background: none; border: none; color: #0070f3; cursor: pointer; margin-inline-end: 10px; font-size: 14px;}
-  .rating span {font-size: 22px; cursor: pointer; color: #ccc;}
-  .rating span.active {color: gold;}
-  .comment-box {margin-top: 8px;}
-  .comments p {background: #f2f2f2; padding: 5px; border-radius: 6px;}
-  #profilePreview {display: none; margin-bottom: 10px; width: 60px; height: 60px; border-radius: 50%; object-fit: cover;}
-  footer {text-align: center; color: #888; margin: 20px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوق العقارات - بيع وإيجار الشقق</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* إعلان أعلى الموقع */
+        .ad-banner {
+            width: 100%;
+            background: #fff;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 2px solid #ddd;
+        }
+
+        /* الهيدر */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* قسم الفلترة */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            margin: 1rem auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        select, input {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .search-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .search-btn:hover {
+            background: #2980b9;
+        }
+
+        /* قسم العقارات */
+        .properties-section {
+            padding: 2rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+            font-size: 2rem;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .property-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .property-details {
+            padding: 1.5rem;
+        }
+
+        .property-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+
+        .property-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature i {
+            color: #3498db;
+        }
+
+        .contact-btn {
+            width: 100%;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+
+        .contact-btn:hover {
+            background: #219a52;
+        }
+
+        /* إعلان أثناء التصفح */
+        .floating-ad {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        /* الفوتر */
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+    </style>
 </head>
 <body>
+    <!-- الإعلان العلوي -->
+    <div class="ad-banner">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+    </div>
 
-<header>
-  <div class="title">ShopHub</div>
-  <div id="visitorCounter">الزيارات: <span id="visitCount">0</span></div>
-  <div id="userInfo">
-    <span id="usernameLabel">الزائر</span>
-    <img id="userImage" src="https://via.placeholder.com/35" alt="صورة المستخدم">
-    <button id="logoutBtn" style="display:none;">خروج</button>
-  </div>
-</header>
+    <!-- الهيدر -->
+    <header>
+        <nav class="container">
+            <div class="logo">سوق العقارات</div>
+            <div class="nav-links">
+                <a href="#sale" class="active">شقق للبيع</a>
+                <a href="#rent">شقق للإيجار</a>
+            </div>
+        </nav>
+    </header>
 
-<main>
-  <div class="login-box" id="loginBox">
-    <h3>تسجيل الدخول</h3>
-    <img id="profilePreview" alt="صورة المعاينة">
-    <input type="text" id="usernameInput" placeholder="اسم المستخدم">
-    <input type="file" id="profileImageInput" accept="image/*">
-    <button id="loginBtn">دخول</button>
-  </div>
-
-  <div class="new-post" id="newPostBox" style="display:none;">
-    <h3>إنشاء منشور جديد</h3>
-    <input type="text" id="postTitle" placeholder="اسم المنتج">
-    <textarea id="postDescription" placeholder="وصف المنتج"></textarea>
-    <input type="file" id="postImage" accept="image/*">
-    <button id="createBtn">نشر</button>
-  </div>
-
-  <div id="posts"></div>
-</main>
-
-<footer>© 2025 ShopHub</footer>
-
-<script>
-  // === عداد الزيارات ===
-  let visits = parseInt(localStorage.getItem("visitCount") || "0");
-  visits++;
-  localStorage.setItem("visitCount", visits);
-  document.getElementById("visitCount").textContent = visits;
-
-  // === تحميل المستخدم والمنشورات ===
-  let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
-  let posts = JSON.parse(localStorage.getItem("posts")) || [];
-
-  function updateUI() {
-    const loginBox = document.getElementById("loginBox");
-    const newPostBox = document.getElementById("newPostBox");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const usernameLabel = document.getElementById("usernameLabel");
-    const userImage = document.getElementById("userImage");
-
-    if (currentUser) {
-      usernameLabel.textContent = currentUser.name;
-      userImage.src = currentUser.image;
-      loginBox.style.display = "none";
-      newPostBox.style.display = "block";
-      logoutBtn.style.display = "inline-block";
-    } else {
-      usernameLabel.textContent = "الزائر";
-      userImage.src = "https://via.placeholder.com/35";
-      loginBox.style.display = "block";
-      newPostBox.style.display = "none";
-      logoutBtn.style.display = "none";
-    }
-  }
-
-  // === تسجيل الدخول ===
-  document.getElementById("loginBtn").onclick = function() {
-    const name = document.getElementById("usernameInput").value.trim();
-    const file = document.getElementById("profileImageInput").files[0];
-    if (!name) return alert("الرجاء إدخال اسم المستخدم");
-
-    const saveUser = (img) => {
-      currentUser = { name, image: img || "https://via.placeholder.com/35" };
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-      updateUI();
-    };
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => saveUser(e.target.result);
-      reader.readAsDataURL(file);
-    } else saveUser();
-  };
-
-  document.getElementById("logoutBtn").onclick = function() {
-    localStorage.removeItem("currentUser");
-    currentUser = null;
-    updateUI();
-  };
-
-  // === نشر منشور ===
-  document.getElementById("createBtn").onclick = function() {
-    if (!currentUser) return alert("سجّل الدخول أولاً");
-    const title = document.getElementById("postTitle").value.trim();
-    const desc = document.getElementById("postDescription").value.trim();
-    const file = document.getElementById("postImage").files[0];
-    if (!title || !desc) return alert("يرجى إدخال عنوان ووصف");
-
-    const finalizePost = (image) => {
-      const id = "post-" + Date.now();
-      const newPost = {
-        id, title, desc,
-        image: image || "",
-        user: currentUser.name,
-        userImage: currentUser.image,
-        likes: [], comments: [], rating: 0, ratingCount: 0, followers: [],
-        link: location.origin + "/#" + id
-      };
-      posts.unshift(newPost);
-      localStorage.setItem("posts", JSON.stringify(posts));
-      renderPosts();
-      document.getElementById("postTitle").value = "";
-      document.getElementById("postDescription").value = "";
-      document.getElementById("postImage").value = "";
-      alert("✅ تم نشر المنشور بنجاح!");
-    };
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = e => finalizePost(e.target.result);
-      reader.readAsDataURL(file);
-    } else finalizePost("");
-  };
-
-  // === عرض المنشورات ===
-  function renderPosts() {
-    const container = document.getElementById("posts");
-    container.innerHTML = "";
-    posts.forEach(post => {
-      const avg = post.ratingCount ? Math.round(post.rating / post.ratingCount) : 0;
-      const div = document.createElement("div");
-      div.className = "post";
-      div.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <img src="${post.userImage}" width="40" height="40" style="border-radius:50%;">
-          <strong>${post.user}</strong>
-          ${
-            currentUser && post.user !== currentUser.name
-            ? `<button onclick="followUser('${post.id}')">متابعة (${post.followers.length})</button>`
-            : `<span style="color:#777;">المتابعون: ${post.followers.length}</span>`
-          }
+    <!-- قسم الفلترة -->
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>البلد</label>
+                    <select id="country">
+                        <option value="">اختر البلد</option>
+                        <option value="الكويت">الكويت</option>
+                        <option value="السعودية">السعودية</option>
+                        <option value="الإمارات">الإمارات</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>المدينة</label>
+                    <select id="city">
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>الحي السكني</label>
+                    <select id="neighborhood">
+                        <option value="">اختر الحي</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>عدد الغرف</label>
+                    <select id="bedrooms">
+                        <option value="">جميع الغرف</option>
+                        <option value="1">غرفة واحدة</option>
+                        <option value="2">غرفتين</option>
+                        <option value="3">3 غرف</option>
+                        <option value="4">4 غرف</option>
+                        <option value="5">5+ غرف</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>السعر من</label>
+                    <input type="number" id="minPrice" placeholder="أدنى سعر">
+                </div>
+                <div class="filter-group">
+                    <label>السعر إلى</label>
+                    <input type="number" id="maxPrice" placeholder="أعلى سعر">
+                </div>
+            </div>
+            <button class="search-btn">بحث</button>
         </div>
-        <h3>${post.title}</h3>
-        <p>${post.desc}</p>
-        ${post.image ? `<img src="${post.image}" alt="صورة المنتج" class="post-image">` : ""}
-        <div class="actions">
-          <button onclick="likePost('${post.id}')">❤️ ${post.likes.length}</button>
-          <button onclick="copyLink('${post.id}')">🔗 نسخ الرابط</button>
+    </div>
+
+    <!-- قسم شقق للبيع -->
+    <section id="sale" class="properties-section">
+        <div class="container">
+            <h2 class="section-title">شقق للبيع</h2>
+            <div class="properties-grid" id="saleProperties">
+                <!-- سيتم إضافة الشقق للبيع هنا بواسطة JavaScript -->
+            </div>
         </div>
-        <div class="rating">
-          ${[1,2,3,4,5].map(i => `<span onclick="ratePost('${post.id}',${i})" class="${i<=avg?'active':''}">&#9733;</span>`).join("")}
+    </section>
+
+    <!-- قسم شقق للإيجار -->
+    <section id="rent" class="properties-section" style="background: #f8f9fa;">
+        <div class="container">
+            <h2 class="section-title">شقق للإيجار</h2>
+            <div class="properties-grid" id="rentProperties">
+                <!-- سيتم إضافة الشقق للإيجار هنا بواسطة JavaScript -->
+            </div>
         </div>
-        <div class="comment-box">
-          <input type="text" id="comment-${post.id}" placeholder="أضف تعليقًا...">
-          <button onclick="addComment('${post.id}')">إرسال</button>
+    </section>
+
+    <!-- إعلان عائم -->
+    <div class="floating-ad">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+    </div>
+
+    <!-- الفوتر -->
+    <footer>
+        <div class="container">
+            <p>© 2024 سوق العقارات. جميع الحقوق محفوظة</p>
         </div>
-        <div class="comments">
-          ${post.comments.map(c => `<p><strong>${c.user}</strong>: ${c.text}</p>`).join("")}
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
+    </footer>
 
-  // === التفاعلات ===
-  function likePost(id) {
-    if (!currentUser) return alert("سجّل الدخول أولاً");
-    const post = posts.find(p => p.id === id);
-    const i = post.likes.indexOf(currentUser.name);
-    if (i === -1) post.likes.push(currentUser.name); else post.likes.splice(i, 1);
-    localStorage.setItem("posts", JSON.stringify(posts));
-    renderPosts();
-  }
+    <script>
+        // بيانات المدن والأحياء
+        const locations = {
+            'الكويت': ['الكويت العاصمة', 'حولي', 'الفروانية', 'الأحمدي', 'الجهراء', 'مبارك الكبير'],
+            'السعودية': ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام', 'الخبر'],
+            'الإمارات': ['دبي', 'أبوظبي', 'الشارقة', 'عجمان', 'العين', 'رأس الخيمة']
+        };
 
-  function addComment(id) {
-    const input = document.getElementById(`comment-${id}`);
-    const text = input.value.trim();
-    if (!text || !currentUser) return;
-    const post = posts.find(p => p.id === id);
-    post.comments.push({ user: currentUser.name, text });
-    localStorage.setItem("posts", JSON.stringify(posts));
-    renderPosts();
-  }
+        const neighborhoods = {
+            'الكويت العاصمة': ['المرقاب', 'القبلة', 'الصوابر', 'الشرق', 'دسمان'],
+            'حولي': ['السالمية', 'الرميثية', 'الشعب', 'بيان', 'مشرف'],
+            'الرياض': ['الملز', 'العليا', 'النسيم', 'الغرير', 'الروضة'],
+            'جدة': ['الشاطئ', 'السلامة', 'الروضة', 'الثغر', 'الزهراء'],
+            'دبي': ['ديرة', 'بر دبي', 'المركز التجاري', 'الخليج التجاري', 'جميرا']
+        };
 
-  function ratePost(id, stars) {
-    const post = posts.find(p => p.id === id);
-    post.rating += stars;
-    post.ratingCount++;
-    localStorage.setItem("posts", JSON.stringify(posts));
-    renderPosts();
-  }
+        // بيانات الشقق (في تطبيق حقيقي ستأتي من قاعدة بيانات)
+        const properties = {
+            sale: [
+                {
+                    id: 1,
+                    title: "شقة فاخرة للبيع",
+                    price: "150,000 د.ك",
+                    image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع",
+                    country: "الكويت",
+                    city: "حولي",
+                    neighborhood: "السالمية",
+                    bedrooms: 3,
+                    floor: 5,
+                    balconies: 2,
+                    bathrooms: 2,
+                    naturalGas: true,
+                    location: "قرب المركز التجاري",
+                    phone: "+965 1234 5678"
+                },
+                {
+                    id: 2,
+                    title: "شقة عائلية للبيع",
+                    price: "200,000 د.ك",
+                    image: "https://via.placeholder.com/400x250/e74c3c/ffffff?text=شقة+عائلية",
+                    country: "الكويت",
+                    city: "الكويت العاصمة",
+                    neighborhood: "الشرق",
+                    bedrooms: 4,
+                    floor: 8,
+                    balconies: 3,
+                    bathrooms: 3,
+                    naturalGas: true,
+                    location: "منطقة هادئة",
+                    phone: "+965 9876 5432"
+                }
+            ],
+            rent: [
+                {
+                    id: 1,
+                    title: "شقة للإيجار الشهري",
+                    price: "500 د.ك/شهر",
+                    image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار",
+                    country: "الكويت",
+                    city: "الفروانية",
+                    neighborhood: "الاندلس",
+                    bedrooms: 2,
+                    floor: 3,
+                    balconies: 1,
+                    bathrooms: 2,
+                    naturalGas: false,
+                    location: "قرب الخدمات",
+                    phone: "+965 5555 1234"
+                },
+                {
+                    id: 2,
+                    title: "شقة راقية للإيجار",
+                    price: "800 د.ك/شهر",
+                    image: "https://via.placeholder.com/400x250/9b59b6/ffffff?text=شقة+راقية",
+                    country: "الكويت",
+                    city: "حولي",
+                    neighborhood: "الرميثية",
+                    bedrooms: 3,
+                    floor: 6,
+                    balconies: 2,
+                    bathrooms: 2,
+                    naturalGas: true,
+                    location: "منطقة سكنية متميزة",
+                    phone: "+965 4444 5678"
+                }
+            ]
+        };
 
-  function followUser(id) {
-    const post = posts.find(p => p.id === id);
-    if (!currentUser) return alert("سجّل الدخول أولاً");
-    if (post.followers.includes(currentUser.name))
-      post.followers = post.followers.filter(f => f !== currentUser.name);
-    else post.followers.push(currentUser.name);
-    localStorage.setItem("posts", JSON.stringify(posts));
-    renderPosts();
-  }
+        // تحديث المدن عند اختيار البلد
+        document.getElementById('country').addEventListener('change', function() {
+            const citySelect = document.getElementById('city');
+            const neighborhoodSelect = document.getElementById('neighborhood');
+            
+            citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+            neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+            
+            if (this.value && locations[this.value]) {
+                locations[this.value].forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+        });
 
-  function copyLink(id) {
-    const post = posts.find(p => p.id === id);
-    navigator.clipboard.writeText(post.link);
-    alert("تم نسخ الرابط!");
-  }
+        // تحديث الأحياء عند اختيار المدينة
+        document.getElementById('city').addEventListener('change', function() {
+            const neighborhoodSelect = document.getElementById('neighborhood');
+            neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+            
+            if (this.value && neighborhoods[this.value]) {
+                neighborhoods[this.value].forEach(neighborhood => {
+                    const option = document.createElement('option');
+                    option.value = neighborhood;
+                    option.textContent = neighborhood;
+                    neighborhoodSelect.appendChild(option);
+                });
+            }
+        });
 
-  updateUI();
-  renderPosts();
-</script>
+        // دالة لعرض العقارات
+        function displayProperties() {
+            const saleContainer = document.getElementById('saleProperties');
+            const rentContainer = document.getElementById('rentProperties');
+            
+            // عرض شقق البيع
+            properties.sale.forEach(property => {
+                saleContainer.appendChild(createPropertyCard(property));
+            });
+            
+            // عرض شقق الإيجار
+            properties.rent.forEach(property => {
+                rentContainer.appendChild(createPropertyCard(property));
+            });
+        }
 
+        // دالة لإنشاء بطاقة عقار
+        function createPropertyCard(property) {
+            const card = document.createElement('div');
+            card.className = 'property-card';
+            
+            card.innerHTML = `
+                <img src="${property.image}" alt="${property.title}" class="property-image">
+                <div class="property-details">
+                    <h3>${property.title}</h3>
+                    <div class="property-price">${property.price}</div>
+                    <div class="property-features">
+                        <div class="feature">
+                            <i>🛏️</i> <span>${property.bedrooms} غرف</span>
+                        </div>
+                        <div class="feature">
+                            <i>🏢</i> <span>الطابق ${property.floor}</span>
+                        </div>
+                        <div class="feature">
+                            <i>🌴</i> <span>${property.balconies} بلكونة</span>
+                        </div>
+                        <div class="feature">
+                            <i>🚿</i> <span>${property.bathrooms} حمام</span>
+                        </div>
+                        <div class="feature">
+                            <i>🔥</i> <span>غاز طبيعي: ${property.naturalGas ? 'نعم' : 'لا'}</span>
+                        </div>
+                        <div class="feature">
+                            <i>📍</i> <span>${property.neighborhood}</span>
+                        </div>
+                    </div>
+                    <div style="margin: 1rem 0; color: #666;">
+                        <strong>الموقع:</strong> ${property.location}
+                    </div>
+                    <button class="contact-btn" onclick="showPhoneNumber('${property.phone}')">
+                        عرض رقم الهاتف
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // دالة لعرض رقم الهاتف
+        function showPhoneNumber(phone) {
+            alert(`رقم الهاتف للتواصل: ${phone}`);
+        }
+
+        // تهيئة الموقع عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            displayProperties();
+            
+            // إضافة فعالية للروابط في الهيدر
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const targetId = this.getAttribute('href');
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
