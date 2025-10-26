@@ -345,39 +345,85 @@
             color: white;
         }
 
-        /* خريطة جوجل */
-        .map-container {
-            height: 300px;
-            margin: 1rem 0;
+        /* رفع الصور */
+        .image-upload-container {
+            border: 2px dashed #ddd;
             border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #ddd;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            cursor: pointer;
         }
 
-        #map {
-            height: 100%;
-            width: 100%;
+        .image-upload-container:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
         }
 
-        .location-search {
-            position: relative;
+        .image-upload-container.dragover {
+            border-color: #27ae60;
+            background: #e8f5e8;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #3498db;
             margin-bottom: 1rem;
         }
 
-        .location-search input {
-            width: 100%;
-            padding-right: 40px;
+        .upload-text {
+            color: #666;
+            margin-bottom: 1rem;
         }
 
-        .location-search-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
+        .browse-btn {
+            background: #3498db;
+            color: white;
             border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
             cursor: pointer;
-            color: #3498db;
+        }
+
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-input {
+            display: none;
         }
 
         /* إعلان أثناء التصفح */
@@ -411,9 +457,17 @@
             color: #666;
             margin-top: 0.5rem;
         }
+
+        /* معاينة الصورة الرئيسية */
+        .main-image-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
     </style>
-    <!-- تحميل خرائط جوجل -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCx6pMXS4oW3O1Xkf5k5w45W0wQ8Q6Q6Q6Q&libraries=places&callback=initMap" async defer></script>
 </head>
 <body>
     <!-- صفحة الاختيار الأولي -->
@@ -480,9 +534,7 @@
                     </div>
                     <div class="filter-group">
                         <label>الحي السكني</label>
-                        <select id="neighborhood">
-                            <option value="">اختر الحي</option>
-                        </select>
+                        <input type="text" id="neighborhoodFilter" placeholder="اسم الحي">
                     </div>
                 </div>
                 <div class="filter-row">
@@ -592,20 +644,25 @@
                     <input type="text" id="addTitle" placeholder="مثال: شقة فاخرة في منطقة..." required>
                 </div>
 
+                <!-- رفع الصور -->
                 <div class="form-group">
-                    <label>موقع العقار على الخريطة *</label>
-                    <div class="location-search">
-                        <input type="text" id="locationSearch" placeholder="ابحث عن الموقع على الخريطة...">
-                        <button class="location-search-btn" onclick="searchLocation()">🔍</button>
+                    <label>صور العقار *</label>
+                    <div class="image-upload-container" id="uploadContainer" onclick="document.getElementById('imageInput').click()">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">
+                            <strong>انقر لرفع الصور</strong><br>
+                            أو اسحب وأفلت الصور هنا<br>
+                            <small>يمكنك رفع حتى 10 صور (الحد الأقصى 5MB لكل صورة)</small>
+                        </div>
+                        <button type="button" class="browse-btn">تصفح الملفات</button>
                     </div>
-                    <div class="map-container">
-                        <div id="map"></div>
+                    <input type="file" id="imageInput" class="file-input" multiple accept="image/*" onchange="handleImageSelect(event)">
+                    
+                    <div class="image-preview" id="imagePreview">
+                        <!-- معاينة الصور ستظهر هنا -->
                     </div>
-                    <div class="coordinates" id="coordinates">
-                        الإحداثيات: لم يتم تحديد موقع بعد
-                    </div>
-                    <input type="hidden" id="addLat">
-                    <input type="hidden" id="addLng">
+                    
+                    <img id="mainImagePreview" class="main-image-preview" alt="معاينة الصورة الرئيسية">
                 </div>
 
                 <div class="form-row">
@@ -685,8 +742,10 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>صورة العقار *</label>
-                        <input type="url" id="addImage" placeholder="رابط الصورة" required>
+                        <label>الصورة الرئيسية</label>
+                        <select id="mainImageSelect" onchange="changeMainImage(this.value)">
+                            <option value="">اختر الصورة الرئيسية</option>
+                        </select>
                     </div>
                 </div>
 
@@ -830,10 +889,9 @@
             rent: []
         };
 
-        // متغيرات الخريطة
-        let map;
-        let marker;
-        let geocoder;
+        // متغيرات رفع الصور
+        let selectedImages = [];
+        let mainImageIndex = 0;
 
         // تحميل البيانات من localStorage
         function loadProperties() {
@@ -848,7 +906,7 @@
                             id: 1,
                             title: "شقة فاخرة للبيع في القاهرة",
                             price: "2,500,000 ج.م",
-                            image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع+في+مصر",
+                            images: ["https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع+في+مصر"],
                             country: "مصر",
                             city: "القاهرة",
                             neighborhood: "المعادي",
@@ -859,9 +917,7 @@
                             naturalGas: true,
                             location: "قرب المركز التجاري المعادي",
                             phone: "+20 123 456 7890",
-                            description: "شقة فاخرة في موقع ممتاز بمنطقة المعادي",
-                            lat: 29.9622,
-                            lng: 31.2549
+                            description: "شقة فاخرة في موقع ممتاز بمنطقة المعادي"
                         }
                     ],
                     rent: [
@@ -869,7 +925,7 @@
                             id: 2,
                             title: "شقة للإيجار الشهري في الإسكندرية",
                             price: "5,000 ج.م/شهر",
-                            image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار+في+مصر",
+                            images: ["https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار+في+مصر"],
                             country: "مصر",
                             city: "الإسكندرية",
                             neighborhood: "سموحة",
@@ -880,9 +936,7 @@
                             naturalGas: false,
                             location: "قرب الخدمات بمنطقة سموحة",
                             phone: "+20 555 123 4567",
-                            description: "شقة مريحة بموقع حيوي في الإسكندرية",
-                            lat: 31.2001,
-                            lng: 29.9187
+                            description: "شقة مريحة بموقع حيوي في الإسكندرية"
                         }
                     ]
                 };
@@ -895,66 +949,126 @@
             localStorage.setItem('realEstateProperties', JSON.stringify(properties));
         }
 
-        // تهيئة الخريطة
-        function initMap() {
-            // الخريطة الافتراضية تظهر مصر
-            const defaultLocation = { lat: 30.0444, lng: 31.2357 }; // القاهرة
+        // تهيئة السحب والإفلات للصور
+        function initializeDragAndDrop() {
+            const uploadContainer = document.getElementById('uploadContainer');
             
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 10,
-                center: defaultLocation,
-                mapTypeControl: true,
-                streetViewControl: true
+            uploadContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
             });
-
-            geocoder = new google.maps.Geocoder();
-
-            // إضافة علامة قابلة للسحب
-            marker = new google.maps.Marker({
-                map: map,
-                position: defaultLocation,
-                draggable: true,
-                title: 'اسحب العلامة لتحديد الموقع الدقيق'
+            
+            uploadContainer.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
             });
-
-            // تحديث الإحداثيات عند سحب العلامة
-            marker.addListener('dragend', function() {
-                updateCoordinates(marker.getPosition());
+            
+            uploadContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleImageFiles(files);
             });
-
-            // تحديث الإحداثيات عند النقر على الخريطة
-            map.addListener('click', function(event) {
-                marker.setPosition(event.latLng);
-                updateCoordinates(event.latLng);
-            });
-
-            updateCoordinates(defaultLocation);
         }
 
-        // تحديث عرض الإحداثيات
-        function updateCoordinates(latLng) {
-            const lat = latLng.lat();
-            const lng = latLng.lng();
-            document.getElementById('coordinates').textContent = 
-                `الإحداثيات: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            document.getElementById('addLat').value = lat;
-            document.getElementById('addLng').value = lng;
+        // معالجة اختيار الصور
+        function handleImageSelect(event) {
+            const files = event.target.files;
+            handleImageFiles(files);
         }
 
-        // البحث عن موقع
-        function searchLocation() {
-            const address = document.getElementById('locationSearch').value;
-            if (!address) return;
-
-            geocoder.geocode({ 'address': address }, function(results, status) {
-                if (status === 'OK') {
-                    map.setCenter(results[0].geometry.location);
-                    marker.setPosition(results[0].geometry.location);
-                    updateCoordinates(results[0].geometry.location);
-                } else {
-                    alert('تعذر العثور على الموقع: ' + status);
+        // معالجة ملفات الصور
+        function handleImageFiles(files) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const maxImages = 10;
+            
+            for (let file of files) {
+                if (selectedImages.length >= maxImages) {
+                    alert(`يمكنك رفع ${maxImages} صور كحد أقصى`);
+                    break;
                 }
+                
+                if (!file.type.startsWith('image/')) {
+                    alert('الملف يجب أن يكون صورة: ' + file.name);
+                    continue;
+                }
+                
+                if (file.size > maxSize) {
+                    alert('حجم الصورة كبير جداً: ' + file.name + ' (الحد الأقصى 5MB)');
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImages.push(e.target.result);
+                    updateImagePreview();
+                    updateMainImageSelect();
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // إعادة تعيين حقل الإدخال للسماح باختيار نفس الملف مرة أخرى
+            document.getElementById('imageInput').value = '';
+        }
+
+        // تحديث معاينة الصور
+        function updateImagePreview() {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+            
+            selectedImages.forEach((image, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                
+                previewItem.innerHTML = `
+                    <img src="${image}" class="preview-image" alt="معاينة الصورة ${index + 1}">
+                    <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                `;
+                
+                previewContainer.appendChild(previewItem);
             });
+            
+            // تحديث الصورة الرئيسية إذا كانت هذه هي الصورة الأولى
+            if (selectedImages.length === 1) {
+                changeMainImage(0);
+            }
+        }
+
+        // تحديث قائمة اختيار الصورة الرئيسية
+        function updateMainImageSelect() {
+            const select = document.getElementById('mainImageSelect');
+            select.innerHTML = '<option value="">اختر الصورة الرئيسية</option>';
+            
+            selectedImages.forEach((image, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `الصورة ${index + 1}`;
+                if (index === mainImageIndex) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+
+        // تغيير الصورة الرئيسية
+        function changeMainImage(index) {
+            mainImageIndex = parseInt(index);
+            if (selectedImages[mainImageIndex]) {
+                const mainPreview = document.getElementById('mainImagePreview');
+                mainPreview.src = selectedImages[mainImageIndex];
+                mainPreview.style.display = 'block';
+            }
+        }
+
+        // إزالة صورة
+        function removeImage(index) {
+            selectedImages.splice(index, 1);
+            if (mainImageIndex >= selectedImages.length) {
+                mainImageIndex = Math.max(0, selectedImages.length - 1);
+            }
+            updateImagePreview();
+            updateMainImageSelect();
+            changeMainImage(mainImageIndex);
         }
 
         // ملء الدول في القوائم المنسدلة
@@ -1027,6 +1141,7 @@
             document.getElementById('choicePage').classList.add('hidden');
             document.getElementById('buyerSection').classList.add('hidden');
             document.getElementById('sellerSection').classList.remove('hidden');
+            initializeDragAndDrop();
         }
 
         // تعيين نوع العقار (بيع/إيجار)
@@ -1062,8 +1177,10 @@
             const card = document.createElement('div');
             card.className = 'property-card';
             
+            const mainImage = property.images && property.images.length > 0 ? property.images[0] : 'https://via.placeholder.com/400x250/ccc/ffffff?text=لا+توجد+صورة';
+            
             card.innerHTML = `
-                <img src="${property.image}" alt="${property.title}" class="property-image">
+                <img src="${mainImage}" alt="${property.title}" class="property-image">
                 <div class="property-details">
                     <h3>${property.title}</h3>
                     <div class="property-price">${property.price}</div>
@@ -1105,6 +1222,11 @@
 
         // دالة لإضافة عقار جديد
         function addNewProperty() {
+            if (selectedImages.length === 0) {
+                alert('يرجى رفع صورة واحدة على الأقل للعقار');
+                return;
+            }
+
             const form = {
                 country: document.getElementById('addCountry').value,
                 city: document.getElementById('addCity').value,
@@ -1116,17 +1238,15 @@
                 balconies: document.getElementById('addBalconies').value,
                 bathrooms: document.getElementById('addBathrooms').value,
                 naturalGas: document.getElementById('addNaturalGas').value === 'true',
-                image: document.getElementById('addImage').value,
+                images: selectedImages,
                 location: document.getElementById('addLocation').value,
                 phone: document.getElementById('addPhone').value,
-                description: document.getElementById('addDescription').value,
-                lat: parseFloat(document.getElementById('addLat').value) || 0,
-                lng: parseFloat(document.getElementById('addLng').value) || 0
+                description: document.getElementById('addDescription').value
             };
 
             // التحقق من الحقول المطلوبة
-            if (!form.country || !form.city || !form.neighborhood || !form.title || !form.price || !form.phone || !form.lat || !form.lng) {
-                alert('يرجى ملء جميع الحقول المطلوبة (*) وتحديد الموقع على الخريطة');
+            if (!form.country || !form.city || !form.neighborhood || !form.title || !form.price || !form.phone) {
+                alert('يرجى ملء جميع الحقول المطلوبة (*)');
                 return;
             }
 
@@ -1139,19 +1259,30 @@
             saveProperties();
             
             // إعادة تعيين النموذج
-            document.getElementById('addTitle').value = '';
-            document.getElementById('addPrice').value = '';
-            document.getElementById('addFloor').value = '';
-            document.getElementById('addImage').value = '';
-            document.getElementById('addLocation').value = '';
-            document.getElementById('addPhone').value = '';
-            document.getElementById('addDescription').value = '';
-            document.getElementById('addNeighborhood').value = '';
-
+            resetForm();
+            
             alert('تم إضافة العقار بنجاح!');
             
             // الانتقال إلى قسم المشتري لعرض العقار المضاف
             showBuyerSection();
+        }
+
+        // إعادة تعيين النموذج
+        function resetForm() {
+            document.getElementById('addTitle').value = '';
+            document.getElementById('addPrice').value = '';
+            document.getElementById('addFloor').value = '';
+            document.getElementById('addLocation').value = '';
+            document.getElementById('addPhone').value = '';
+            document.getElementById('addDescription').value = '';
+            document.getElementById('addNeighborhood').value = '';
+            
+            // إعادة تعيين الصور
+            selectedImages = [];
+            mainImageIndex = 0;
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('mainImagePreview').style.display = 'none';
+            document.getElementById('mainImageSelect').innerHTML = '<option value="">اختر الصورة الرئيسية</option>';
         }
 
         // دالة لحذف عقار
@@ -1194,13 +1325,6 @@
                             behavior: 'smooth'
                         });
                     });
-                }
-            });
-
-            // البحث عن طريق زر Enter
-            document.getElementById('locationSearch').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchLocation();
                 }
             });
         });
