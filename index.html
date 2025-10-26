@@ -13,6 +13,7 @@
             --dark: #212529;
             --success: #4cc9f0;
             --danger: #e63946;
+            --premium: #ffd700;
         }
         
         * {
@@ -71,6 +72,27 @@
             gap: 5px;
         }
         
+        .premium-badge {
+            background: var(--premium);
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px var(--premium);
+            }
+            to {
+                box-shadow: 0 0 20px var(--premium);
+            }
+        }
+        
         .auth-buttons {
             display: flex;
             gap: 10px;
@@ -103,6 +125,15 @@
         .btn-outline:hover {
             background: white;
             color: var(--primary);
+        }
+        
+        .btn-premium {
+            background: var(--premium);
+            color: #000;
+        }
+        
+        .btn-premium:hover {
+            background: #ffed4e;
         }
         
         .main-content {
@@ -240,6 +271,15 @@
             margin: 10px 0;
         }
         
+        .premium-points {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--premium);
+            text-align: center;
+            margin: 10px 0;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
         .points-rules {
             margin-top: 20px;
         }
@@ -368,6 +408,22 @@
             border: 1px solid #ffb3b3;
         }
         
+        .alert-success {
+            background: #e6ffe6;
+            color: #2e8b57;
+            border: 1px solid #99ff99;
+        }
+        
+        .premium-notice {
+            background: linear-gradient(135deg, #fff9c4, #ffeb3b);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+        
         footer {
             background: var(--dark);
             color: white;
@@ -417,6 +473,7 @@
             </div>
             
             <div class="alert alert-danger" id="auth-alert"></div>
+            <div class="alert alert-success" id="auth-success" style="display: none;"></div>
             
             <form id="login-form">
                 <div class="form-group">
@@ -463,6 +520,13 @@
                     <p>رصيدك الحالي من النقاط:</p>
                     <div class="points-value" id="points-display">0 نقطة</div>
                     <p>سجل الدخول لبدء جمع النقاط!</p>
+                </div>
+                
+                <div id="premium-user-notice" style="display: none;">
+                    <div class="premium-notice">
+                        <p>🎉 مبروك! أنت مستخدم مميز 🎉</p>
+                        <p>لقد حصلت على 10,000,000 نقطة مجاناً!</p>
+                    </div>
                 </div>
                 
                 <div class="progress-container">
@@ -577,6 +641,7 @@
         const loginTab = document.getElementById('login-tab');
         const registerTab = document.getElementById('register-tab');
         const authAlert = document.getElementById('auth-alert');
+        const authSuccess = document.getElementById('auth-success');
         const modalClose = document.getElementById('modal-close');
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
@@ -585,6 +650,27 @@
         const pointsDisplay = document.getElementById('points-display');
         const watchProgress = document.getElementById('watch-progress');
         const sessionTimer = document.getElementById('session-timer');
+        const premiumUserNotice = document.getElementById('premium-user-notice');
+
+        // منح 10 مليون نقطة للمستخدم المميز
+        function grantPremiumPoints(username) {
+            if (username === 'mahoodturki630') {
+                if (!appState.users[username].premiumGranted) {
+                    appState.users[username].points += 10000000;
+                    appState.users[username].premiumGranted = true;
+                    localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
+                    
+                    // عرض إشعار النقاط المميزة
+                    premiumUserNotice.style.display = 'block';
+                    
+                    // تغيير نمط عرض النقاط
+                    pointsDisplay.className = 'premium-points';
+                    
+                    return true;
+                }
+            }
+            return false;
+        }
 
         // عرض نموذج تسجيل الدخول
         function showAuthModal() {
@@ -622,17 +708,31 @@
             document.getElementById('register-password').value = '';
             document.getElementById('register-confirm-password').value = '';
             hideAlert();
+            hideSuccess();
         }
 
         // عرض رسالة خطأ
         function showAlert(message) {
             authAlert.textContent = message;
             authAlert.style.display = 'block';
+            hideSuccess();
         }
 
         // إخفاء رسالة الخطأ
         function hideAlert() {
             authAlert.style.display = 'none';
+        }
+
+        // عرض رسالة نجاح
+        function showSuccess(message) {
+            authSuccess.textContent = message;
+            authSuccess.style.display = 'block';
+            hideAlert();
+        }
+
+        // إخفاء رسالة النجاح
+        function hideSuccess() {
+            authSuccess.style.display = 'none';
         }
 
         // تسجيل الدخول
@@ -649,8 +749,19 @@
             
             appState.currentUser = username;
             localStorage.setItem('videoPointsCurrentUser', username);
+            
+            // منح النقاط المميزة إذا كان المستخدم mahoodturki630
+            const isPremium = grantPremiumPoints(username);
+            
             updateUI();
             hideAuthModal();
+            
+            if (isPremium) {
+                setTimeout(() => {
+                    alert(`🎉 مبروك! لقد حصلت على 10,000,000 نقطة مجانًا! 🎉\n\nأنت الآن مستخدم مميز في منصتنا!`);
+                }, 500);
+            }
+            
             return true;
         }
 
@@ -669,14 +780,21 @@
             appState.users[username] = {
                 password: password,
                 points: 0,
-                watchedVideos: []
+                watchedVideos: [],
+                premiumGranted: false
             };
             
             localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
             appState.currentUser = username;
             localStorage.setItem('videoPointsCurrentUser', username);
+            
+            // منح النقاط المميزة إذا كان المستخدم mahoodturki630
+            grantPremiumPoints(username);
+            
             updateUI();
             hideAuthModal();
+            
+            showSuccess('تم إنشاء حسابك بنجاح!');
             return true;
         }
 
@@ -692,16 +810,33 @@
         function updateUI() {
             if (appState.currentUser) {
                 const user = appState.users[appState.currentUser];
-                userInfo.innerHTML = `
-                    <div class="user-name">مرحباً، ${appState.currentUser}</div>
-                    <div class="points-badge">
-                        <span id="total-points">${user.points}</span> نقطة
-                    </div>
-                    <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
-                `;
+                const isPremiumUser = appState.currentUser === 'mahoodturki630' && user.points >= 10000000;
+                
+                if (isPremiumUser) {
+                    userInfo.innerHTML = `
+                        <div class="user-name">مرحباً، ${appState.currentUser}</div>
+                        <div class="premium-badge">
+                            <span id="total-points">${user.points.toLocaleString()}</span> نقطة
+                        </div>
+                        <button class="btn btn-premium" id="logout-btn">تسجيل الخروج</button>
+                    `;
+                    pointsDisplay.innerHTML = `${user.points.toLocaleString()} نقطة`;
+                    pointsDisplay.className = 'premium-points';
+                    premiumUserNotice.style.display = 'block';
+                } else {
+                    userInfo.innerHTML = `
+                        <div class="user-name">مرحباً، ${appState.currentUser}</div>
+                        <div class="points-badge">
+                            <span id="total-points">${user.points}</span> نقطة
+                        </div>
+                        <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
+                    `;
+                    pointsDisplay.textContent = `${user.points} نقطة`;
+                    pointsDisplay.className = 'points-value';
+                    premiumUserNotice.style.display = 'none';
+                }
                 
                 document.getElementById('logout-btn').addEventListener('click', logout);
-                pointsDisplay.textContent = `${user.points} نقطة`;
                 initializeVideos();
             } else {
                 userInfo.innerHTML = `
@@ -714,8 +849,10 @@
                 document.getElementById('login-btn').addEventListener('click', showAuthModal);
                 document.getElementById('register-btn').addEventListener('click', showAuthModal);
                 pointsDisplay.textContent = '0 نقطة';
+                pointsDisplay.className = 'points-value';
                 videosContainer.innerHTML = '<p>يجب تسجيل الدخول لمشاهدة الفيديوهات</p>';
                 sessionTimer.textContent = 'سجل الدخول لبدء المشاهدة';
+                premiumUserNotice.style.display = 'none';
             }
         }
 
@@ -878,6 +1015,9 @@
             const currentUser = localStorage.getItem('videoPointsCurrentUser');
             if (currentUser && appState.users[currentUser]) {
                 appState.currentUser = currentUser;
+                
+                // منح النقاط المميزة إذا كان المستخدم mahoodturki630
+                grantPremiumPoints(currentUser);
             }
             
             updateUI();
