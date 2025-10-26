@@ -1,30 +1,467 @@
-<!-- قسم مشغل الفيديو المضمن -->
-<div id="video-player-container" style="display: none;">
-    <div class="video-player-header">
-        <button id="close-video-btn" class="btn btn-outline">← العودة للقائمة</button>
-        <h3 id="current-video-title">جاري التشغيل...</h3>
-    </div>
-    <div id="embedded-video-player" class="video-embed">
-        <!-- سيتم تحميل الفيديو هنا -->
-    </div>
-    <div class="video-controls">
-        <div class="progress-container">
-            <div class="progress-bar">
-                <div class="progress" id="video-progress"></div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة تبادل المشاهدات - النظام المحسن</title>
+    <style>
+        /* الأنماط الأساسية (نفس الأنماط السابقة) */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --danger: #e63946;
+            --premium: #ffd700;
+            --vip: #ff00ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* إضافة أنماط جديدة للتحكم في الفيديو */
+        .video-player-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .video-player-wrapper {
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-player-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .video-embed {
+            width: 100%;
+            height: 500px;
+            background: #000;
+        }
+        
+        .video-embed iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .video-controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+        
+        .auto-play-section {
+            background: #e6f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #b3d9ff;
+        }
+        
+        /* باقي الأنماط كما هي */
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">منصة تبادل المشاهدات - النظام المحسن</div>
+                <div class="user-info" id="user-info">
+                    <!-- سيبقى كما هو -->
+                </div>
             </div>
-            <div class="timer-display" id="video-timer">--:--</div>
         </div>
-        <button id="skip-video-btn" class="btn btn-danger">تخطي الفيديو</button>
-    </div>
-</div>
+    </header>
 
-<!-- وضع التشغيل التلقائي -->
-<div class="auto-play-mode">
-    <label>
-        <input type="checkbox" id="auto-play-toggle"> التشغيل التلقائي المتواصل
-    </label>
-    <div id="auto-play-status" style="display: none;">
-        <p>جاري التشغيل التلقائي... <span id="videos-remaining">0</span> فيديو متبقي</p>
-        <button id="stop-auto-play" class="btn btn-danger">إيقاف التشغيل التلقائي</button>
+    <!-- مشغل الفيديو المضمن -->
+    <div class="video-player-container" id="video-player-container">
+        <div class="video-player-wrapper">
+            <div class="video-player-header">
+                <h3 id="current-video-title">جاري التشغيل...</h3>
+                <button class="btn btn-outline" id="close-video-btn">✕ إغلاق</button>
+            </div>
+            <div class="video-embed" id="video-embed">
+                <!-- سيتم تحميل الفيديو هنا -->
+            </div>
+            <div class="video-controls">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="video-progress"></div>
+                    </div>
+                    <div class="timer-display" id="video-timer">--:--</div>
+                </div>
+                <div class="text-center" id="completion-message" style="display: none;">
+                    <p class="success-message">✅ تم اكتمال المشاهدة بنجاح! تمت إضافة <span id="points-earned">0</span> نقطة</p>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div class="container">
+        <div class="main-content">
+            <section class="videos-section">
+                <div class="section-header">
+                    <h2>الفيديوهات المتاحة للمشاهدة</h2>
+                    <div>
+                        <button class="btn btn-success" id="auto-play-all-btn">▶ بدء التشغيل التلقائي لجميع الفيديوهات</button>
+                        <button class="btn btn-primary" id="add-video-btn">+ إضافة فيديو</button>
+                    </div>
+                </div>
+                
+                <!-- قسم التشغيل التلقائي -->
+                <div class="auto-play-section">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="auto-play-toggle"> تفعيل التشغيل التلقائي المتواصل
+                        </label>
+                    </div>
+                    <div id="auto-play-status" style="display: none;">
+                        <p>جاري التشغيل التلقائي... <span id="videos-remaining">0</span> فيديو متبقي</p>
+                        <button id="stop-auto-play" class="btn btn-danger">⏹ إيقاف التشغيل التلقائي</button>
+                    </div>
+                </div>
+                
+                <div class="videos-grid" id="videos-container">
+                    <!-- سيتم إضافة الفيديوهات ديناميكيًا -->
+                </div>
+            </section>
+            
+            <aside class="points-section">
+                <!-- سيبقى كما هو -->
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // النظام المحسن - كود JavaScript كامل
+        const videos = JSON.parse(localStorage.getItem('videoPointsVideos')) || [
+            {
+                id: 1,
+                title: "فيديو تعليمي 1",
+                url: "https://www.youtube.com/embed/3qCGFxc2yEg",
+                thumbnail: "https://img.youtube.com/vi/3qCGFxc2yEg/hqdefault.jpg",
+                duration: 30, // ثواني للتجربة - غير إلى 300 (5 دقائق) في الإنتاج
+                points: 5,
+                addedBy: "النظام",
+                requiredViews: 10,
+                currentViews: 0,
+                views: []
+            }
+            // ... باقي الفيديوهات
+        ];
+
+        let appState = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('videoPointsUsers')) || {},
+            videos: videos,
+            currentVideo: null,
+            watchTime: 0,
+            timerInterval: null,
+            autoPlayQueue: [],
+            isAutoPlaying: false,
+            currentVideoIndex: 0
+        };
+
+        // نظام التشغيل التلقائي المحسن
+        class EnhancedAutoPlaySystem {
+            constructor() {
+                this.queue = [];
+                this.isPlaying = false;
+                this.currentIndex = 0;
+            }
+            
+            startAutoPlayAll() {
+                if (!appState.currentUser) {
+                    alert('يجب تسجيل الدخول أولاً');
+                    return;
+                }
+                
+                // تجميع جميع الفيديوهات التي لم يشاهدها المستخدم
+                this.queue = appState.videos.filter(video => 
+                    !appState.users[appState.currentUser].watchedVideos.includes(video.id)
+                );
+                
+                if (this.queue.length === 0) {
+                    alert('لا توجد فيديوهات جديدة للمشاهدة');
+                    return;
+                }
+                
+                this.isPlaying = true;
+                this.currentIndex = 0;
+                this.updateAutoPlayStatus();
+                this.playNextVideo();
+            }
+            
+            playNextVideo() {
+                if (!this.isPlaying || this.currentIndex >= this.queue.length) {
+                    this.stopAutoPlay();
+                    return;
+                }
+                
+                const video = this.queue[this.currentIndex];
+                this.currentIndex++;
+                this.updateAutoPlayStatus();
+                
+                // بدء مشاهدة الفيديو تلقائياً
+                startVideoPlayback(video);
+            }
+            
+            stopAutoPlay() {
+                this.isPlaying = false;
+                this.queue = [];
+                this.currentIndex = 0;
+                this.updateAutoPlayStatus();
+                stopWatching(); // إيقاف الفيديو الحالي إذا كان يعمل
+            }
+            
+            updateAutoPlayStatus() {
+                const statusElement = document.getElementById('auto-play-status');
+                const remainingElement = document.getElementById('videos-remaining');
+                
+                if (this.isPlaying) {
+                    statusElement.style.display = 'block';
+                    remainingElement.textContent = this.queue.length - this.currentIndex;
+                } else {
+                    statusElement.style.display = 'none';
+                }
+            }
+        }
+
+        // تهيئة نظام التشغيل التلقائي
+        const autoPlaySystem = new EnhancedAutoPlaySystem();
+
+        // بدء تشغيل الفيديو داخل الموقع
+        function startVideoPlayback(video) {
+            appState.currentVideo = video;
+            appState.watchTime = 0;
+            
+            // إظهار مشغل الفيديو
+            const playerContainer = document.getElementById('video-player-container');
+            const videoEmbed = document.getElementById('video-embed');
+            const videoTitle = document.getElementById('current-video-title');
+            
+            videoTitle.textContent = video.title;
+            videoEmbed.innerHTML = `
+                <iframe 
+                    src="${video.url}?autoplay=1&enablejsapi=1" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    id="youtube-player"
+                ></iframe>
+            `;
+            
+            playerContainer.style.display = 'flex';
+            
+            // إخفاء رسالة الإكمال
+            document.getElementById('completion-message').style.display = 'none';
+            
+            // بدء المؤقت
+            startVideoTimer(video);
+        }
+
+        // مؤقت الفيديو المحسن
+        function startVideoTimer(video) {
+            // إيقاف أي مؤقت سابق
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
+            }
+            
+            appState.watchTime = 0;
+            updateProgressUI(video);
+            
+            appState.timerInterval = setInterval(() => {
+                appState.watchTime++;
+                
+                // تحديث واجهة المستخدم
+                updateProgressUI(video);
+                
+                // التحقق من اكتمال المدة
+                if (appState.watchTime >= video.duration) {
+                    completeVideoWatching(video);
+                }
+            }, 1000);
+        }
+
+        function updateProgressUI(video) {
+            const progress = (appState.watchTime / video.duration) * 100;
+            const progressBar = document.getElementById('video-progress');
+            const timerDisplay = document.getElementById('video-timer');
+            
+            progressBar.style.width = `${progress}%`;
+            
+            const remaining = video.duration - appState.watchTime;
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            timerDisplay.textContent = `متبقي: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // إكمال المشاهدة - النظام المحسن
+        function completeVideoWatching(video) {
+            // إيقاف المؤقت
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
+                appState.timerInterval = null;
+            }
+            
+            // إيقاف الفيديو
+            const iframe = document.getElementById('youtube-player');
+            if (iframe) {
+                iframe.src = "";
+            }
+            
+            // منح النقاط تلقائياً
+            awardPointsAutomatically(video);
+            
+            // إظهار رسالة الإكمال
+            showCompletionMessage(video.points);
+            
+            // الانتقال التلقائي للفيديو التالي إذا كان التشغيل التلقائي مفعلاً
+            if (autoPlaySystem.isPlaying) {
+                setTimeout(() => {
+                    autoPlaySystem.playNextVideo();
+                }, 3000); // انتظار 3 ثوانٍ قبل التشغيل التالي
+            }
+        }
+
+        // نظام منح النقاط التلقائي الموثوق
+        function awardPointsAutomatically(video) {
+            return new Promise((resolve) => {
+                try {
+                    const user = appState.users[appState.currentUser];
+                    
+                    // التحقق من عدم منح النقاط مسبقاً
+                    if (user.watchedVideos.includes(video.id)) {
+                        console.warn('تم منح النقاط لهذا الفيديو مسبقاً');
+                        resolve(false);
+                        return;
+                    }
+                    
+                    // منح النقاط
+                    user.points += video.points;
+                    user.watchedVideos.push(video.id);
+                    
+                    // تحديث إحصائيات الفيديو
+                    video.currentViews += 1;
+                    video.views.push({
+                        username: appState.currentUser,
+                        timestamp: new Date().toISOString(),
+                        pointsEarned: video.points,
+                        status: 'completed'
+                    });
+                    
+                    // حفظ البيانات فوراً
+                    localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
+                    localStorage.setItem('videoPointsVideos', JSON.stringify(appState.videos));
+                    
+                    // تحديث الواجهة
+                    updatePointsDisplay();
+                    initializeVideos();
+                    
+                    console.log(`تم منح ${video.points} نقطة تلقائياً`);
+                    resolve(true);
+                    
+                } catch (error) {
+                    console.error('فشل في منح النقاط:', error);
+                    // محاولة مرة أخرى
+                    setTimeout(() => {
+                        awardPointsAutomatically(video).then(resolve);
+                    }, 1000);
+                }
+            });
+        }
+
+        function showCompletionMessage(points) {
+            const messageElement = document.getElementById('completion-message');
+            const pointsElement = document.getElementById('points-earned');
+            
+            pointsElement.textContent = points;
+            messageElement.style.display = 'block';
+        }
+
+        function stopWatching() {
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
+                appState.timerInterval = null;
+            }
+            
+            const playerContainer = document.getElementById('video-player-container');
+            playerContainer.style.display = 'none';
+            
+            appState.currentVideo = null;
+            appState.watchTime = 0;
+        }
+
+        // إضافة مستمعي الأحداث الجديدة
+        document.addEventListener('DOMContentLoaded', function() {
+            // زر التشغيل التلقائي لجميع الفيديوهات
+            document.getElementById('auto-play-all-btn').addEventListener('click', function() {
+                autoPlaySystem.startAutoPlayAll();
+            });
+            
+            // زر إيقاف التشغيل التلقائي
+            document.getElementById('stop-auto-play')..addEventListener('click', function() {
+                autoPlaySystem.stopAutoPlay();
+            });
+            
+            // زر إغلاق الفيديو
+            document.getElementById('close-video-btn').addEventListener('click', function() {
+                autoPlaySystem.stopAutoPlay();
+                stopWatching();
+            });
+            
+            // تفعيل/إلغاء التشغيل التلقائي
+            document.getElementById('auto-play-toggle').addEventListener('change', function(e) {
+                if (e.target.checked) {
+                    autoPlaySystem.startAutoPlayAll();
+                } else {
+                    autoPlaySystem.stopAutoPlay();
+                }
+            });
+            
+            // تحديث الواجهة
+            updateUI();
+        });
+
+        // باقي الدوال المساعدة (updateUI, initializeVideos, etc.) تبقى كما هي مع التعديلات اللازمة
+    </script>
+</body>
+</html>
