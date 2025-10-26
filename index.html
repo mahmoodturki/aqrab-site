@@ -170,6 +170,15 @@
             background: #ff33ff;
         }
         
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #3ab4d9;
+        }
+        
         .main-content {
             display: grid;
             grid-template-columns: 1fr 300px;
@@ -182,6 +191,13 @@
             color: var(--secondary);
             border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
         
         .videos-grid {
@@ -248,6 +264,19 @@
             margin-bottom: 10px;
             height: 40px;
             overflow: hidden;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .video-added-by {
+            color: var(--primary);
+            font-weight: 600;
         }
         
         .watch-controls {
@@ -366,7 +395,7 @@
         }
         
         /* أنماط نموذج تسجيل الدخول */
-        .auth-modal {
+        .auth-modal, .add-video-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -379,16 +408,18 @@
             align-items: center;
         }
         
-        .auth-form {
+        .auth-form, .add-video-form {
             background: white;
             padding: 30px;
             border-radius: 10px;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
-        .auth-form h2 {
+        .auth-form h2, .add-video-form h2 {
             margin-bottom: 20px;
             text-align: center;
             color: var(--secondary);
@@ -415,6 +446,15 @@
         .form-control:focus {
             border-color: var(--primary);
             outline: none;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
         }
         
         .auth-tabs {
@@ -520,6 +560,11 @@
                 flex-direction: column;
                 gap: 15px;
             }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
     </style>
 </head>
@@ -541,7 +586,7 @@
     <!-- نموذج تسجيل الدخول والتسجيل -->
     <div class="auth-modal" id="auth-modal">
         <div class="auth-form">
-            <button class="modal-close" id="modal-close">&times;</button>
+            <button class="modal-close" id="auth-modal-close">&times;</button>
             <div class="auth-tabs">
                 <div class="auth-tab active" id="login-tab">تسجيل الدخول</div>
                 <div class="auth-tab" id="register-tab">إنشاء حساب</div>
@@ -580,10 +625,60 @@
         </div>
     </div>
 
+    <!-- نموذج إضافة فيديو جديد -->
+    <div class="add-video-modal" id="add-video-modal">
+        <div class="add-video-form">
+            <button class="modal-close" id="add-video-modal-close">&times;</button>
+            <h2>إضافة فيديو جديد</h2>
+            
+            <div class="alert alert-danger" id="add-video-alert"></div>
+            <div class="alert alert-success" id="add-video-success" style="display: none;"></div>
+            
+            <form id="add-video-form">
+                <div class="form-group">
+                    <label for="video-url">رابط الفيديو (YouTube)</label>
+                    <input type="url" class="form-control" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="video-title">عنوان الفيديو</label>
+                    <input type="text" class="form-control" id="video-title" placeholder="أدخل عنوان الفيديو" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="video-duration">مدة الفيديو (بالدقائق)</label>
+                        <input type="number" class="form-control" id="video-duration" min="1" max="60" value="5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="video-points">النقاط الممنوحة</label>
+                        <input type="number" class="form-control" id="video-points" min="1" max="100" value="5" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="required-views">عدد المشاهدات المطلوبة</label>
+                    <input type="number" class="form-control" id="required-views" min="1" max="1000" value="10" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="video-description">وصف الفيديو (اختياري)</label>
+                    <textarea class="form-control" id="video-description" rows="3" placeholder="أدخل وصفاً للفيديو"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-success" style="width: 100%;">إضافة الفيديو</button>
+            </form>
+        </div>
+    </div>
+
     <div class="container">
         <div class="main-content">
             <section class="videos-section">
-                <h2>الفيديوهات المتاحة للمشاهدة</h2>
+                <div class="section-header">
+                    <h2>الفيديوهات المتاحة للمشاهدة</h2>
+                    <button class="btn btn-primary" id="add-video-btn">+ إضافة فيديو</button>
+                </div>
                 <div class="videos-grid" id="videos-container">
                     <!-- سيتم إضافة الفيديوهات ديناميكيًا -->
                 </div>
@@ -639,14 +734,17 @@
 
     <script>
         // بيانات الفيديوهات الثابتة مع روابط الصور المصغرة
-        const videos = [
+        const defaultVideos = [
             {
                 id: 1,
                 title: "فيديو تعليمي 1",
                 url: "https://www.youtube.com/embed/3qCGFxc2yEg",
                 thumbnail: "https://img.youtube.com/vi/3qCGFxc2yEg/hqdefault.jpg",
                 duration: 300, // 5 دقائق بالثواني
-                points: 5
+                points: 5,
+                addedBy: "النظام",
+                requiredViews: 10,
+                currentViews: 0
             },
             {
                 id: 2,
@@ -654,7 +752,10 @@
                 url: "https://www.youtube.com/embed/_JXPY08yg8s",
                 thumbnail: "https://img.youtube.com/vi/_JXPY08yg8s/hqdefault.jpg",
                 duration: 600, // 10 دقائق
-                points: 10
+                points: 10,
+                addedBy: "النظام",
+                requiredViews: 15,
+                currentViews: 0
             },
             {
                 id: 3,
@@ -662,7 +763,10 @@
                 url: "https://www.youtube.com/embed/jUZgDM8Oeio", 
                 thumbnail: "https://img.youtube.com/vi/jUZgDM8Oeio/hqdefault.jpg",
                 duration: 450, // 7.5 دقائق
-                points: 7
+                points: 7,
+                addedBy: "النظام",
+                requiredViews: 12,
+                currentViews: 0
             },
             {
                 id: 4,
@@ -670,39 +774,10 @@
                 url: "https://www.youtube.com/embed/GMHJdUJRxXQ",
                 thumbnail: "https://img.youtube.com/vi/GMHJdUJRxXQ/hqdefault.jpg",
                 duration: 900, // 15 دقيقة
-                points: 15
-            },
-            {
-                id: 5,
-                title: "فيديو تعليمي 5",
-                url: "https://www.youtube.com/embed/cmtA4SBYk6g",
-                thumbnail: "https://img.youtube.com/vi/cmtA4SBYk6g/hqdefault.jpg",
-                duration: 720, // 12 دقيقة
-                points: 12
-            },
-            {
-                id: 6,
-                title: "فيديو تعليمي 6",
-                url: "https://www.youtube.com/embed/DxQlbEghEek",
-                thumbnail: "https://img.youtube.com/vi/DxQlbEghEek/hqdefault.jpg",
-                duration: 600, // 10 دقائق
-                points: 10
-            },
-            {
-                id: 7,
-                title: "فيديو تعليمي 7",
-                url: "https://www.youtube.com/embed/shZyR0a-ODE",
-                thumbnail: "https://img.youtube.com/vi/shZyR0a-ODE/hqdefault.jpg",
-                duration: 480, // 8 دقائق
-                points: 8
-            },
-            {
-                id: 8,
-                title: "فيديو تعليمي 8",
-                url: "https://www.youtube.com/embed/7vUrwQ4QcW8",
-                thumbnail: "https://img.youtube.com/vi/7vUrwQ4QcW8/hqdefault.jpg",
-                duration: 540, // 9 دقائق
-                points: 9
+                points: 15,
+                addedBy: "النظام",
+                requiredViews: 20,
+                currentViews: 0
             }
         ];
 
@@ -710,7 +785,7 @@
         let appState = {
             currentUser: null,
             users: JSON.parse(localStorage.getItem('videoPointsUsers')) || {},
-            videos: videos,
+            videos: JSON.parse(localStorage.getItem('videoPointsVideos')) || defaultVideos,
             currentVideo: null,
             watchTime: 0,
             timerInterval: null
@@ -718,15 +793,21 @@
 
         // DOM Elements
         const authModal = document.getElementById('auth-modal');
+        const addVideoModal = document.getElementById('add-video-modal');
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
+        const addVideoForm = document.getElementById('add-video-form');
         const loginTab = document.getElementById('login-tab');
         const registerTab = document.getElementById('register-tab');
         const authAlert = document.getElementById('auth-alert');
         const authSuccess = document.getElementById('auth-success');
-        const modalClose = document.getElementById('modal-close');
+        const addVideoAlert = document.getElementById('add-video-alert');
+        const addVideoSuccess = document.getElementById('add-video-success');
+        const authModalClose = document.getElementById('auth-modal-close');
+        const addVideoModalClose = document.getElementById('add-video-modal-close');
         const loginBtn = document.getElementById('login-btn');
         const registerBtn = document.getElementById('register-btn');
+        const addVideoBtn = document.getElementById('add-video-btn');
         const userInfo = document.getElementById('user-info');
         const videosContainer = document.getElementById('videos-container');
         const pointsDisplay = document.getElementById('points-display');
@@ -758,6 +839,100 @@
             }
             
             return {points: 0, type: 'normal'};
+        }
+
+        // استخراج معرف الفيديو من رابط يوتيوب
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // عرض نموذج إضافة فيديو
+        function showAddVideoModal() {
+            if (!appState.currentUser) {
+                showAuthModal();
+                return;
+            }
+            addVideoModal.style.display = 'flex';
+            clearAddVideoForm();
+        }
+
+        // إخفاء نموذج إضافة فيديو
+        function hideAddVideoModal() {
+            addVideoModal.style.display = 'none';
+            clearAddVideoForm();
+        }
+
+        // مسح بيانات نموذج إضافة فيديو
+        function clearAddVideoForm() {
+            document.getElementById('video-url').value = '';
+            document.getElementById('video-title').value = '';
+            document.getElementById('video-duration').value = '5';
+            document.getElementById('video-points').value = '5';
+            document.getElementById('required-views').value = '10';
+            document.getElementById('video-description').value = '';
+            hideAddVideoAlert();
+            hideAddVideoSuccess();
+        }
+
+        // عرض رسالة خطأ في نموذج إضافة فيديو
+        function showAddVideoAlert(message) {
+            addVideoAlert.textContent = message;
+            addVideoAlert.style.display = 'block';
+            hideAddVideoSuccess();
+        }
+
+        // إخفاء رسالة الخطأ في نموذج إضافة فيديو
+        function hideAddVideoAlert() {
+            addVideoAlert.style.display = 'none';
+        }
+
+        // عرض رسالة نجاح في نموذج إضافة فيديو
+        function showAddVideoSuccess(message) {
+            addVideoSuccess.textContent = message;
+            addVideoSuccess.style.display = 'block';
+            hideAddVideoAlert();
+        }
+
+        // إخفاء رسالة النجاح في نموذج إضافة فيديو
+        function hideAddVideoSuccess() {
+            addVideoSuccess.style.display = 'none';
+        }
+
+        // إضافة فيديو جديد
+        function addNewVideo(videoData) {
+            const videoId = extractVideoId(videoData.url);
+            
+            if (!videoId) {
+                showAddVideoAlert('رابط اليوتيوب غير صالح');
+                return false;
+            }
+            
+            const newVideo = {
+                id: Date.now(), // استخدام الطابع الزمني كمعرف فريد
+                title: videoData.title,
+                url: `https://www.youtube.com/embed/${videoId}`,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                duration: videoData.duration * 60, // تحويل الدقائق إلى ثواني
+                points: parseInt(videoData.points),
+                addedBy: appState.currentUser,
+                requiredViews: parseInt(videoData.requiredViews),
+                currentViews: 0,
+                description: videoData.description
+            };
+            
+            appState.videos.push(newVideo);
+            localStorage.setItem('videoPointsVideos', JSON.stringify(appState.videos));
+            
+            initializeVideos();
+            showAddVideoSuccess('تم إضافة الفيديو بنجاح!');
+            
+            setTimeout(() => {
+                hideAddVideoModal();
+            }, 1500);
+            
+            return true;
         }
 
         // عرض نموذج تسجيل الدخول
@@ -986,8 +1161,14 @@
                     </div>
                     <div class="video-info">
                         <div class="video-title">${video.title}</div>
-                        <div class="video-duration">المدة: ${Math.floor(video.duration / 60)} دقيقة</div>
-                        <div class="video-points">النقاط: ${video.points}</div>
+                        <div class="video-meta">
+                            <span class="video-duration">المدة: ${Math.floor(video.duration / 60)} دقيقة</span>
+                            <span class="video-points">النقاط: ${video.points}</span>
+                        </div>
+                        <div class="video-meta">
+                            <span>المشاهدات: ${video.currentViews}/${video.requiredViews}</span>
+                            <span class="video-added-by">أضيف بواسطة: ${video.addedBy}</span>
+                        </div>
                         <div class="watch-controls">
                             <button class="watch-btn" data-id="${video.id}" ${isWatched ? 'disabled' : ''}>
                                 ${isWatched ? 'تمت المشاهدة' : 'بدء المشاهدة'}
@@ -1075,8 +1256,12 @@
             user.points += video.points;
             user.watchedVideos.push(video.id);
             
+            // زيادة عدد المشاهدات الحالية للفيديو
+            video.currentViews += 1;
+            
             // حفظ البيانات
             localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
+            localStorage.setItem('videoPointsVideos', JSON.stringify(appState.videos));
             
             // تحديث واجهة المستخدم
             updateUI();
@@ -1134,7 +1319,9 @@
             // إضافة مستمعي الأحداث
             loginBtn.addEventListener('click', showAuthModal);
             registerBtn.addEventListener('click', showAuthModal);
-            modalClose.addEventListener('click', hideAuthModal);
+            addVideoBtn.addEventListener('click', showAddVideoModal);
+            authModalClose.addEventListener('click', hideAuthModal);
+            addVideoModalClose.addEventListener('click', hideAddVideoModal);
             loginTab.addEventListener('click', showLoginForm);
             registerTab.addEventListener('click', showRegisterForm);
             
@@ -1153,10 +1340,29 @@
                 register(username, password, confirmPassword);
             });
             
+            addVideoForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const videoData = {
+                    url: document.getElementById('video-url').value,
+                    title: document.getElementById('video-title').value,
+                    duration: document.getElementById('video-duration').value,
+                    points: document.getElementById('video-points').value,
+                    requiredViews: document.getElementById('required-views').value,
+                    description: document.getElementById('video-description').value
+                };
+                addNewVideo(videoData);
+            });
+            
             // إغلاق النافذة عند النقر خارجها
             authModal.addEventListener('click', (e) => {
                 if (e.target === authModal) {
                     hideAuthModal();
+                }
+            });
+            
+            addVideoModal.addEventListener('click', (e) => {
+                if (e.target === addVideoModal) {
+                    hideAddVideoModal();
                 }
             });
         });
