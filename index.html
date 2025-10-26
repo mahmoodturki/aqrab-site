@@ -394,7 +394,7 @@
             transition: width 0.5s;
         }
         
-        /* أنماط نموذج تسجيل الدخول */
+        /* أنماط النماذج */
         .auth-modal, .add-video-modal {
             display: none;
             position: fixed;
@@ -625,7 +625,7 @@
         </div>
     </div>
 
-    <!-- نموذج إضافة فيديو جديد -->
+    <!-- نموذج إضافة فيديو جديد - مبسط -->
     <div class="add-video-modal" id="add-video-modal">
         <div class="add-video-form">
             <button class="modal-close" id="add-video-modal-close">&times;</button>
@@ -640,31 +640,20 @@
                     <input type="url" class="form-control" id="video-url" placeholder="https://www.youtube.com/watch?v=..." required>
                 </div>
                 
-                <div class="form-group">
-                    <label for="video-title">عنوان الفيديو</label>
-                    <input type="text" class="form-control" id="video-title" placeholder="أدخل عنوان الفيديو" required>
-                </div>
-                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="video-duration">مدة الفيديو (بالدقائق)</label>
+                        <label for="video-duration">مدة المشاهدة (بالدقائق)</label>
                         <input type="number" class="form-control" id="video-duration" min="1" max="60" value="5" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="video-points">النقاط الممنوحة</label>
-                        <input type="number" class="form-control" id="video-points" min="1" max="100" value="5" required>
+                        <label for="required-views">عدد المشاهدات المطلوبة</label>
+                        <input type="number" class="form-control" id="required-views" min="1" max="1000" value="10" required>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="required-views">عدد المشاهدات المطلوبة</label>
-                    <input type="number" class="form-control" id="required-views" min="1" max="1000" value="10" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="video-description">وصف الفيديو (اختياري)</label>
-                    <textarea class="form-control" id="video-description" rows="3" placeholder="أدخل وصفاً للفيديو"></textarea>
+                <div class="points-preview">
+                    <p>النقاط الإجمالية المطلوبة: <span id="total-points-preview">50</span> نقطة</p>
                 </div>
                 
                 <button type="submit" class="btn btn-success" style="width: 100%;">إضافة الفيديو</button>
@@ -744,7 +733,8 @@
                 points: 5,
                 addedBy: "النظام",
                 requiredViews: 10,
-                currentViews: 0
+                currentViews: 0,
+                views: []
             },
             {
                 id: 2,
@@ -755,7 +745,8 @@
                 points: 10,
                 addedBy: "النظام",
                 requiredViews: 15,
-                currentViews: 0
+                currentViews: 0,
+                views: []
             },
             {
                 id: 3,
@@ -766,7 +757,8 @@
                 points: 7,
                 addedBy: "النظام",
                 requiredViews: 12,
-                currentViews: 0
+                currentViews: 0,
+                views: []
             },
             {
                 id: 4,
@@ -777,7 +769,8 @@
                 points: 15,
                 addedBy: "النظام",
                 requiredViews: 20,
-                currentViews: 0
+                currentViews: 0,
+                views: []
             }
         ];
 
@@ -788,7 +781,8 @@
             videos: JSON.parse(localStorage.getItem('videoPointsVideos')) || defaultVideos,
             currentVideo: null,
             watchTime: 0,
-            timerInterval: null
+            timerInterval: null,
+            videoWindow: null
         };
 
         // DOM Elements
@@ -815,6 +809,16 @@
         const sessionTimer = document.getElementById('session-timer');
         const premiumUserNotice = document.getElementById('premium-user-notice');
         const vipUserNotice = document.getElementById('vip-user-notice');
+        const totalPointsPreview = document.getElementById('total-points-preview');
+
+        // تحديث معاينة النقاط الإجمالية
+        function updatePointsPreview() {
+            const duration = parseInt(document.getElementById('video-duration').value) || 5;
+            const requiredViews = parseInt(document.getElementById('required-views').value) || 10;
+            const pointsPerView = Math.floor(duration / 5) * 5; // 5 نقاط لكل 5 دقائق
+            const totalPoints = pointsPerView * requiredViews;
+            totalPointsPreview.textContent = totalPoints;
+        }
 
         // منح النقاط المميزة للمستخدمين المميزين
         function grantPremiumPoints(username) {
@@ -848,6 +852,16 @@
             return match ? match[1] : null;
         }
 
+        // استخراج عنوان الفيديو من الرابط (باستخدام واجهة يوتيوب)
+        function extractVideoTitle(url) {
+            const videoId = extractVideoId(url);
+            if (!videoId) return "فيديو جديد";
+            
+            // في بيئة حقيقية، سنحتاج لاستدعاء واجهة برمجة تطبيقات يوتيوب
+            // لكن هنا سنستخدم عنوان افتراضي
+            return `فيديو من ${appState.currentUser}`;
+        }
+
         // عرض نموذج إضافة فيديو
         function showAddVideoModal() {
             if (!appState.currentUser) {
@@ -856,6 +870,7 @@
             }
             addVideoModal.style.display = 'flex';
             clearAddVideoForm();
+            updatePointsPreview();
         }
 
         // إخفاء نموذج إضافة فيديو
@@ -867,11 +882,8 @@
         // مسح بيانات نموذج إضافة فيديو
         function clearAddVideoForm() {
             document.getElementById('video-url').value = '';
-            document.getElementById('video-title').value = '';
             document.getElementById('video-duration').value = '5';
-            document.getElementById('video-points').value = '5';
             document.getElementById('required-views').value = '10';
-            document.getElementById('video-description').value = '';
             hideAddVideoAlert();
             hideAddVideoSuccess();
         }
@@ -909,17 +921,19 @@
                 return false;
             }
             
+            const pointsPerView = Math.floor(videoData.duration / 5) * 5; // 5 نقاط لكل 5 دقائق
+            
             const newVideo = {
                 id: Date.now(), // استخدام الطابع الزمني كمعرف فريد
-                title: videoData.title,
+                title: extractVideoTitle(videoData.url),
                 url: `https://www.youtube.com/embed/${videoId}`,
                 thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
                 duration: videoData.duration * 60, // تحويل الدقائق إلى ثواني
-                points: parseInt(videoData.points),
+                points: pointsPerView,
                 addedBy: appState.currentUser,
                 requiredViews: parseInt(videoData.requiredViews),
                 currentViews: 0,
-                description: videoData.description
+                views: []
             };
             
             appState.videos.push(newVideo);
@@ -1219,8 +1233,17 @@
             watchBtn.textContent = 'جاري المشاهدة...';
             watchBtn.disabled = true;
             
-            // فتح نافذة جديدة لمشاهدة الفيديو
-            window.open(video.url, '_blank', 'width=800,height=600');
+            // التحقق من نوع الجهاز
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // على الهاتف، افتح رابط YouTube مباشرة
+                const watchUrl = video.url.replace('/embed/', '/watch?v=');
+                appState.videoWindow = window.open(watchUrl, '_blank');
+            } else {
+                // على سطح المكتب، افتح نافذة منبثقة
+                appState.videoWindow = window.open(video.url, '_blank', 'width=800,height=600');
+            }
             
             // بدء المؤقت
             appState.timerInterval = setInterval(() => {
@@ -1251,6 +1274,11 @@
         function completeWatching(video) {
             clearInterval(appState.timerInterval);
             
+            // إغلاق نافذة الفيديو إذا كانت مفتوحة
+            if (appState.videoWindow && !appState.videoWindow.closed) {
+                appState.videoWindow.close();
+            }
+            
             // منح النقاط للمستخدم
             const user = appState.users[appState.currentUser];
             user.points += video.points;
@@ -1258,6 +1286,13 @@
             
             // زيادة عدد المشاهدات الحالية للفيديو
             video.currentViews += 1;
+            
+            // تسجيل معلومات المشاهدة
+            video.views.push({
+                username: appState.currentUser,
+                timestamp: new Date().toISOString(),
+                pointsEarned: video.points
+            });
             
             // حفظ البيانات
             localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
@@ -1269,19 +1304,27 @@
             // إعادة تعيين حالة المشاهدة
             appState.currentVideo = null;
             appState.watchTime = 0;
+            appState.videoWindow = null;
             
             // إعادة تعيين شريط التقدم والمؤقت
             watchProgress.style.width = '0%';
             sessionTimer.textContent = 'اكتملت المشاهدة!';
             
             // عرض رسالة نجاح
-            alert(`مبروك! لقد كسبت ${video.points} نقطة من مشاهدة "${video.title}"`);
+            setTimeout(() => {
+                alert(`مبروك! لقد كسبت ${video.points} نقطة من مشاهدة "${video.title}"`);
+                sessionTimer.textContent = 'يمكنك بدء مشاهدة فيديو آخر';
+            }, 500);
         }
 
         // إيقاف المشاهدة
         function stopWatching() {
             if (appState.timerInterval) {
                 clearInterval(appState.timerInterval);
+            }
+            
+            if (appState.videoWindow && !appState.videoWindow.closed) {
+                appState.videoWindow.close();
             }
             
             if (appState.currentVideo) {
@@ -1299,6 +1342,7 @@
             
             appState.currentVideo = null;
             appState.watchTime = 0;
+            appState.videoWindow = null;
             watchProgress.style.width = '0%';
             sessionTimer.textContent = 'توقفت المشاهدة';
         }
@@ -1325,6 +1369,10 @@
             loginTab.addEventListener('click', showLoginForm);
             registerTab.addEventListener('click', showRegisterForm);
             
+            // تحديث معاينة النقاط عند تغيير القيم
+            document.getElementById('video-duration').addEventListener('input', updatePointsPreview);
+            document.getElementById('required-views').addEventListener('input', updatePointsPreview);
+            
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const username = document.getElementById('login-username').value;
@@ -1344,11 +1392,8 @@
                 e.preventDefault();
                 const videoData = {
                     url: document.getElementById('video-url').value,
-                    title: document.getElementById('video-title').value,
                     duration: document.getElementById('video-duration').value,
-                    points: document.getElementById('video-points').value,
-                    requiredViews: document.getElementById('required-views').value,
-                    description: document.getElementById('video-description').value
+                    requiredViews: document.getElementById('required-views').value
                 };
                 addNewVideo(videoData);
             });
