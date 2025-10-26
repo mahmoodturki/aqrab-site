@@ -17,6 +17,69 @@
             color: #333;
         }
 
+        /* صفحة الاختيار */
+        .choice-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            padding: 2rem;
+        }
+
+        .choice-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .choice-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .choice-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .choice-btn {
+            padding: 1.5rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .buyer-btn {
+            background: #27ae60;
+            color: white;
+        }
+
+        .buyer-btn:hover {
+            background: #219a52;
+            transform: translateY(-3px);
+        }
+
+        .seller-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .seller-btn:hover {
+            background: #c0392b;
+            transform: translateY(-3px);
+        }
+
         /* إعلان أعلى الموقع */
         .ad-banner {
             width: 100%;
@@ -68,6 +131,20 @@
             background: rgba(255,255,255,0.2);
         }
 
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
         /* قسم الفلترة */
         .filter-section {
             background: white;
@@ -95,14 +172,19 @@
             color: #2c3e50;
         }
 
-        select, input {
+        select, input, textarea {
             padding: 0.75rem;
             border: 1px solid #ddd;
             border-radius: 5px;
             font-size: 1rem;
         }
 
-        .search-btn {
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .search-btn, .add-btn {
             background: #3498db;
             color: white;
             border: none;
@@ -113,7 +195,7 @@
             transition: background 0.3s;
         }
 
-        .search-btn:hover {
+        .search-btn:hover, .add-btn:hover {
             background: #2980b9;
         }
 
@@ -181,7 +263,7 @@
             color: #3498db;
         }
 
-        .contact-btn {
+        .contact-btn, .delete-btn {
             width: 100%;
             background: #27ae60;
             color: white;
@@ -196,6 +278,71 @@
 
         .contact-btn:hover {
             background: #219a52;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            margin-top: 0.5rem;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        /* قسم إضافة عقار */
+        .add-property-section {
+            background: white;
+            padding: 2rem;
+            margin: 2rem auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .property-type-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .type-btn.active {
+            border-color: #3498db;
+            background: #3498db;
+            color: white;
         }
 
         /* إعلان أثناء التصفح */
@@ -218,104 +365,279 @@
             padding: 2rem 0;
             margin-top: 3rem;
         }
+
+        /* إخفاء الأقسام */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- الإعلان العلوي -->
-    <div class="ad-banner">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
-    </div>
-
-    <!-- الهيدر -->
-    <header>
-        <nav class="container">
-            <div class="logo">سوق العقارات</div>
-            <div class="nav-links">
-                <a href="#sale" class="active">شقق للبيع</a>
-                <a href="#rent">شقق للإيجار</a>
+    <!-- صفحة الاختيار الأولي -->
+    <div id="choicePage" class="choice-page">
+        <div class="choice-container">
+            <h1 class="choice-title">مرحباً بك في سوق العقارات</h1>
+            <div class="choice-buttons">
+                <button class="choice-btn buyer-btn" onclick="showBuyerSection()">
+                    🏠 مشتري أو مستأجر
+                    <br><small>تصفح الشقق المعروضة للبيع والإيجار</small>
+                </button>
+                <button class="choice-btn seller-btn" onclick="showSellerSection()">
+                    💼 بائع أو مؤجر
+                    <br><small>أضف شقتك للبيع أو الإيجار</small>
+                </button>
             </div>
-        </nav>
-    </header>
-
-    <!-- قسم الفلترة -->
-    <div class="container">
-        <div class="filter-section">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>البلد</label>
-                    <select id="country">
-                        <option value="">اختر البلد</option>
-                        <option value="الكويت">الكويت</option>
-                        <option value="السعودية">السعودية</option>
-                        <option value="الإمارات">الإمارات</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>المدينة</label>
-                    <select id="city">
-                        <option value="">اختر المدينة</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>الحي السكني</label>
-                    <select id="neighborhood">
-                        <option value="">اختر الحي</option>
-                    </select>
-                </div>
-            </div>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>عدد الغرف</label>
-                    <select id="bedrooms">
-                        <option value="">جميع الغرف</option>
-                        <option value="1">غرفة واحدة</option>
-                        <option value="2">غرفتين</option>
-                        <option value="3">3 غرف</option>
-                        <option value="4">4 غرف</option>
-                        <option value="5">5+ غرف</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>السعر من</label>
-                    <input type="number" id="minPrice" placeholder="أدنى سعر">
-                </div>
-                <div class="filter-group">
-                    <label>السعر إلى</label>
-                    <input type="number" id="maxPrice" placeholder="أعلى سعر">
-                </div>
-            </div>
-            <button class="search-btn">بحث</button>
         </div>
     </div>
 
-    <!-- قسم شقق للبيع -->
-    <section id="sale" class="properties-section">
-        <div class="container">
-            <h2 class="section-title">شقق للبيع</h2>
-            <div class="properties-grid" id="saleProperties">
-                <!-- سيتم إضافة الشقق للبيع هنا بواسطة JavaScript -->
-            </div>
+    <!-- قسم المشتري -->
+    <div id="buyerSection" class="hidden">
+        <!-- الإعلان العلوي -->
+        <div class="ad-banner">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
         </div>
-    </section>
 
-    <!-- قسم شقق للإيجار -->
-    <section id="rent" class="properties-section" style="background: #f8f9fa;">
+        <!-- الهيدر -->
+        <header>
+            <nav class="container">
+                <div class="logo">سوق العقارات</div>
+                <div class="nav-links">
+                    <button class="back-btn" onclick="showChoicePage()">← العودة</button>
+                    <a href="#sale" class="active">شقق للبيع</a>
+                    <a href="#rent">شقق للإيجار</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- قسم الفلترة -->
         <div class="container">
-            <h2 class="section-title">شقق للإيجار</h2>
-            <div class="properties-grid" id="rentProperties">
-                <!-- سيتم إضافة الشقق للإيجار هنا بواسطة JavaScript -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>البلد</label>
+                        <select id="country">
+                            <option value="">اختر البلد</option>
+                            <option value="الكويت">الكويت</option>
+                            <option value="السعودية">السعودية</option>
+                            <option value="الإمارات">الإمارات</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>المدينة</label>
+                        <select id="city">
+                            <option value="">اختر المدينة</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>الحي السكني</label>
+                        <select id="neighborhood">
+                            <option value="">اختر الحي</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>عدد الغرف</label>
+                        <select id="bedrooms">
+                            <option value="">جميع الغرف</option>
+                            <option value="1">غرفة واحدة</option>
+                            <option value="2">غرفتين</option>
+                            <option value="3">3 غرف</option>
+                            <option value="4">4 غرف</option>
+                            <option value="5">5+ غرف</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>السعر من</label>
+                        <input type="number" id="minPrice" placeholder="أدنى سعر">
+                    </div>
+                    <div class="filter-group">
+                        <label>السعر إلى</label>
+                        <input type="number" id="maxPrice" placeholder="أعلى سعر">
+                    </div>
+                </div>
+                <button class="search-btn" onclick="filterProperties()">بحث</button>
             </div>
         </div>
-    </section>
+
+        <!-- قسم شقق للبيع -->
+        <section id="sale" class="properties-section">
+            <div class="container">
+                <h2 class="section-title">شقق للبيع</h2>
+                <div class="properties-grid" id="saleProperties">
+                    <!-- سيتم إضافة الشقق للبيع هنا بواسطة JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم شقق للإيجار -->
+        <section id="rent" class="properties-section" style="background: #f8f9fa;">
+            <div class="container">
+                <h2 class="section-title">شقق للإيجار</h2>
+                <div class="properties-grid" id="rentProperties">
+                    <!-- سيتم إضافة الشقق للإيجار هنا بواسطة JavaScript -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- قسم البائع -->
+    <div id="sellerSection" class="hidden">
+        <!-- الإعلان العلوي -->
+        <div class="ad-banner">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '2d5deaded3e62ebc9943db8d8b49f74e',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/2d5deaded3e62ebc9943db8d8b49f74e/invoke.js"></script>
+        </div>
+
+        <!-- الهيدر -->
+        <header>
+            <nav class="container">
+                <div class="logo">سوق العقارات - لوحة البائع</div>
+                <div class="nav-links">
+                    <button class="back-btn" onclick="showChoicePage()">← العودة</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- قسم إضافة عقار -->
+        <div class="container">
+            <div class="add-property-section">
+                <h2 class="form-title">إضافة عقار جديد</h2>
+                
+                <div class="property-type-buttons">
+                    <button class="type-btn active" onclick="setPropertyType('sale')">شقة للبيع</button>
+                    <button class="type-btn" onclick="setPropertyType('rent')">شقة للإيجار</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>البلد *</label>
+                        <select id="addCountry" required>
+                            <option value="">اختر البلد</option>
+                            <option value="الكويت">الكويت</option>
+                            <option value="السعودية">السعودية</option>
+                            <option value="الإمارات">الإمارات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>المدينة *</label>
+                        <select id="addCity" required>
+                            <option value="">اختر المدينة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الحي السكني *</label>
+                        <select id="addNeighborhood" required>
+                            <option value="">اختر الحي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>عنوان العقار *</label>
+                    <input type="text" id="addTitle" placeholder="مثال: شقة فاخرة في منطقة..." required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>السعر *</label>
+                        <input type="number" id="addPrice" placeholder="أدخل السعر" required>
+                    </div>
+                    <div class="form-group">
+                        <label>عملة السعر</label>
+                        <select id="addCurrency">
+                            <option value="د.ك">دينار كويتي</option>
+                            <option value="ر.س">ريال سعودي</option>
+                            <option value="د.إ">درهم إماراتي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عدد الغرف *</label>
+                        <select id="addBedrooms" required>
+                            <option value="1">1 غرفة</option>
+                            <option value="2">2 غرف</option>
+                            <option value="3">3 غرف</option>
+                            <option value="4">4 غرف</option>
+                            <option value="5">5+ غرف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الطابق *</label>
+                        <input type="number" id="addFloor" placeholder="أدخل رقم الطابق" required>
+                    </div>
+                    <div class="form-group">
+                        <label>عدد البلكونات</label>
+                        <select id="addBalconies">
+                            <option value="0">لا يوجد</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>عدد الحمامات *</label>
+                        <select id="addBathrooms" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>غاز طبيعي</label>
+                        <select id="addNaturalGas">
+                            <option value="true">نعم</option>
+                            <option value="false">لا</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>صورة العقار *</label>
+                        <input type="url" id="addImage" placeholder="رابط الصورة" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>موقع الوحدة السكنية *</label>
+                    <textarea id="addLocation" placeholder="وصف موقع العقار..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الهاتف للتواصل *</label>
+                    <input type="tel" id="addPhone" placeholder="+965 1234 5678" required>
+                </div>
+
+                <div class="form-group">
+                    <label>وصف إضافي</label>
+                    <textarea id="addDescription" placeholder="أي معلومات إضافية عن العقار..."></textarea>
+                </div>
+
+                <button class="add-btn" onclick="addNewProperty()">إضافة العقار</button>
+            </div>
+        </div>
+    </div>
 
     <!-- إعلان عائم -->
     <div class="floating-ad">
@@ -349,134 +671,204 @@
         const neighborhoods = {
             'الكويت العاصمة': ['المرقاب', 'القبلة', 'الصوابر', 'الشرق', 'دسمان'],
             'حولي': ['السالمية', 'الرميثية', 'الشعب', 'بيان', 'مشرف'],
+            'الفروانية': ['الأندلس', 'الخالدية', 'العارضية', 'جليب الشيوخ', 'الرقعي'],
+            'الأحمدي': ['الفنطاس', 'المهبولة', 'الظهر', 'الرقة', 'هدية'],
             'الرياض': ['الملز', 'العليا', 'النسيم', 'الغرير', 'الروضة'],
             'جدة': ['الشاطئ', 'السلامة', 'الروضة', 'الثغر', 'الزهراء'],
             'دبي': ['ديرة', 'بر دبي', 'المركز التجاري', 'الخليج التجاري', 'جميرا']
         };
 
-        // بيانات الشقق (في تطبيق حقيقي ستأتي من قاعدة بيانات)
-        const properties = {
-            sale: [
-                {
-                    id: 1,
-                    title: "شقة فاخرة للبيع",
-                    price: "150,000 د.ك",
-                    image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع",
-                    country: "الكويت",
-                    city: "حولي",
-                    neighborhood: "السالمية",
-                    bedrooms: 3,
-                    floor: 5,
-                    balconies: 2,
-                    bathrooms: 2,
-                    naturalGas: true,
-                    location: "قرب المركز التجاري",
-                    phone: "+965 1234 5678"
-                },
-                {
-                    id: 2,
-                    title: "شقة عائلية للبيع",
-                    price: "200,000 د.ك",
-                    image: "https://via.placeholder.com/400x250/e74c3c/ffffff?text=شقة+عائلية",
-                    country: "الكويت",
-                    city: "الكويت العاصمة",
-                    neighborhood: "الشرق",
-                    bedrooms: 4,
-                    floor: 8,
-                    balconies: 3,
-                    bathrooms: 3,
-                    naturalGas: true,
-                    location: "منطقة هادئة",
-                    phone: "+965 9876 5432"
-                }
-            ],
-            rent: [
-                {
-                    id: 1,
-                    title: "شقة للإيجار الشهري",
-                    price: "500 د.ك/شهر",
-                    image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار",
-                    country: "الكويت",
-                    city: "الفروانية",
-                    neighborhood: "الاندلس",
-                    bedrooms: 2,
-                    floor: 3,
-                    balconies: 1,
-                    bathrooms: 2,
-                    naturalGas: false,
-                    location: "قرب الخدمات",
-                    phone: "+965 5555 1234"
-                },
-                {
-                    id: 2,
-                    title: "شقة راقية للإيجار",
-                    price: "800 د.ك/شهر",
-                    image: "https://via.placeholder.com/400x250/9b59b6/ffffff?text=شقة+راقية",
-                    country: "الكويت",
-                    city: "حولي",
-                    neighborhood: "الرميثية",
-                    bedrooms: 3,
-                    floor: 6,
-                    balconies: 2,
-                    bathrooms: 2,
-                    naturalGas: true,
-                    location: "منطقة سكنية متميزة",
-                    phone: "+965 4444 5678"
-                }
-            ]
+        // بيانات الشقق (سيتم تخزينها في localStorage)
+        let properties = {
+            sale: [],
+            rent: []
         };
 
-        // تحديث المدن عند اختيار البلد
-        document.getElementById('country').addEventListener('change', function() {
-            const citySelect = document.getElementById('city');
-            const neighborhoodSelect = document.getElementById('neighborhood');
-            
-            citySelect.innerHTML = '<option value="">اختر المدينة</option>';
-            neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-            
-            if (this.value && locations[this.value]) {
-                locations[this.value].forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city;
-                    option.textContent = city;
-                    citySelect.appendChild(option);
-                });
+        // تحميل البيانات من localStorage
+        function loadProperties() {
+            const saved = localStorage.getItem('realEstateProperties');
+            if (saved) {
+                properties = JSON.parse(saved);
+            } else {
+                // بيانات أولية للعرض
+                properties = {
+                    sale: [
+                        {
+                            id: 1,
+                            title: "شقة فاخرة للبيع",
+                            price: "150,000 د.ك",
+                            image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع",
+                            country: "الكويت",
+                            city: "حولي",
+                            neighborhood: "السالمية",
+                            bedrooms: 3,
+                            floor: 5,
+                            balconies: 2,
+                            bathrooms: 2,
+                            naturalGas: true,
+                            location: "قرب المركز التجاري",
+                            phone: "+965 1234 5678",
+                            description: "شقة فاخرة في موقع ممتاز"
+                        }
+                    ],
+                    rent: [
+                        {
+                            id: 2,
+                            title: "شقة للإيجار الشهري",
+                            price: "500 د.ك/شهر",
+                            image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار",
+                            country: "الكويت",
+                            city: "الفروانية",
+                            neighborhood: "الاندلس",
+                            bedrooms: 2,
+                            floor: 3,
+                            balconies: 1,
+                            bathrooms: 2,
+                            naturalGas: false,
+                            location: "قرب الخدمات",
+                            phone: "+965 5555 1234",
+                            description: "شقة مريحة بموقع حيوي"
+                        }
+                    ]
+                };
+                saveProperties();
             }
-        });
+        }
 
-        // تحديث الأحياء عند اختيار المدينة
-        document.getElementById('city').addEventListener('change', function() {
-            const neighborhoodSelect = document.getElementById('neighborhood');
-            neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-            
-            if (this.value && neighborhoods[this.value]) {
-                neighborhoods[this.value].forEach(neighborhood => {
-                    const option = document.createElement('option');
-                    option.value = neighborhood;
-                    option.textContent = neighborhood;
-                    neighborhoodSelect.appendChild(option);
-                });
-            }
-        });
+        // حفظ البيانات في localStorage
+        function saveProperties() {
+            localStorage.setItem('realEstateProperties', JSON.stringify(properties));
+        }
+
+        // متغيرات التحكم
+        let currentPropertyType = 'sale';
+
+        // عرض صفحة الاختيار
+        function showChoicePage() {
+            document.getElementById('choicePage').classList.remove('hidden');
+            document.getElementById('buyerSection').classList.add('hidden');
+            document.getElementById('sellerSection').classList.add('hidden');
+        }
+
+        // عرض قسم المشتري
+        function showBuyerSection() {
+            document.getElementById('choicePage').classList.add('hidden');
+            document.getElementById('buyerSection').classList.remove('hidden');
+            document.getElementById('sellerSection').classList.add('hidden');
+            displayProperties();
+            initializeFilters();
+        }
+
+        // عرض قسم البائع
+        function showSellerSection() {
+            document.getElementById('choicePage').classList.add('hidden');
+            document.getElementById('buyerSection').classList.add('hidden');
+            document.getElementById('sellerSection').classList.remove('hidden');
+            initializeSellerForm();
+        }
+
+        // تعيين نوع العقار (بيع/إيجار)
+        function setPropertyType(type) {
+            currentPropertyType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // تهيئة الفلاتر
+        function initializeFilters() {
+            // تحديث المدن عند اختيار البلد
+            document.getElementById('country').addEventListener('change', function() {
+                const citySelect = document.getElementById('city');
+                const neighborhoodSelect = document.getElementById('neighborhood');
+                
+                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+                
+                if (this.value && locations[this.value]) {
+                    locations[this.value].forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        citySelect.appendChild(option);
+                    });
+                }
+            });
+
+            // تحديث الأحياء عند اختيار المدينة
+            document.getElementById('city').addEventListener('change', function() {
+                const neighborhoodSelect = document.getElementById('neighborhood');
+                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+                
+                if (this.value && neighborhoods[this.value]) {
+                    neighborhoods[this.value].forEach(neighborhood => {
+                        const option = document.createElement('option');
+                        option.value = neighborhood;
+                        option.textContent = neighborhood;
+                        neighborhoodSelect.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // تهيئة نموذج البائع
+        function initializeSellerForm() {
+            // تحديث المدن عند اختيار البلد
+            document.getElementById('addCountry').addEventListener('change', function() {
+                const citySelect = document.getElementById('addCity');
+                const neighborhoodSelect = document.getElementById('addNeighborhood');
+                
+                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+                
+                if (this.value && locations[this.value]) {
+                    locations[this.value].forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.textContent = city;
+                        citySelect.appendChild(option);
+                    });
+                }
+            });
+
+            // تحديث الأحياء عند اختيار المدينة
+            document.getElementById('addCity').addEventListener('change', function() {
+                const neighborhoodSelect = document.getElementById('addNeighborhood');
+                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
+                
+                if (this.value && neighborhoods[this.value]) {
+                    neighborhoods[this.value].forEach(neighborhood => {
+                        const option = document.createElement('option');
+                        option.value = neighborhood;
+                        option.textContent = neighborhood;
+                        neighborhoodSelect.appendChild(option);
+                    });
+                }
+            });
+        }
 
         // دالة لعرض العقارات
         function displayProperties() {
             const saleContainer = document.getElementById('saleProperties');
             const rentContainer = document.getElementById('rentProperties');
             
+            saleContainer.innerHTML = '';
+            rentContainer.innerHTML = '';
+            
             // عرض شقق البيع
             properties.sale.forEach(property => {
-                saleContainer.appendChild(createPropertyCard(property));
+                saleContainer.appendChild(createPropertyCard(property, 'sale'));
             });
             
             // عرض شقق الإيجار
             properties.rent.forEach(property => {
-                rentContainer.appendChild(createPropertyCard(property));
+                rentContainer.appendChild(createPropertyCard(property, 'rent'));
             });
         }
 
         // دالة لإنشاء بطاقة عقار
-        function createPropertyCard(property) {
+        function createPropertyCard(property, type) {
             const card = document.createElement('div');
             card.className = 'property-card';
             
@@ -508,8 +900,12 @@
                     <div style="margin: 1rem 0; color: #666;">
                         <strong>الموقع:</strong> ${property.location}
                     </div>
+                    ${property.description ? `<div style="margin: 1rem 0; color: #666;">${property.description}</div>` : ''}
                     <button class="contact-btn" onclick="showPhoneNumber('${property.phone}')">
                         عرض رقم الهاتف
+                    </button>
+                    <button class="delete-btn" onclick="deleteProperty(${property.id}, '${type}')">
+                        حذف العقار
                     </button>
                 </div>
             `;
@@ -517,27 +913,97 @@
             return card;
         }
 
+        // دالة لإضافة عقار جديد
+        function addNewProperty() {
+            const form = {
+                country: document.getElementById('addCountry').value,
+                city: document.getElementById('addCity').value,
+                neighborhood: document.getElementById('addNeighborhood').value,
+                title: document.getElementById('addTitle').value,
+                price: document.getElementById('addPrice').value + ' ' + document.getElementById('addCurrency').value + (currentPropertyType === 'rent' ? '/شهر' : ''),
+                bedrooms: document.getElementById('addBedrooms').value,
+                floor: document.getElementById('addFloor').value,
+                balconies: document.getElementById('addBalconies').value,
+                bathrooms: document.getElementById('addBathrooms').value,
+                naturalGas: document.getElementById('addNaturalGas').value === 'true',
+                image: document.getElementById('addImage').value,
+                location: document.getElementById('addLocation').value,
+                phone: document.getElementById('addPhone').value,
+                description: document.getElementById('addDescription').value
+            };
+
+            // التحقق من الحقول المطلوبة
+            if (!form.country || !form.city || !form.neighborhood || !form.title || !form.price || !form.phone) {
+                alert('يرجى ملء جميع الحقول المطلوبة (*)');
+                return;
+            }
+
+            const newProperty = {
+                id: Date.now(), // استخدام الطابع الزمني كمعرف فريد
+                ...form
+            };
+
+            properties[currentPropertyType].push(newProperty);
+            saveProperties();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('addCountry').value = '';
+            document.getElementById('addCity').value = '';
+            document.getElementById('addNeighborhood').value = '';
+            document.getElementById('addTitle').value = '';
+            document.getElementById('addPrice').value = '';
+            document.getElementById('addFloor').value = '';
+            document.getElementById('addImage').value = '';
+            document.getElementById('addLocation').value = '';
+            document.getElementById('addPhone').value = '';
+            document.getElementById('addDescription').value = '';
+
+            alert('تم إضافة العقار بنجاح!');
+            
+            // الانتقال إلى قسم المشتري لعرض العقار المضاف
+            showBuyerSection();
+        }
+
+        // دالة لحذف عقار
+        function deleteProperty(id, type) {
+            if (confirm('هل أنت متأكد من حذف هذا العقار؟')) {
+                properties[type] = properties[type].filter(property => property.id !== id);
+                saveProperties();
+                displayProperties();
+                alert('تم حذف العقار بنجاح');
+            }
+        }
+
         // دالة لعرض رقم الهاتف
         function showPhoneNumber(phone) {
             alert(`رقم الهاتف للتواصل: ${phone}`);
         }
 
+        // دالة لفلترة العقارات
+        function filterProperties() {
+            // يمكن تطوير هذه الدالة لتنفيذ الفلترة حسب الحاجة
+            alert('سيتم تطوير نظام الفلترة المتقدم في الخطوة القادمة');
+        }
+
         // تهيئة الموقع عند التحميل
         document.addEventListener('DOMContentLoaded', function() {
-            displayProperties();
+            loadProperties();
+            showChoicePage();
             
             // إضافة فعالية للروابط في الهيدر
             document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const targetId = this.getAttribute('href');
-                    document.querySelector(targetId).scrollIntoView({
-                        behavior: 'smooth'
+                if (link.getAttribute('href') && link.getAttribute('href').startsWith('#')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const targetId = this.getAttribute('href');
+                        document.querySelector(targetId).scrollIntoView({
+                            behavior: 'smooth'
+                        });
                     });
-                });
+                }
             });
         });
     </script>
