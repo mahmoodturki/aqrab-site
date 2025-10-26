@@ -12,6 +12,7 @@
             --light: #f8f9fa;
             --dark: #212529;
             --success: #4cc9f0;
+            --danger: #e63946;
         }
         
         * {
@@ -70,6 +71,40 @@
             gap: 5px;
         }
         
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        }
+        
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+        
         .main-content {
             display: grid;
             grid-template-columns: 1fr 300px;
@@ -107,12 +142,36 @@
             position: relative;
             height: 180px;
             overflow: hidden;
+            background-color: #000;
         }
         
-        .video-thumbnail iframe {
+        .video-thumbnail img {
             width: 100%;
             height: 100%;
-            border: none;
+            object-fit: cover;
+        }
+        
+        .video-play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .video-thumbnail:hover .video-play-overlay {
+            opacity: 1;
+        }
+        
+        .play-icon {
+            color: white;
+            font-size: 3rem;
         }
         
         .video-info {
@@ -213,6 +272,102 @@
             transition: width 0.5s;
         }
         
+        /* أنماط نموذج تسجيل الدخول */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .auth-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .auth-form h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .auth-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-danger {
+            background: #ffe6e6;
+            color: var(--danger);
+            border: 1px solid #ffb3b3;
+        }
+        
         footer {
             background: var(--dark);
             color: white;
@@ -242,15 +397,56 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">منصة تبادل المشاهدات</div>
-                <div class="user-info">
-                    <div class="user-name">مستخدم جديد</div>
-                    <div class="points-badge">
-                        <span id="total-points">0</span> نقطة
+                <div class="user-info" id="user-info">
+                    <div class="auth-buttons">
+                        <button class="btn btn-outline" id="login-btn">تسجيل الدخول</button>
+                        <button class="btn btn-primary" id="register-btn">إنشاء حساب</button>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- نموذج تسجيل الدخول والتسجيل -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-form">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="login-tab">تسجيل الدخول</div>
+                <div class="auth-tab" id="register-tab">إنشاء حساب</div>
+            </div>
+            
+            <div class="alert alert-danger" id="auth-alert"></div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">اسم المستخدم</label>
+                    <input type="text" class="form-control" id="login-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">كلمة المرور</label>
+                    <input type="password" class="form-control" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">تسجيل الدخول</button>
+            </form>
+            
+            <form id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-username">اسم المستخدم</label>
+                    <input type="text" class="form-control" id="register-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">كلمة المرور</label>
+                    <input type="password" class="form-control" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">تأكيد كلمة المرور</label>
+                    <input type="password" class="form-control" id="register-confirm-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">إنشاء حساب</button>
+            </form>
+        </div>
+    </div>
 
     <div class="container">
         <div class="main-content">
@@ -266,14 +462,14 @@
                 <div class="points-info">
                     <p>رصيدك الحالي من النقاط:</p>
                     <div class="points-value" id="points-display">0 نقطة</div>
-                    <p>شاهد الفيديوهات لجمع النقاط!</p>
+                    <p>سجل الدخول لبدء جمع النقاط!</p>
                 </div>
                 
                 <div class="progress-container">
                     <div class="progress-bar">
                         <div class="progress" id="watch-progress"></div>
                     </div>
-                    <div class="timer-display" id="session-timer">لم تبدأ الجلسة بعد</div>
+                    <div class="timer-display" id="session-timer">سجل الدخول لبدء المشاهدة</div>
                 </div>
                 
                 <div class="points-rules">
@@ -296,12 +492,13 @@
     </footer>
 
     <script>
-        // بيانات الفيديوهات الثابتة
+        // بيانات الفيديوهات الثابتة مع روابط الصور المصغرة
         const videos = [
             {
                 id: 1,
                 title: "فيديو تعليمي 1",
                 url: "https://www.youtube.com/embed/3qCGFxc2yEg",
+                thumbnail: "https://img.youtube.com/vi/3qCGFxc2yEg/hqdefault.jpg",
                 duration: 300, // 5 دقائق بالثواني
                 points: 5
             },
@@ -309,6 +506,7 @@
                 id: 2,
                 title: "فيديو تعليمي 2", 
                 url: "https://www.youtube.com/embed/_JXPY08yg8s",
+                thumbnail: "https://img.youtube.com/vi/_JXPY08yg8s/hqdefault.jpg",
                 duration: 600, // 10 دقائق
                 points: 10
             },
@@ -316,6 +514,7 @@
                 id: 3,
                 title: "فيديو تعليمي 3",
                 url: "https://www.youtube.com/embed/jUZgDM8Oeio", 
+                thumbnail: "https://img.youtube.com/vi/jUZgDM8Oeio/hqdefault.jpg",
                 duration: 450, // 7.5 دقائق
                 points: 7
             },
@@ -323,6 +522,7 @@
                 id: 4,
                 title: "فيديو تعليمي 4",
                 url: "https://www.youtube.com/embed/GMHJdUJRxXQ",
+                thumbnail: "https://img.youtube.com/vi/GMHJdUJRxXQ/hqdefault.jpg",
                 duration: 900, // 15 دقيقة
                 points: 15
             },
@@ -330,6 +530,7 @@
                 id: 5,
                 title: "فيديو تعليمي 5",
                 url: "https://www.youtube.com/embed/cmtA4SBYk6g",
+                thumbnail: "https://img.youtube.com/vi/cmtA4SBYk6g/hqdefault.jpg",
                 duration: 720, // 12 دقيقة
                 points: 12
             },
@@ -337,6 +538,7 @@
                 id: 6,
                 title: "فيديو تعليمي 6",
                 url: "https://www.youtube.com/embed/DxQlbEghEek",
+                thumbnail: "https://img.youtube.com/vi/DxQlbEghEek/hqdefault.jpg",
                 duration: 600, // 10 دقائق
                 points: 10
             },
@@ -344,6 +546,7 @@
                 id: 7,
                 title: "فيديو تعليمي 7",
                 url: "https://www.youtube.com/embed/shZyR0a-ODE",
+                thumbnail: "https://img.youtube.com/vi/shZyR0a-ODE/hqdefault.jpg",
                 duration: 480, // 8 دقائق
                 points: 8
             },
@@ -351,45 +554,197 @@
                 id: 8,
                 title: "فيديو تعليمي 8",
                 url: "https://www.youtube.com/embed/7vUrwQ4QcW8",
+                thumbnail: "https://img.youtube.com/vi/7vUrwQ4QcW8/hqdefault.jpg",
                 duration: 540, // 9 دقائق
                 points: 9
             }
         ];
 
-        // حالة المستخدم
-        let userState = {
-            points: 0,
+        // حالة التطبيق
+        let appState = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('videoPointsUsers')) || {},
+            videos: videos,
             currentVideo: null,
             watchTime: 0,
-            watchedVideos: new Set(),
             timerInterval: null
         };
 
         // DOM Elements
+        const authModal = document.getElementById('auth-modal');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const authAlert = document.getElementById('auth-alert');
+        const modalClose = document.getElementById('modal-close');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const userInfo = document.getElementById('user-info');
         const videosContainer = document.getElementById('videos-container');
-        const totalPointsElement = document.getElementById('total-points');
         const pointsDisplay = document.getElementById('points-display');
         const watchProgress = document.getElementById('watch-progress');
         const sessionTimer = document.getElementById('session-timer');
 
+        // عرض نموذج تسجيل الدخول
+        function showAuthModal() {
+            authModal.style.display = 'flex';
+            showLoginForm();
+        }
+
+        // إخفاء نموذج تسجيل الدخول
+        function hideAuthModal() {
+            authModal.style.display = 'none';
+            clearAuthForm();
+        }
+
+        // عرض نموذج تسجيل الدخول
+        function showLoginForm() {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+        }
+
+        // عرض نموذج إنشاء حساب
+        function showRegisterForm() {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            loginTab.classList.remove('active');
+            registerTab.classList.add('active');
+        }
+
+        // مسح بيانات النماذج
+        function clearAuthForm() {
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('register-username').value = '';
+            document.getElementById('register-password').value = '';
+            document.getElementById('register-confirm-password').value = '';
+            hideAlert();
+        }
+
+        // عرض رسالة خطأ
+        function showAlert(message) {
+            authAlert.textContent = message;
+            authAlert.style.display = 'block';
+        }
+
+        // إخفاء رسالة الخطأ
+        function hideAlert() {
+            authAlert.style.display = 'none';
+        }
+
+        // تسجيل الدخول
+        function login(username, password) {
+            if (!appState.users[username]) {
+                showAlert('اسم المستخدم غير موجود');
+                return false;
+            }
+            
+            if (appState.users[username].password !== password) {
+                showAlert('كلمة المرور غير صحيحة');
+                return false;
+            }
+            
+            appState.currentUser = username;
+            localStorage.setItem('videoPointsCurrentUser', username);
+            updateUI();
+            hideAuthModal();
+            return true;
+        }
+
+        // إنشاء حساب جديد
+        function register(username, password, confirmPassword) {
+            if (password !== confirmPassword) {
+                showAlert('كلمة المرور غير متطابقة');
+                return false;
+            }
+            
+            if (appState.users[username]) {
+                showAlert('اسم المستخدم موجود مسبقاً');
+                return false;
+            }
+            
+            appState.users[username] = {
+                password: password,
+                points: 0,
+                watchedVideos: []
+            };
+            
+            localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
+            appState.currentUser = username;
+            localStorage.setItem('videoPointsCurrentUser', username);
+            updateUI();
+            hideAuthModal();
+            return true;
+        }
+
+        // تسجيل الخروج
+        function logout() {
+            appState.currentUser = null;
+            localStorage.removeItem('videoPointsCurrentUser');
+            updateUI();
+            stopWatching();
+        }
+
+        // تحديث واجهة المستخدم
+        function updateUI() {
+            if (appState.currentUser) {
+                const user = appState.users[appState.currentUser];
+                userInfo.innerHTML = `
+                    <div class="user-name">مرحباً، ${appState.currentUser}</div>
+                    <div class="points-badge">
+                        <span id="total-points">${user.points}</span> نقطة
+                    </div>
+                    <button class="btn btn-outline" id="logout-btn">تسجيل الخروج</button>
+                `;
+                
+                document.getElementById('logout-btn').addEventListener('click', logout);
+                pointsDisplay.textContent = `${user.points} نقطة`;
+                initializeVideos();
+            } else {
+                userInfo.innerHTML = `
+                    <div class="auth-buttons">
+                        <button class="btn btn-outline" id="login-btn">تسجيل الدخول</button>
+                        <button class="btn btn-primary" id="register-btn">إنشاء حساب</button>
+                    </div>
+                `;
+                
+                document.getElementById('login-btn').addEventListener('click', showAuthModal);
+                document.getElementById('register-btn').addEventListener('click', showAuthModal);
+                pointsDisplay.textContent = '0 نقطة';
+                videosContainer.innerHTML = '<p>يجب تسجيل الدخول لمشاهدة الفيديوهات</p>';
+                sessionTimer.textContent = 'سجل الدخول لبدء المشاهدة';
+            }
+        }
+
         // تهيئة الفيديوهات في الواجهة
         function initializeVideos() {
-            videosContainer.innerHTML = '';
+            if (!appState.currentUser) return;
             
-            videos.forEach(video => {
+            videosContainer.innerHTML = '';
+            const user = appState.users[appState.currentUser];
+            
+            appState.videos.forEach(video => {
+                const isWatched = user.watchedVideos.includes(video.id);
+                
                 const videoCard = document.createElement('div');
                 videoCard.className = 'video-card';
                 videoCard.innerHTML = `
                     <div class="video-thumbnail">
-                        <iframe src="${video.url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <img src="${video.thumbnail}" alt="${video.title}">
+                        <div class="video-play-overlay">
+                            <div class="play-icon">▶</div>
+                        </div>
                     </div>
                     <div class="video-info">
                         <div class="video-title">${video.title}</div>
                         <div class="video-duration">المدة: ${Math.floor(video.duration / 60)} دقيقة</div>
                         <div class="video-points">النقاط: ${video.points}</div>
                         <div class="watch-controls">
-                            <button class="watch-btn" data-id="${video.id}" ${userState.watchedVideos.has(video.id) ? 'disabled' : ''}>
-                                ${userState.watchedVideos.has(video.id) ? 'تمت المشاهدة' : 'بدء المشاهدة'}
+                            <button class="watch-btn" data-id="${video.id}" ${isWatched ? 'disabled' : ''}>
+                                ${isWatched ? 'تمت المشاهدة' : 'بدء المشاهدة'}
                             </button>
                             <div class="timer-display" id="timer-${video.id}">--:--</div>
                         </div>
@@ -407,13 +762,19 @@
 
         // التعامل مع النقر على زر المشاهدة
         function handleWatchButtonClick(e) {
-            const videoId = parseInt(e.target.getAttribute('data-id'));
-            const video = videos.find(v => v.id === videoId);
+            if (!appState.currentUser) {
+                showAuthModal();
+                return;
+            }
             
-            if (!video || userState.watchedVideos.has(videoId)) return;
+            const videoId = parseInt(e.target.getAttribute('data-id'));
+            const video = appState.videos.find(v => v.id === videoId);
+            const user = appState.users[appState.currentUser];
+            
+            if (!video || user.watchedVideos.includes(videoId)) return;
             
             // إذا كان هناك فيديو قيد المشاهدة حالياً، أوقفه
-            if (userState.currentVideo) {
+            if (appState.currentVideo) {
                 stopWatching();
             }
             
@@ -423,34 +784,37 @@
 
         // بدء مشاهدة فيديو
         function startWatching(video) {
-            userState.currentVideo = video;
-            userState.watchTime = 0;
+            appState.currentVideo = video;
+            appState.watchTime = 0;
             
             // تحديث واجهة المستخدم
             const watchBtn = document.querySelector(`.watch-btn[data-id="${video.id}"]`);
             watchBtn.textContent = 'جاري المشاهدة...';
             watchBtn.disabled = true;
             
+            // فتح نافذة جديدة لمشاهدة الفيديو
+            window.open(video.url, '_blank', 'width=800,height=600');
+            
             // بدء المؤقت
-            userState.timerInterval = setInterval(() => {
-                userState.watchTime++;
+            appState.timerInterval = setInterval(() => {
+                appState.watchTime++;
                 
                 // تحديث المؤقت المرئي
                 const timerDisplay = document.getElementById(`timer-${video.id}`);
-                const remaining = video.duration - userState.watchTime;
+                const remaining = video.duration - appState.watchTime;
                 const minutes = Math.floor(remaining / 60);
                 const seconds = remaining % 60;
                 timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                 
                 // تحديث شريط التقدم
-                const progress = (userState.watchTime / video.duration) * 100;
+                const progress = (appState.watchTime / video.duration) * 100;
                 watchProgress.style.width = `${progress}%`;
                 
                 // تحديث مؤشر الجلسة
                 sessionTimer.textContent = `متبقي: ${minutes}:${seconds.toString().padStart(2, '0')}`;
                 
                 // إذا اكتملت المدة
-                if (userState.watchTime >= video.duration) {
+                if (appState.watchTime >= video.duration) {
                     completeWatching(video);
                 }
             }, 1000);
@@ -458,28 +822,26 @@
 
         // إكمال مشاهدة الفيديو
         function completeWatching(video) {
-            clearInterval(userState.timerInterval);
+            clearInterval(appState.timerInterval);
             
             // منح النقاط للمستخدم
-            userState.points += video.points;
-            userState.watchedVideos.add(video.id);
+            const user = appState.users[appState.currentUser];
+            user.points += video.points;
+            user.watchedVideos.push(video.id);
+            
+            // حفظ البيانات
+            localStorage.setItem('videoPointsUsers', JSON.stringify(appState.users));
             
             // تحديث واجهة المستخدم
-            updatePointsDisplay();
+            updateUI();
             
             // إعادة تعيين حالة المشاهدة
-            userState.currentVideo = null;
-            userState.watchTime = 0;
+            appState.currentVideo = null;
+            appState.watchTime = 0;
             
             // إعادة تعيين شريط التقدم والمؤقت
             watchProgress.style.width = '0%';
             sessionTimer.textContent = 'اكتملت المشاهدة!';
-            
-            // إعادة تهيئة الفيديوهات لتحديث الأزرار
-            setTimeout(() => {
-                initializeVideos();
-                sessionTimer.textContent = 'يمكنك بدء مشاهدة فيديو آخر';
-            }, 2000);
             
             // عرض رسالة نجاح
             alert(`مبروك! لقد كسبت ${video.points} نقطة من مشاهدة "${video.title}"`);
@@ -487,39 +849,67 @@
 
         // إيقاف المشاهدة
         function stopWatching() {
-            if (userState.timerInterval) {
-                clearInterval(userState.timerInterval);
+            if (appState.timerInterval) {
+                clearInterval(appState.timerInterval);
             }
             
-            if (userState.currentVideo) {
-                const watchBtn = document.querySelector(`.watch-btn[data-id="${userState.currentVideo.id}"]`);
+            if (appState.currentVideo) {
+                const watchBtn = document.querySelector(`.watch-btn[data-id="${appState.currentVideo.id}"]`);
                 if (watchBtn) {
                     watchBtn.textContent = 'بدء المشاهدة';
                     watchBtn.disabled = false;
                 }
                 
-                const timerDisplay = document.getElementById(`timer-${userState.currentVideo.id}`);
+                const timerDisplay = document.getElementById(`timer-${appState.currentVideo.id}`);
                 if (timerDisplay) {
                     timerDisplay.textContent = '--:--';
                 }
             }
             
-            userState.currentVideo = null;
-            userState.watchTime = 0;
+            appState.currentVideo = null;
+            appState.watchTime = 0;
             watchProgress.style.width = '0%';
             sessionTimer.textContent = 'توقفت المشاهدة';
         }
 
-        // تحديث عرض النقاط
-        function updatePointsDisplay() {
-            totalPointsElement.textContent = userState.points;
-            pointsDisplay.textContent = `${userState.points} نقطة`;
-        }
-
         // التهيئة عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', () => {
-            initializeVideos();
-            updatePointsDisplay();
+            // تحميل المستخدم الحالي من التخزين المحلي
+            const currentUser = localStorage.getItem('videoPointsCurrentUser');
+            if (currentUser && appState.users[currentUser]) {
+                appState.currentUser = currentUser;
+            }
+            
+            updateUI();
+            
+            // إضافة مستمعي الأحداث
+            loginBtn.addEventListener('click', showAuthModal);
+            registerBtn.addEventListener('click', showAuthModal);
+            modalClose.addEventListener('click', hideAuthModal);
+            loginTab.addEventListener('click', showLoginForm);
+            registerTab.addEventListener('click', showRegisterForm);
+            
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                login(username, password);
+            });
+            
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('register-username').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                register(username, password, confirmPassword);
+            });
+            
+            // إغلاق النافذة عند النقر خارجها
+            authModal.addEventListener('click', (e) => {
+                if (e.target === authModal) {
+                    hideAuthModal();
+                }
+            });
         });
     </script>
 </body>
