@@ -345,6 +345,41 @@
             color: white;
         }
 
+        /* خريطة جوجل */
+        .map-container {
+            height: 300px;
+            margin: 1rem 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .location-search {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .location-search input {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .location-search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #3498db;
+        }
+
         /* إعلان أثناء التصفح */
         .floating-ad {
             position: fixed;
@@ -370,7 +405,15 @@
         .hidden {
             display: none;
         }
+
+        .coordinates {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
     </style>
+    <!-- تحميل خرائط جوجل -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCx6pMXS4oW3O1Xkf5k5w45W0wQ8Q6Q6Q6Q&libraries=places&callback=initMap" async defer></script>
 </head>
 <body>
     <!-- صفحة الاختيار الأولي -->
@@ -426,9 +469,7 @@
                         <label>البلد</label>
                         <select id="country">
                             <option value="">اختر البلد</option>
-                            <option value="الكويت">الكويت</option>
-                            <option value="السعودية">السعودية</option>
-                            <option value="الإمارات">الإمارات</option>
+                            <!-- سيتم ملء الدول العربية تلقائياً -->
                         </select>
                     </div>
                     <div class="filter-group">
@@ -529,11 +570,9 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>البلد *</label>
-                        <select id="addCountry" required>
+                        <select id="addCountry" required onchange="updateCities(this.value)">
                             <option value="">اختر البلد</option>
-                            <option value="الكويت">الكويت</option>
-                            <option value="السعودية">السعودية</option>
-                            <option value="الإمارات">الإمارات</option>
+                            <!-- سيتم ملء الدول العربية تلقائياً -->
                         </select>
                     </div>
                     <div class="form-group">
@@ -544,15 +583,29 @@
                     </div>
                     <div class="form-group">
                         <label>الحي السكني *</label>
-                        <select id="addNeighborhood" required>
-                            <option value="">اختر الحي</option>
-                        </select>
+                        <input type="text" id="addNeighborhood" placeholder="اسم الحي السكني" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>عنوان العقار *</label>
                     <input type="text" id="addTitle" placeholder="مثال: شقة فاخرة في منطقة..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>موقع العقار على الخريطة *</label>
+                    <div class="location-search">
+                        <input type="text" id="locationSearch" placeholder="ابحث عن الموقع على الخريطة...">
+                        <button class="location-search-btn" onclick="searchLocation()">🔍</button>
+                    </div>
+                    <div class="map-container">
+                        <div id="map"></div>
+                    </div>
+                    <div class="coordinates" id="coordinates">
+                        الإحداثيات: لم يتم تحديد موقع بعد
+                    </div>
+                    <input type="hidden" id="addLat">
+                    <input type="hidden" id="addLng">
                 </div>
 
                 <div class="form-row">
@@ -563,9 +616,27 @@
                     <div class="form-group">
                         <label>عملة السعر</label>
                         <select id="addCurrency">
-                            <option value="د.ك">دينار كويتي</option>
+                            <option value="ج.م">جنيه مصري</option>
                             <option value="ر.س">ريال سعودي</option>
                             <option value="د.إ">درهم إماراتي</option>
+                            <option value="د.ك">دينار كويتي</option>
+                            <option value="د.ع">دينار عراقي</option>
+                            <option value="ل.س">ليرة سورية</option>
+                            <option value="د.ت">دينار تونسي</option>
+                            <option value="د.ج">دينار جزائري</option>
+                            <option value="د.ل">دينار ليبي</option>
+                            <option value="ر.ي">ريال يمني</option>
+                            <option value="ر.ع">ريال عماني</option>
+                            <option value="ر.ق">ريال قطري</option>
+                            <option value="د.ب">دينار بحريني</option>
+                            <option value="د.أ">دينار أردني</option>
+                            <option value="ش.ج">شلن جيبوتي</option>
+                            <option value="أوقية">أوقية موريتانية</option>
+                            <option value="درهم">درهم مغربي</option>
+                            <option value="ج.س">جنيه سوداني</option>
+                            <option value="ش.ص">شلن صومالي</option>
+                            <option value="$">دولار أمريكي</option>
+                            <option value="€">يورو</option>
                         </select>
                     </div>
                 </div>
@@ -620,13 +691,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>موقع الوحدة السكنية *</label>
-                    <textarea id="addLocation" placeholder="وصف موقع العقار..." required></textarea>
+                    <label>وصف الموقع *</label>
+                    <textarea id="addLocation" placeholder="وصف موقع العقار (قرب المسجد، المدرسة، الأسواق...)" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label>رقم الهاتف للتواصل *</label>
-                    <input type="tel" id="addPhone" placeholder="+965 1234 5678" required>
+                    <input type="tel" id="addPhone" placeholder="+20 123 456 7890" required>
                 </div>
 
                 <div class="form-group">
@@ -661,21 +732,96 @@
     </footer>
 
     <script>
-        // بيانات المدن والأحياء
-        const locations = {
-            'الكويت': ['الكويت العاصمة', 'حولي', 'الفروانية', 'الأحمدي', 'الجهراء', 'مبارك الكبير'],
-            'السعودية': ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام', 'الخبر'],
-            'الإمارات': ['دبي', 'أبوظبي', 'الشارقة', 'عجمان', 'العين', 'رأس الخيمة']
-        };
-
-        const neighborhoods = {
-            'الكويت العاصمة': ['المرقاب', 'القبلة', 'الصوابر', 'الشرق', 'دسمان'],
-            'حولي': ['السالمية', 'الرميثية', 'الشعب', 'بيان', 'مشرف'],
-            'الفروانية': ['الأندلس', 'الخالدية', 'العارضية', 'جليب الشيوخ', 'الرقعي'],
-            'الأحمدي': ['الفنطاس', 'المهبولة', 'الظهر', 'الرقة', 'هدية'],
-            'الرياض': ['الملز', 'العليا', 'النسيم', 'الغرير', 'الروضة'],
-            'جدة': ['الشاطئ', 'السلامة', 'الروضة', 'الثغر', 'الزهراء'],
-            'دبي': ['ديرة', 'بر دبي', 'المركز التجاري', 'الخليج التجاري', 'جميرا']
+        // جميع الدول العربية وعواصمها ومدنها الرئيسية
+        const arabCountries = {
+            'مصر': {
+                capital: 'القاهرة',
+                cities: ['القاهرة', 'الإسكندرية', 'الجيزة', 'شبرا الخيمة', 'بورسعيد', 'السويس', 'المحلة الكبرى', 'الأقصر', 'أسوان', 'المندرة', 'دمياط', 'المنصورة', 'طنطا', 'العريش', 'فايد', 'بنها', 'زقازيق', 'سوهاج', 'أسيوط', 'قنا', 'الغردقة', 'شرم الشيخ', 'العين السخنة', 'مرسى مطروح']
+            },
+            'السعودية': {
+                capital: 'الرياض',
+                cities: ['الرياض', 'جدة', 'مكة المكرمة', 'المدينة المنورة', 'الدمام', 'الخبر', 'الأحساء', 'القصيم', 'تبوك', 'حائل', 'الباحة', 'نجران', 'الجوف', 'الطائف', 'ينبع', 'أبها', 'جازان']
+            },
+            'الجزائر': {
+                capital: 'الجزائر',
+                cities: ['الجزائر', 'وهران', 'قسنطينة', 'عنابة', 'باتنة', 'بليدة', 'سطيف', 'الشلف', 'البليدة', 'الأغواط', 'ورقلة', 'تيارت', 'جيجل', 'تمنراست', 'بسكرة', 'مدية', 'الوادي', 'خنشلة', 'سوق أهراس', 'تيبازة', 'مستغانم', 'البيض', 'النعامة', 'عين الدفلى', 'غرداية', 'غليزان']
+            },
+            'السودان': {
+                capital: 'الخرطوم',
+                cities: ['الخرطوم', 'أم درمان', 'بورتسودان', 'ود مدني', 'الأبيض', 'الفاشر', 'كادقلي', 'الدامر', 'الرهد', 'كسلا', 'سنار', 'شندي', 'القضارف', 'الجنينة', 'ربك', 'نيالا', 'طوكر', 'عطبرة', 'دونقلا', 'حلفا الجديدة']
+            },
+            'العراق': {
+                capital: 'بغداد',
+                cities: ['بغداد', 'البصرة', 'الموصل', 'أربيل', 'النجف', 'كركوك', 'السليمانية', 'الناصرية', 'العمارة', 'الحلة', 'الديوانية', 'الكوت', 'ذي قار', 'كربلاء', 'الدور', 'الرمادي', 'الفلوحة', 'الفاو', 'زاخو', 'عمادية']
+            },
+            'المغرب': {
+                capital: 'الرباط',
+                cities: ['الرباط', 'الدار البيضاء', 'فاس', 'مراكش', 'طنجة', 'مكناس', 'أكادير', 'وجدة', 'القنيطرة', 'تطوان', 'الصويرة', 'الجديدة', 'الناظور', 'بن جرير', 'خريبكة', 'آسفي', 'العرائش', 'تازة', 'خنيفرة', 'ورزازات']
+            },
+            'اليمن': {
+                capital: 'صنعاء',
+                cities: ['صنعاء', 'عدن', 'تعز', 'الحديدة', 'إب', 'المكلا', 'ذمار', 'سيئون', 'شبوة', 'حجة', 'الضالع', 'بيحان', 'المهرة', 'عمران', 'ريمة', 'أرحب', 'البيضاء', 'المحويت', 'أبين', 'لحج']
+            },
+            'سوريا': {
+                capital: 'دمشق',
+                cities: ['دمشق', 'حلب', 'حمص', 'اللاذقية', 'حماة', 'طرطوس', 'دير الزور', 'الحسكة', 'الرقة', 'السويداء', 'درعا', 'إدلب', 'القامشلي', 'الباب', 'عفرين', 'داريا', 'معرة النعمان', 'جبلة', 'صافيتا', 'تلكلخ']
+            },
+            'تونس': {
+                capital: 'تونس',
+                cities: ['تونس', 'صفاقس', 'سوسة', 'أريانة', 'بن عروس', 'القيروان', 'قابس', 'بنزرت', 'القصرين', 'مدنين', 'المهدية', 'نابل', 'طبرقة', 'الحمامات', 'جرجيس', 'زغوان', 'الكاف', 'توزر', 'قفصة', 'سيدي بوزيد']
+            },
+            'الإمارات': {
+                capital: 'أبو ظبي',
+                cities: ['أبو ظبي', 'دبي', 'الشارقة', 'عجمان', 'العين', 'رأس الخيمة', 'الفجيرة', 'أم القيوين', 'خورفكان', 'دبا', 'البدية', 'مصفوت', 'حتا', 'الرمس', 'المرفأ']
+            },
+            'ليبيا': {
+                capital: 'طرابلس',
+                cities: ['طرابلس', 'بنغازي', 'مصراتة', 'طبرق', 'سبها', 'درنة', 'الأبيار', 'البيضاء', 'غريان', 'الزاوية', 'اجدابيا', 'الكفرة', 'مرزق', 'زليتن', 'مسلاتة', 'الخمس', 'غات', 'أوباري', 'براك', 'ترهونة']
+            },
+            'الأردن': {
+                capital: 'عمان',
+                cities: ['عمان', 'الزرقاء', 'إربد', 'العقبة', 'الكرك', 'المفرق', 'مادبا', 'السلط', 'جرش', 'عجلون', 'معان', 'الطفيلة', 'البقعة', 'الرمثا', 'الحصن', 'صويلح', 'الرصيفة', 'وادي السير', 'ناعور', 'ذيبان']
+            },
+            'لبنان': {
+                capital: 'بيروت',
+                cities: ['بيروت', 'طرابلس', 'صيدا', 'صور', 'جبيل', 'زحلة', 'بعبدا', 'عاليه', 'بعلبك', 'الهرمل', 'النبطية', 'مرجعيون', 'عدلون', 'الدامور', 'عالية', 'بنت جبيل', 'حاصبيا', 'راشيا', 'المنية', 'ضبية']
+            },
+            'عمان': {
+                capital: 'مسقط',
+                cities: ['مسقط', 'صلالة', 'صحار', 'نزوى', 'صور', 'بهلا', 'الرستاق', 'السيب', 'بركاء', 'عبري', 'خصب', 'ضلكوت', 'المصنعة', 'ازكي', 'لوى', 'بدبد', 'قمزار', 'مطرح', 'الجصة', 'قريات']
+            },
+            'الكويت': {
+                capital: 'الكويت',
+                cities: ['الكويت', 'السالمية', 'حولي', 'الفروانية', 'الأحمدي', 'الجهراء', 'مبارك الكبير', 'الرقة', 'الخيران', 'الجليعة', 'الصليبية', 'المنقف', 'الفنطاس', 'أبو حليفة', 'الظهر', 'الوفرة', 'الزور', 'كبد', 'الصبية', 'العدان']
+            },
+            'قطر': {
+                capital: 'الدوحة',
+                cities: ['الدوحة', 'الريان', 'أم صلال', 'الخور', 'الوكرة', 'الشحانية', 'الشمال', 'الجميلية', 'الغرافة', 'البدع', 'سيلين', 'الخص', 'أم باب', 'الذخيرة', 'الرويس', 'العريش', 'الزبارة', 'فويرط', 'المرخية', 'الطريف']
+            },
+            'البحرين': {
+                capital: 'المنامة',
+                cities: ['المنامة', 'المحرق', 'الرفاع', 'مدينة حمد', 'الحد', 'جد حفص', 'الدراز', 'بوري', 'المنطقة الدبلوماسية', 'أبو صيبع', 'مقابة', 'الجنوسان', 'دار كليب', 'البديع', 'سماهيج', 'سترة', 'النعيم', 'الهملة', 'المالكية', 'القضيبية']
+            },
+            'موريتانيا': {
+                capital: 'نواكشوط',
+                cities: ['نواكشوط', 'نواذيبو', 'كيفة', 'روصو', 'زويرات', 'ألاك', 'بوكادوم', 'عدل بكرو', 'السبخة', 'أطار', 'تجكجة', 'سومطرة', 'المذرذرة', 'بوتلميت', 'مقرة', 'غابو', 'تمبدغة', 'ولاتة', 'مونكل', 'فديرك']
+            },
+            'الصومال': {
+                capital: 'مقديشو',
+                cities: ['مقديشو', 'هرجيسا', 'بوساسو', 'بربرة', 'جالكعيو', 'بلد وين', 'كيسمايو', 'ميركا', 'أودويني', 'غاروي', 'جبوه', 'عيلبريد', 'قوريولي', 'أفجوي', 'عدالة', 'لاسعانود', 'برطورة', 'جوري إيل', 'بندر بيليه', 'علمدوب']
+            },
+            'جيبوتي': {
+                capital: 'جيبوتي',
+                cities: ['جيبوتي', 'علي صابح', 'تاجورة', 'أوبوك', 'دخيل', 'ارتا', 'جلاله', 'يوبوكي', 'خور أنجف', 'عسقل', 'دورا', 'موقل', 'بالها', 'عبد الكوري', 'غاجيلا', 'لودر', 'حقل العش', 'رأس سيان', 'غاردين', 'سيرتي']
+            },
+            'جزر القمر': {
+                capital: 'موروني',
+                cities: ['موروني', 'موتسامودو', 'فومبوني', 'دوموني', 'تسمبيو', 'أنجوان', 'أوهاني', 'ميروني', 'شينديني', 'بازمنيو', 'كوني', 'كارثالا', 'هونتوندوي', 'مبيدجي', 'أكوابني', 'أنجوان', 'باندر صالح', 'ملا', 'نغازيدجا', 'أنجوان']
+            },
+            'فلسطين': {
+                capital: 'القدس',
+                cities: ['القدس', 'غزة', 'الخليل', 'نابلس', 'رام الله', 'بيت لحم', 'طولكرم', 'أريحا', 'قلقيلية', 'صفد', 'يافا', 'حيفا', 'عكا', 'اللد', 'الرملة', 'بئر السبع', 'سلفيت', 'طوباس', 'جنين', 'المجدل']
+            }
         };
 
         // بيانات الشقق (سيتم تخزينها في localStorage)
@@ -683,6 +829,11 @@
             sale: [],
             rent: []
         };
+
+        // متغيرات الخريطة
+        let map;
+        let marker;
+        let geocoder;
 
         // تحميل البيانات من localStorage
         function loadProperties() {
@@ -695,39 +846,43 @@
                     sale: [
                         {
                             id: 1,
-                            title: "شقة فاخرة للبيع",
-                            price: "150,000 د.ك",
-                            image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع",
-                            country: "الكويت",
-                            city: "حولي",
-                            neighborhood: "السالمية",
+                            title: "شقة فاخرة للبيع في القاهرة",
+                            price: "2,500,000 ج.م",
+                            image: "https://via.placeholder.com/400x250/3498db/ffffff?text=شقة+للبيع+في+مصر",
+                            country: "مصر",
+                            city: "القاهرة",
+                            neighborhood: "المعادي",
                             bedrooms: 3,
                             floor: 5,
                             balconies: 2,
                             bathrooms: 2,
                             naturalGas: true,
-                            location: "قرب المركز التجاري",
-                            phone: "+965 1234 5678",
-                            description: "شقة فاخرة في موقع ممتاز"
+                            location: "قرب المركز التجاري المعادي",
+                            phone: "+20 123 456 7890",
+                            description: "شقة فاخرة في موقع ممتاز بمنطقة المعادي",
+                            lat: 29.9622,
+                            lng: 31.2549
                         }
                     ],
                     rent: [
                         {
                             id: 2,
-                            title: "شقة للإيجار الشهري",
-                            price: "500 د.ك/شهر",
-                            image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار",
-                            country: "الكويت",
-                            city: "الفروانية",
-                            neighborhood: "الاندلس",
+                            title: "شقة للإيجار الشهري في الإسكندرية",
+                            price: "5,000 ج.م/شهر",
+                            image: "https://via.placeholder.com/400x250/27ae60/ffffff?text=شقة+للإيجار+في+مصر",
+                            country: "مصر",
+                            city: "الإسكندرية",
+                            neighborhood: "سموحة",
                             bedrooms: 2,
                             floor: 3,
                             balconies: 1,
                             bathrooms: 2,
                             naturalGas: false,
-                            location: "قرب الخدمات",
-                            phone: "+965 5555 1234",
-                            description: "شقة مريحة بموقع حيوي"
+                            location: "قرب الخدمات بمنطقة سموحة",
+                            phone: "+20 555 123 4567",
+                            description: "شقة مريحة بموقع حيوي في الإسكندرية",
+                            lat: 31.2001,
+                            lng: 29.9187
                         }
                     ]
                 };
@@ -738,6 +893,115 @@
         // حفظ البيانات في localStorage
         function saveProperties() {
             localStorage.setItem('realEstateProperties', JSON.stringify(properties));
+        }
+
+        // تهيئة الخريطة
+        function initMap() {
+            // الخريطة الافتراضية تظهر مصر
+            const defaultLocation = { lat: 30.0444, lng: 31.2357 }; // القاهرة
+            
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: defaultLocation,
+                mapTypeControl: true,
+                streetViewControl: true
+            });
+
+            geocoder = new google.maps.Geocoder();
+
+            // إضافة علامة قابلة للسحب
+            marker = new google.maps.Marker({
+                map: map,
+                position: defaultLocation,
+                draggable: true,
+                title: 'اسحب العلامة لتحديد الموقع الدقيق'
+            });
+
+            // تحديث الإحداثيات عند سحب العلامة
+            marker.addListener('dragend', function() {
+                updateCoordinates(marker.getPosition());
+            });
+
+            // تحديث الإحداثيات عند النقر على الخريطة
+            map.addListener('click', function(event) {
+                marker.setPosition(event.latLng);
+                updateCoordinates(event.latLng);
+            });
+
+            updateCoordinates(defaultLocation);
+        }
+
+        // تحديث عرض الإحداثيات
+        function updateCoordinates(latLng) {
+            const lat = latLng.lat();
+            const lng = latLng.lng();
+            document.getElementById('coordinates').textContent = 
+                `الإحداثيات: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            document.getElementById('addLat').value = lat;
+            document.getElementById('addLng').value = lng;
+        }
+
+        // البحث عن موقع
+        function searchLocation() {
+            const address = document.getElementById('locationSearch').value;
+            if (!address) return;
+
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status === 'OK') {
+                    map.setCenter(results[0].geometry.location);
+                    marker.setPosition(results[0].geometry.location);
+                    updateCoordinates(results[0].geometry.location);
+                } else {
+                    alert('تعذر العثور على الموقع: ' + status);
+                }
+            });
+        }
+
+        // ملء الدول في القوائم المنسدلة
+        function populateCountries() {
+            const countrySelects = [
+                document.getElementById('country'),
+                document.getElementById('addCountry')
+            ];
+
+            countrySelects.forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">اختر البلد</option>';
+                    Object.keys(arabCountries).forEach(country => {
+                        const option = document.createElement('option');
+                        option.value = country;
+                        option.textContent = country;
+                        if (country === 'مصر') option.selected = true;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // تحديث المدن افتراضياً لمصر
+            updateCities('مصر');
+        }
+
+        // تحديث قائمة المدن بناءً على الدولة المختارة
+        function updateCities(country) {
+            const citySelects = [
+                document.getElementById('city'),
+                document.getElementById('addCity')
+            ];
+
+            citySelects.forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">اختر المدينة</option>';
+                    if (country && arabCountries[country]) {
+                        arabCountries[country].cities.forEach(city => {
+                            const option = document.createElement('option');
+                            option.value = city;
+                            option.textContent = city;
+                            if (city === arabCountries[country].capital) option.selected = true;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            });
         }
 
         // متغيرات التحكم
@@ -756,7 +1020,6 @@
             document.getElementById('buyerSection').classList.remove('hidden');
             document.getElementById('sellerSection').classList.add('hidden');
             displayProperties();
-            initializeFilters();
         }
 
         // عرض قسم البائع
@@ -764,7 +1027,6 @@
             document.getElementById('choicePage').classList.add('hidden');
             document.getElementById('buyerSection').classList.add('hidden');
             document.getElementById('sellerSection').classList.remove('hidden');
-            initializeSellerForm();
         }
 
         // تعيين نوع العقار (بيع/إيجار)
@@ -774,78 +1036,6 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-        }
-
-        // تهيئة الفلاتر
-        function initializeFilters() {
-            // تحديث المدن عند اختيار البلد
-            document.getElementById('country').addEventListener('change', function() {
-                const citySelect = document.getElementById('city');
-                const neighborhoodSelect = document.getElementById('neighborhood');
-                
-                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
-                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-                
-                if (this.value && locations[this.value]) {
-                    locations[this.value].forEach(city => {
-                        const option = document.createElement('option');
-                        option.value = city;
-                        option.textContent = city;
-                        citySelect.appendChild(option);
-                    });
-                }
-            });
-
-            // تحديث الأحياء عند اختيار المدينة
-            document.getElementById('city').addEventListener('change', function() {
-                const neighborhoodSelect = document.getElementById('neighborhood');
-                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-                
-                if (this.value && neighborhoods[this.value]) {
-                    neighborhoods[this.value].forEach(neighborhood => {
-                        const option = document.createElement('option');
-                        option.value = neighborhood;
-                        option.textContent = neighborhood;
-                        neighborhoodSelect.appendChild(option);
-                    });
-                }
-            });
-        }
-
-        // تهيئة نموذج البائع
-        function initializeSellerForm() {
-            // تحديث المدن عند اختيار البلد
-            document.getElementById('addCountry').addEventListener('change', function() {
-                const citySelect = document.getElementById('addCity');
-                const neighborhoodSelect = document.getElementById('addNeighborhood');
-                
-                citySelect.innerHTML = '<option value="">اختر المدينة</option>';
-                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-                
-                if (this.value && locations[this.value]) {
-                    locations[this.value].forEach(city => {
-                        const option = document.createElement('option');
-                        option.value = city;
-                        option.textContent = city;
-                        citySelect.appendChild(option);
-                    });
-                }
-            });
-
-            // تحديث الأحياء عند اختيار المدينة
-            document.getElementById('addCity').addEventListener('change', function() {
-                const neighborhoodSelect = document.getElementById('addNeighborhood');
-                neighborhoodSelect.innerHTML = '<option value="">اختر الحي</option>';
-                
-                if (this.value && neighborhoods[this.value]) {
-                    neighborhoods[this.value].forEach(neighborhood => {
-                        const option = document.createElement('option');
-                        option.value = neighborhood;
-                        option.textContent = neighborhood;
-                        neighborhoodSelect.appendChild(option);
-                    });
-                }
-            });
         }
 
         // دالة لعرض العقارات
@@ -929,12 +1119,14 @@
                 image: document.getElementById('addImage').value,
                 location: document.getElementById('addLocation').value,
                 phone: document.getElementById('addPhone').value,
-                description: document.getElementById('addDescription').value
+                description: document.getElementById('addDescription').value,
+                lat: parseFloat(document.getElementById('addLat').value) || 0,
+                lng: parseFloat(document.getElementById('addLng').value) || 0
             };
 
             // التحقق من الحقول المطلوبة
-            if (!form.country || !form.city || !form.neighborhood || !form.title || !form.price || !form.phone) {
-                alert('يرجى ملء جميع الحقول المطلوبة (*)');
+            if (!form.country || !form.city || !form.neighborhood || !form.title || !form.price || !form.phone || !form.lat || !form.lng) {
+                alert('يرجى ملء جميع الحقول المطلوبة (*) وتحديد الموقع على الخريطة');
                 return;
             }
 
@@ -947,9 +1139,6 @@
             saveProperties();
             
             // إعادة تعيين النموذج
-            document.getElementById('addCountry').value = '';
-            document.getElementById('addCity').value = '';
-            document.getElementById('addNeighborhood').value = '';
             document.getElementById('addTitle').value = '';
             document.getElementById('addPrice').value = '';
             document.getElementById('addFloor').value = '';
@@ -957,6 +1146,7 @@
             document.getElementById('addLocation').value = '';
             document.getElementById('addPhone').value = '';
             document.getElementById('addDescription').value = '';
+            document.getElementById('addNeighborhood').value = '';
 
             alert('تم إضافة العقار بنجاح!');
             
@@ -988,6 +1178,7 @@
         // تهيئة الموقع عند التحميل
         document.addEventListener('DOMContentLoaded', function() {
             loadProperties();
+            populateCountries();
             showChoicePage();
             
             // إضافة فعالية للروابط في الهيدر
@@ -1003,6 +1194,13 @@
                             behavior: 'smooth'
                         });
                     });
+                }
+            });
+
+            // البحث عن طريق زر Enter
+            document.getElementById('locationSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchLocation();
                 }
             });
         });
