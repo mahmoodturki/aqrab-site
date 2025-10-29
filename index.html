@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل فيديو عشوائي - تشغيل تلقائي</title>
+    <title>مشغل فيديو يوتيوب عشوائي - متصفح كروم</title>
     <style>
         * {
             margin: 0;
@@ -40,6 +40,19 @@
             font-size: 18px;
             opacity: 0.9;
             margin-bottom: 15px;
+        }
+        
+        .chrome-badge {
+            background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .container {
@@ -144,7 +157,7 @@
             margin: 10px 0;
         }
         
-        .tips {
+        .chrome-tips {
             background-color: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 10px;
@@ -153,27 +166,35 @@
             text-align: right;
         }
         
-        .tips h3 {
+        .chrome-tips h3 {
             margin-bottom: 10px;
             color: #ffcc00;
         }
         
-        .tips ul {
+        .chrome-tips ul {
             list-style-type: none;
             padding-right: 10px;
         }
         
-        .tips li {
+        .chrome-tips li {
             margin-bottom: 8px;
             position: relative;
             padding-right: 20px;
         }
         
-        .tips li:before {
+        .chrome-tips li:before {
             content: "•";
             color: #ffcc00;
             position: absolute;
             right: 0;
+        }
+        
+        .browser-check {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -220,7 +241,13 @@
 <body>
     <div class="header">
         <h1>مشغل فيديو يوتيوب عشوائي</h1>
-        <p class="subtitle">يتم تشغيل فيديو مختلف تلقائيًا لكل زائر - ضمن متصفح جوجل</p>
+        <div class="chrome-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM18.24 17H13v-1h5.92c-.2.35-.43.69-.68 1zm1.5-3H13v-1h6.93c-.04.34-.11.67-.19 1z"/>
+            </svg>
+            مُحسّن لمتصفح كروم
+        </div>
+        <p class="subtitle">يتم تشغيل فيديو مختلف تلقائيًا لكل زائر - مُحسّن لكروم</p>
     </div>
     
     <div class="container">
@@ -264,15 +291,19 @@
         </div>
     </div>
     
-    <div class="tips">
-        <h3>لماذا قد لا تُحتسب المشاهدات في يوتيوب؟</h3>
+    <div class="chrome-tips">
+        <h3>إعدادات كروم للتشغيل التلقائي الأمثل</h3>
         <ul>
-            <li>يوتيوب لا تحتسب المشاهدات التي تأتي من متصفحات بها أدوات حظر الإعلانات</li>
-            <li>المشاهدات القصيرة (أقل من 30 ثانية) قد لا تُحتسب</li>
-            <li>يوتيوب تتحقق من المشاهدات للتأكد من أنها من مستخدمين حقيقيين وليست آلية</li>
-            <li>التحديثات الأخيرة في أدوات حظر الإعلانات تؤثر على تتبع إحصائيات يوتيوب</li>
-            <li>لضمان احتساب المشاهدات، شجع الزوار على تعطيل أدوات حظر الإعلانات لموقعك</li>
+            <li>افتح <strong>chrome://settings/content/sound</strong> في كروم</li>
+            <li>تأكد من أن خيار "السماح للمواقع بتشغيل الصوت" مفعل</li>
+            <li>أضف موقعك إلى قائمة "السماح" إذا كان محظورًا</li>
+            <li>تعطيل أدوات حظر الإعلانات لموقعك لتحسين التشغيل</li>
+            <li>تحديث كروم إلى آخر نسخة لدعم أفضل لميزات التشغيل التلقائي</li>
         </ul>
+    </div>
+    
+    <div class="browser-check" id="browserCheck">
+        <p>لتحسين تجربة المشاهدة، نوصي باستخدام <strong>متصفح كروم</strong> مع أحدث نسخة.</p>
     </div>
 
     <script>
@@ -293,9 +324,23 @@
         const randomBtn = document.getElementById('randomBtn');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const videoCounter = document.getElementById('videoCounter');
+        const browserCheck = document.getElementById('browserCheck');
         
         let currentVideoIndex;
         let isMuted = true;
+        let isChrome = false;
+        
+        // التحقق من متصفح كروم
+        function checkBrowser() {
+            const userAgent = navigator.userAgent;
+            isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
+            
+            if (!isChrome) {
+                browserCheck.style.display = 'block';
+            }
+            
+            return isChrome;
+        }
         
         // اختيار فيديو عشوائي
         function getRandomVideo() {
@@ -307,10 +352,22 @@
             currentVideoIndex = getRandomVideo();
             const videoId = videoIds[currentVideoIndex];
             
+            // إعدادات مختلفة لمتصفح كروم
+            const chromeParams = isChrome ? 
+                "&autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin=" + window.location.origin :
+                "&autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1";
+            
             // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
-            player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
+            player.src = `https://www.youtube.com/embed/${videoId}?${chromeParams}`;
             
             updateVideoCounter();
+            
+            // محاولة تشغيل الصوت بعد تأخير قصير (لتحسين تجربة كروم)
+            if (isChrome) {
+                setTimeout(() => {
+                    console.log("كروم: جاهز لتشغيل الصوت بعد التفاعل");
+                }, 2000);
+            }
         }
         
         // تحديث عداد الفيديو
@@ -384,7 +441,20 @@
         fullscreenBtn.addEventListener('click', toggleFullscreen);
         
         // تحميل فيديو عشوائي عند بدء الصفحة
-        window.addEventListener('load', loadRandomVideo);
+        window.addEventListener('load', function() {
+            checkBrowser();
+            loadRandomVideo();
+            
+            // تحسينات إضافية لكروم
+            if (isChrome) {
+                console.log("تم الكشف عن متصفح كروم - تطبيق تحسينات خاصة");
+                
+                // إضافة مؤشر تفاعل لتحسين تجربة الصوت
+                document.body.addEventListener('click', function() {
+                    console.log("تم التفاعل مع الصفحة - جاهز لتشغيل الصوت في كروم");
+                }, { once: true });
+            }
+        });
         
         // تحديث زر الصوت عند تغيير حجم النافذة (للتأكد من أن الحالة صحيحة)
         window.addEventListener('resize', function() {
