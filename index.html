@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل فيديو عشوائي</title>
+    <title>مشغل فيديو عشوائي - تشغيل تلقائي</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
@@ -19,35 +25,57 @@
             text-align: center;
         }
         
+        .header {
+            margin-bottom: 20px;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
         .container {
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
         }
         
-        h1 {
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* نسبة العرض إلى الارتفاع 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 28px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         #player {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 450px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            margin: 20px 0;
+            height: 100%;
+            border: none;
         }
         
         .controls {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 20px;
+            margin: 20px 0;
             flex-wrap: wrap;
         }
         
@@ -60,7 +88,6 @@
             text-decoration: none;
             display: inline-block;
             font-size: 18px;
-            margin: 4px 2px;
             cursor: pointer;
             border-radius: 50px;
             transition: all 0.3s ease;
@@ -71,7 +98,6 @@
         }
         
         button:hover {
-            background: linear-gradient(to bottom, #45a049, #4CAF50);
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
@@ -96,6 +122,14 @@
             background: linear-gradient(to bottom, #e68900, #ff9800);
         }
         
+        #fullscreenBtn {
+            background: linear-gradient(to bottom, #9C27B0, #7B1FA2);
+        }
+        
+        #fullscreenBtn:hover {
+            background: linear-gradient(to bottom, #7B1FA2, #9C27B0);
+        }
+        
         .info {
             margin-top: 20px;
             background-color: rgba(255, 255, 255, 0.1);
@@ -104,13 +138,55 @@
             font-size: 16px;
         }
         
+        .video-counter {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .tips {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 900px;
+            text-align: right;
+        }
+        
+        .tips h3 {
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .tips ul {
+            list-style-type: none;
+            padding-right: 10px;
+        }
+        
+        .tips li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        .tips li:before {
+            content: "•";
+            color: #ffcc00;
+            position: absolute;
+            right: 0;
+        }
+        
         @media (max-width: 768px) {
-            #player {
-                height: 300px;
+            h1 {
+                font-size: 24px;
             }
             
-            h1 {
-                font-size: 22px;
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 15px;
             }
             
             button {
@@ -120,21 +196,44 @@
         }
         
         @media (max-width: 480px) {
-            #player {
-                height: 250px;
+            h1 {
+                font-size: 20px;
             }
             
-            .container {
-                padding: 15px;
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>مشغل فيديو يوتيوب عشوائي</h1>
+        <p class="subtitle">يتم تشغيل فيديو مختلف تلقائيًا لكل زائر - ضمن متصفح جوجل</p>
+    </div>
+    
     <div class="container">
-        <h1>مشغل فيديو عشوائي</h1>
+        <div class="player-container">
+            <iframe id="player"
+                src=""
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
         
-        <div id="player"></div>
+        <div class="video-counter" id="videoCounter"></div>
         
         <div class="controls">
             <button id="muteBtn">
@@ -152,12 +251,28 @@
                 </svg>
                 فيديو عشوائي
             </button>
+            <button id="fullscreenBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+                ملء الشاشة
+            </button>
         </div>
         
         <div class="info">
-            <p>يتم تشغيل الفيديو تلقائيًا لكل زائر مع إمكانية التحكم بالصوت</p>
-            <p id="videoInfo"></p>
+            <p>الفيديو يعمل تلقائيًا عند تحميل الصفحة. يمكنك التحكم بالصوت وتغيير الفيديو باستخدام الأزرار أعلاه.</p>
         </div>
+    </div>
+    
+    <div class="tips">
+        <h3>لماذا قد لا تُحتسب المشاهدات في يوتيوب؟</h3>
+        <ul>
+            <li>يوتيوب لا تحتسب المشاهدات التي تأتي من متصفحات بها أدوات حظر الإعلانات</li>
+            <li>المشاهدات القصيرة (أقل من 30 ثانية) قد لا تُحتسب</li>
+            <li>يوتيوب تتحقق من المشاهدات للتأكد من أنها من مستخدمين حقيقيين وليست آلية</li>
+            <li>التحديثات الأخيرة في أدوات حظر الإعلانات تؤثر على تتبع إحصائيات يوتيوب</li>
+            <li>لضمان احتساب المشاهدات، شجع الزوار على تعطيل أدوات حظر الإعلانات لموقعك</li>
+        </ul>
     </div>
 
     <script>
@@ -173,119 +288,108 @@
         ];
         
         // عناصر DOM
-        const playerElement = document.getElementById('player');
+        const player = document.getElementById('player');
         const muteBtn = document.getElementById('muteBtn');
         const randomBtn = document.getElementById('randomBtn');
-        const videoInfo = document.getElementById('videoInfo');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const videoCounter = document.getElementById('videoCounter');
         
-        let player;
         let currentVideoIndex;
         let isMuted = true;
-        
-        // تحميل YouTube IFrame API
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         
         // اختيار فيديو عشوائي
         function getRandomVideo() {
             return Math.floor(Math.random() * videoIds.length);
         }
         
-        // تهيئة المشغل
-        function onYouTubeIframeAPIReady() {
+        // تحميل فيديو عشوائي
+        function loadRandomVideo() {
             currentVideoIndex = getRandomVideo();
+            const videoId = videoIds[currentVideoIndex];
             
-            player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: videoIds[currentVideoIndex],
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'playsinline': 1,
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'fs': 1
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
+            // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
+            player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
+            
+            updateVideoCounter();
         }
         
-        // عندما يصبح المشغل جاهزًا
-        function onPlayerReady(event) {
-            updateVideoInfo();
-            console.log('المشغل جاهز، الفيديو يعمل تلقائيًا');
+        // تحديث عداد الفيديو
+        function updateVideoCounter() {
+            videoCounter.textContent = `الفيديو ${currentVideoIndex + 1} من ${videoIds.length}`;
         }
         
-        // تحديث معلومات الفيديو
-        function updateVideoInfo() {
-            videoInfo.textContent = `الفيديو الحالي: ${currentVideoIndex + 1} من ${videoIds.length}`;
-        }
-        
-        // تغيير حالة الصوت
+        // تبديل حالة الصوت
         function toggleMute() {
+            isMuted = !isMuted;
+            
             if (isMuted) {
-                player.unMute();
+                // إيقاف الصوت
+                player.src = player.src.replace('&mute=0', '&mute=1');
+                muteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
+                    </svg>
+                    تشغيل الصوت
+                `;
+            } else {
+                // تشغيل الصوت
+                player.src = player.src.replace('&mute=1', '&mute=0');
                 muteBtn.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154zm7.137 1.096a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708 0zM8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525zm2.197 2.197A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707zm1.33 1.33A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707a7.476 7.476 0 0 1 2.197 5.303c0 1.956-.79 3.728-2.068 5.01z"/>
                     </svg>
                     إيقاف الصوت
                 `;
-                isMuted = false;
-            } else {
-                player.mute();
-                muteBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
-                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
-                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
-                    </svg>
-                    تشغيل الصوت
-                `;
-                isMuted = true;
             }
         }
         
-        // تغيير الفيديو
-        function changeVideo() {
-            let newIndex;
-            do {
-                newIndex = getRandomVideo();
-            } while (newIndex === currentVideoIndex && videoIds.length > 1);
+        // تشغيل فيديو عشوائي جديد
+        function playRandomVideo() {
+            loadRandomVideo();
             
-            currentVideoIndex = newIndex;
-            player.loadVideoById(videoIds[currentVideoIndex]);
-            updateVideoInfo();
-            
-            // إعادة تعيين زر الصوت
+            // إعادة تعيين الصوت إلى حالة الإيقاف
             if (!isMuted) {
-                player.mute();
-                muteBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
-                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
-                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
-                    </svg>
-                    تشغيل الصوت
-                `;
-                isMuted = true;
+                toggleMute();
             }
         }
         
-        // تتبع حالة المشغل
-        function onPlayerStateChange(event) {
-            // يمكنك إضافة ردود فعل إضافية هنا عند تغيير حالة الفيديو
+        // تفعيل وضع ملء الشاشة
+        function toggleFullscreen() {
+            const playerContainer = document.querySelector('.player-container');
+            
+            if (!document.fullscreenElement) {
+                if (playerContainer.requestFullscreen) {
+                    playerContainer.requestFullscreen();
+                } else if (playerContainer.webkitRequestFullscreen) {
+                    playerContainer.webkitRequestFullscreen();
+                } else if (playerContainer.msRequestFullscreen) {
+                    playerContainer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
         }
         
-        // إضافة مستمعي الأحداث للأزرار
+        // إضافة مستمعي الأحداث
         muteBtn.addEventListener('click', toggleMute);
-        randomBtn.addEventListener('click', changeVideo);
+        randomBtn.addEventListener('click', playRandomVideo);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        
+        // تحميل فيديو عشوائي عند بدء الصفحة
+        window.addEventListener('load', loadRandomVideo);
+        
+        // تحديث زر الصوت عند تغيير حجم النافذة (للتأكد من أن الحالة صحيحة)
+        window.addEventListener('resize', function() {
+            // قد تحتاج إلى إضافة منطق إضافي هنا إذا لزم الأمر
+        });
     </script>
 </body>
 </html>
