@@ -3,87 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل فيديوهات يوتيوب التلقائي</title>
+    <title>مشغل فيديو يوتيوب عشوائي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Tahoma, Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-            padding: 20px;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .player-container {
-            max-width: 800px;
-            margin: 0 auto 20px;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        #player {
-            width: 100%;
-            height: 450px;
-            border: none;
-            display: block;
-        }
-        .controls {
-            margin: 20px 0;
-        }
-        button {
-            background: #cc0000;
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .player-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* نسبة 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border: none;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 4px;
+        }
+        
+        .video-info {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 20px;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            text-align: center;
+            font-size: 18px;
             cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        #muteBtn {
+            background: linear-gradient(to bottom, #2196F3, #0b7dda);
+        }
+        
+        #muteBtn:hover {
+            background: linear-gradient(to bottom, #0b7dda, #2196F3);
+        }
+        
+        #randomBtn {
+            background: linear-gradient(to bottom, #ff9800, #e68900);
+        }
+        
+        #randomBtn:hover {
+            background: linear-gradient(to bottom, #e68900, #ff9800);
+        }
+        
+        #fullscreenBtn {
+            background: linear-gradient(to bottom, #9C27B0, #7B1FA2);
+        }
+        
+        #fullscreenBtn:hover {
+            background: linear-gradient(to bottom, #7B1FA2, #9C27B0);
+        }
+        
+        .tips {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .tips h3 {
+            margin-bottom: 15px;
+            color: #ffcc00;
+            text-align: center;
+        }
+        
+        .tips ul {
+            list-style-type: none;
+            padding-right: 10px;
+        }
+        
+        .tips li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-right: 25px;
             font-size: 16px;
         }
-        button:hover {
-            background: #ff0000;
+        
+        .tips li:before {
+            content: "•";
+            color: #ffcc00;
+            position: absolute;
+            right: 0;
+            font-size: 20px;
         }
-        #videoInfo {
-            font-size: 18px;
+        
+        .autoplay-notice {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
             margin: 15px 0;
-            color: #333;
+            text-align: center;
+            font-size: 16px;
+            color: #ffcc00;
         }
-        .notice {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 12px;
-            margin: 20px auto;
-            max-width: 800px;
-            color: #856404;
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            
+            .video-info {
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>مشغل فيديوهات يوتيوب التلقائي</h1>
-    
-    <div class="notice">
-        💡 ملاحظة: للتشغيل التلقائي مع الصوت، يلزم تفاعل منك مثل النقر على أي مكان في الصفحة.
-    </div>
-    
-    <div class="player-container">
-        <iframe id="player"
+    <div class="container">
+        <div class="header">
+            <h1>مشغل فيديو يوتيوب عشوائي</h1>
+            <p class="subtitle">كل زائر يشاهد فيديو مختلف بشكل تلقائي</p>
+        </div>
+        
+        <div class="player-container">
+            <iframe id="player"
                 src=""
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
-        </iframe>
-    </div>
-    
-    <div id="videoInfo">جاري التحميل...</div>
-    
-    <div class="controls">
-        <button id="prevBtn">الفيديو السابق</button>
-        <button id="nextBtn">الفيديو التالي</button>
-        <button id="muteBtn">تشغيل الصوت</button>
+            </iframe>
+        </div>
+        
+        <div class="autoplay-notice">
+            <i class="fas fa-info-circle"></i>
+            الفيديو يعمل تلقائيًا. انقر على زر الصوت لتفعيل الصوت.
+        </div>
+        
+        <div class="video-info" id="videoInfo">جاري تحميل الفيديو...</div>
+        
+        <div class="controls">
+            <button id="muteBtn">
+                <i class="fas fa-volume-mute"></i>
+                تشغيل الصوت
+            </button>
+            <button id="randomBtn">
+                <i class="fas fa-random"></i>
+                فيديو عشوائي
+            </button>
+            <button id="fullscreenBtn">
+                <i class="fas fa-expand"></i>
+                ملء الشاشة
+            </button>
+        </div>
+        
+        <div class="tips">
+            <h3>نصائح لزيادة فرص احتساب المشاهدات</h3>
+            <ul>
+                <li>اترك الفيديو يعمل حتى النهاية لزيادة وقت المشاهدة</li>
+                <li>يوتيوب تحتسب المشاهدة بعد 30 ثانية من التشغيل</li>
+                <li>لا تستخدم أدوات حظر الإعلانات أثناء مشاهدة الفيديوهات</li>
+                <li>شارك الفيديو مع أصدقائك لزيادة المشاهدات الحقيقية</li>
+                <li>استخدم زر "فيديو عشوائي" لتغيير الفيديو بعد الانتهاء</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        // قائمة معرّفات الفيديوهات من الروابط التي قدمتها
+        // قائمة معرّفات الفيديوهات المضافة
         const videoIds = [
             'NmmKzSOugwA',
             'LFwLfDAnFeY', 
@@ -94,72 +287,112 @@
             'EhzybH5CQLI'
         ];
         
+        // عناصر DOM
         const player = document.getElementById('player');
         const videoInfo = document.getElementById('videoInfo');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
         const muteBtn = document.getElementById('muteBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
         
-        let currentVideoIndex = 0;
+        let currentVideoIndex;
         let isMuted = true;
         
-        // تحميل الفيديو الحالي
-        function loadCurrentVideo() {
+        // توليد رقم عشوائي فريد لكل زائر
+        function getRandomVideoIndex() {
+            // استخدام الوقت الحالي لإنشاء قيمة عشوائية فريدة لكل زائر
+            const now = new Date();
+            const seed = now.getTime() % videoIds.length;
+            return seed;
+        }
+        
+        // تحميل فيديو عشوائي
+        function loadRandomVideo() {
+            currentVideoIndex = getRandomVideoIndex();
             const videoId = videoIds[currentVideoIndex];
             
+            // إعدادات التشغيل التلقائي
+            const autoplayParams = "autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1";
+            
             // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
-            let videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
+            player.src = `https://www.youtube.com/embed/${videoId}?${autoplayParams}`;
             
-            // إضافة معلمة كتم الصوت إذا كان الصوت مكتوماً
-            if (isMuted) {
-                videoUrl += '&mute=1';
-            }
-            
-            player.src = videoUrl;
+            // تحديث معلومات الفيديو
+            updateVideoInfo();
+        }
+        
+        // تحديث معلومات الفيديو
+        function updateVideoInfo() {
             videoInfo.textContent = `الفيديو ${currentVideoIndex + 1} من ${videoIds.length}`;
-            
-            // تحديث نص زر الصوت
-            muteBtn.textContent = isMuted ? 'تشغيل الصوت' : 'كتم الصوت';
-        }
-        
-        // الانتقال إلى الفيديو التالي
-        function nextVideo() {
-            currentVideoIndex = (currentVideoIndex + 1) % videoIds.length;
-            loadCurrentVideo();
-        }
-        
-        // الانتقال إلى الفيديو السابق
-        function prevVideo() {
-            currentVideoIndex = (currentVideoIndex - 1 + videoIds.length) % videoIds.length;
-            loadCurrentVideo();
         }
         
         // تبديل حالة الصوت
         function toggleMute() {
             isMuted = !isMuted;
-            loadCurrentVideo();
+            
+            if (isMuted) {
+                // إيقاف الصوت
+                player.src = player.src.replace('&mute=0', '&mute=1');
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i> تشغيل الصوت';
+            } else {
+                // تشغيل الصوت
+                player.src = player.src.replace('&mute=1', '&mute=0');
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i> إيقاف الصوت';
+            }
         }
         
-        // إضافة مستمعي الأحداث للأزرار
-        nextBtn.addEventListener('click', nextVideo);
-        prevBtn.addEventListener('click', prevVideo);
+        // تشغيل فيديو عشوائي جديد
+        function playRandomVideo() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * videoIds.length);
+            } while (newIndex === currentVideoIndex && videoIds.length > 1);
+            
+            currentVideoIndex = newIndex;
+            loadRandomVideo();
+            
+            // إعادة تعيين الصوت إلى حالة الإيقاف
+            if (!isMuted) {
+                toggleMute();
+            }
+        }
+        
+        // تفعيل وضع ملء الشاشة
+        function toggleFullscreen() {
+            const playerContainer = document.querySelector('.player-container');
+            
+            if (!document.fullscreenElement) {
+                if (playerContainer.requestFullscreen) {
+                    playerContainer.requestFullscreen();
+                } else if (playerContainer.webkitRequestFullscreen) {
+                    playerContainer.webkitRequestFullscreen();
+                } else if (playerContainer.msRequestFullscreen) {
+                    playerContainer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        // إضافة مستمعي الأحداث
         muteBtn.addEventListener('click', toggleMute);
+        randomBtn.addEventListener('click', playRandomVideo);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
         
         // تفعيل الصوت عند تفاعل المستخدم مع الصفحة
         document.body.addEventListener('click', function() {
             if (isMuted) {
-                isMuted = false;
-                loadCurrentVideo();
+                toggleMute();
             }
-        }, { once: true }); // مرة واحدة فقط
+        }, { once: true });
         
-        // تحميل الفيديو الأول عند بدء الصفحة
-        window.addEventListener('load', function() {
-            loadCurrentVideo();
-            
-            // الانتقال التلقائي للفيديو التالي عند انتهاء الفيديو الحالي
-            setInterval(nextVideo, 60000); // كل دقيقة (يمكنك تعديل المدة)
-        });
+        // تحميل فيديو عشوائي عند بدء الصفحة
+        window.addEventListener('load', loadRandomVideo);
     </script>
 </body>
 </html>
