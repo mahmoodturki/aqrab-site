@@ -3,463 +3,712 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل فيديو يوتيوب عشوائي - متصفح كروم</title>
+    <title>مشغل فيديو يوتيوب تفاعلي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-color: #f9f9f9;
+            color: #0f0f0f;
+            line-height: 1.6;
+            padding: 0;
             margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-        }
-        
-        .header {
-            margin-bottom: 20px;
-            max-width: 800px;
-        }
-        
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-        
-        .chrome-badge {
-            background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .container {
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            max-width: 900px;
-            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+        
+        .video-section {
+            flex: 7;
+        }
+        
+        .sidebar {
+            flex: 3;
         }
         
         .player-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* نسبة العرض إلى الارتفاع 16:9 */
-            height: 0;
+            background-color: #000;
+            border-radius: 12px;
             overflow: hidden;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 16px;
         }
         
         #player {
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: block;
+        }
+        
+        .video-info {
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .video-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f0f0f;
+        }
+        
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .video-views {
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #606060;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 18px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: #f2f2f2;
+            color: #0f0f0f;
+        }
+        
+        .action-btn.active {
+            color: #065fd4;
+        }
+        
+        .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .channel-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #606060;
+        }
+        
+        .channel-details {
+            flex: 1;
+        }
+        
+        .channel-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .subscribers {
+            color: #606060;
+            font-size: 13px;
+        }
+        
+        .subscribe-btn {
+            background-color: #0f0f0f;
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 10px 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .subscribe-btn:hover {
+            background-color: #272727;
+        }
+        
+        .video-description {
+            background-color: #f2f2f2;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .video-description .stats {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .description-text {
+            color: #0f0f0f;
+        }
+        
+        .comments-section {
+            margin-top: 24px;
+        }
+        
+        .comments-header {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .comments-count {
+            font-weight: 600;
+        }
+        
+        .sort-comments {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .add-comment {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e5e5e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #606060;
+            flex-shrink: 0;
+        }
+        
+        .comment-input {
+            flex: 1;
+            border: none;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 8px 0;
+            font-size: 14px;
+            background: transparent;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .comment-input:focus {
+            border-color: #065fd4;
+        }
+        
+        .comment {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .comment-content {
+            flex: 1;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        
+        .comment-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .comment-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #606060;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .video-item {
+            display: flex;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .video-thumbnail {
+            width: 168px;
+            height: 94px;
+            border-radius: 8px;
+            background-color: #e5e5e5;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .video-thumbnail img {
             width: 100%;
             height: 100%;
-            border: none;
+            object-fit: cover;
+            border-radius: 8px;
         }
         
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        button {
-            background: linear-gradient(to bottom, #4CAF50, #45a049);
-            border: none;
+        .video-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 12px 25px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        .video-item-info {
+            flex: 1;
+        }
+        
+        .video-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .video-item-channel {
+            font-size: 13px;
+            color: #606060;
+            margin-bottom: 4px;
+        }
+        
+        .video-item-meta {
+            font-size: 13px;
+            color: #606060;
+        }
+        
+        .autoplay-notice {
+            background-color: #e6f2ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #065fd4;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(1px);
-        }
-        
-        #muteBtn {
-            background: linear-gradient(to bottom, #2196F3, #0b7dda);
-        }
-        
-        #muteBtn:hover {
-            background: linear-gradient(to bottom, #0b7dda, #2196F3);
-        }
-        
-        #randomBtn {
-            background: linear-gradient(to bottom, #ff9800, #e68900);
-        }
-        
-        #randomBtn:hover {
-            background: linear-gradient(to bottom, #e68900, #ff9800);
-        }
-        
-        #fullscreenBtn {
-            background: linear-gradient(to bottom, #9C27B0, #7B1FA2);
-        }
-        
-        #fullscreenBtn:hover {
-            background: linear-gradient(to bottom, #7B1FA2, #9C27B0);
-        }
-        
-        .info {
-            margin-top: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-        
-        .video-counter {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .chrome-tips {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            max-width: 900px;
-            text-align: right;
-        }
-        
-        .chrome-tips h3 {
-            margin-bottom: 10px;
-            color: #ffcc00;
-        }
-        
-        .chrome-tips ul {
-            list-style-type: none;
-            padding-right: 10px;
-        }
-        
-        .chrome-tips li {
-            margin-bottom: 8px;
-            position: relative;
-            padding-right: 20px;
-        }
-        
-        .chrome-tips li:before {
-            content: "•";
-            color: #ffcc00;
-            position: absolute;
-            right: 0;
-        }
-        
-        .browser-check {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
-            }
-            
-            .subtitle {
-                font-size: 16px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            button {
-                padding: 10px 20px;
-                font-size: 16px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 20px;
-            }
-            
-            .subtitle {
-                font-size: 14px;
-            }
-            
-            .controls {
+        @media (max-width: 767px) {
+            .video-stats {
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
+                gap: 12px;
             }
             
-            button {
+            .video-actions {
                 width: 100%;
-                max-width: 250px;
-                justify-content: center;
+                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>مشغل فيديو يوتيوب عشوائي</h1>
-        <div class="chrome-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zm2-15.86c1.03.13 2 .45 2.87.93H13v-.93zM13 7h5.24c.25.31.48.65.68 1H13V7zm0 3h6.74c.08.33.15.66.19 1H13v-1zm0 9.93V19h2.87c-.87.48-1.84.8-2.87.93zM18.24 17H13v-1h5.92c-.2.35-.43.69-.68 1zm1.5-3H13v-1h6.93c-.04.34-.11.67-.19 1z"/>
-            </svg>
-            مُحسّن لمتصفح كروم
-        </div>
-        <p class="subtitle">يتم تشغيل فيديو مختلف تلقائيًا لكل زائر - مُحسّن لكروم</p>
-    </div>
-    
     <div class="container">
-        <div class="player-container">
-            <iframe id="player"
-                src=""
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-            </iframe>
+        <div class="video-section">
+            <div class="player-container">
+                <iframe id="player"
+                    src=""
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            <div class="autoplay-notice">
+                <i class="fas fa-info-circle"></i>
+                <span>الفيديو يعمل تلقائيًا. انقر على زر الصوت لتفعيل الصوت.</span>
+            </div>
+            
+            <div class="video-info">
+                <h1 class="video-title" id="videoTitle">تحميل العنوان...</h1>
+                
+                <div class="video-stats">
+                    <div class="video-views" id="videoViews">--- مشاهدة</div>
+                    <div class="video-actions">
+                        <button class="action-btn" id="likeBtn">
+                            <i class="far fa-thumbs-up"></i>
+                            <span id="likeCount">0</span>
+                        </button>
+                        <button class="action-btn" id="dislikeBtn">
+                            <i class="far fa-thumbs-down"></i>
+                            <span id="dislikeCount">0</span>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-share"></i>
+                            <span>مشاركة</span>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-download"></i>
+                            <span>تحميل</span>
+                        </button>
+                        <button class="action-btn">
+                            <i class="fas fa-plus"></i>
+                            <span>حفظ</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="channel-info">
+                <div class="channel-avatar">ق</div>
+                <div class="channel-details">
+                    <div class="channel-name" id="channelName">قناة اليوتيوب</div>
+                    <div class="subscribers" id="subscriberCount">--- مشترك</div>
+                </div>
+                <button class="subscribe-btn">اشتراك</button>
+            </div>
+            
+            <div class="video-description">
+                <div class="stats" id="videoStats">--- مشاهدة • تم النشر منذ ---</div>
+                <div class="description-text" id="videoDescription">تحميل الوصف...</div>
+            </div>
+            
+            <div class="comments-section">
+                <div class="comments-header">
+                    <div class="comments-count" id="commentsCount">-- تعليق</div>
+                    <div class="sort-comments">
+                        <i class="fas fa-sort-amount-down"></i>
+                        <span>ترتيب حسب:</span>
+                        <select id="sortComments">
+                            <option value="newest">الأحدث</option>
+                            <option value="popular">الأكثر تفاعلاً</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="add-comment">
+                    <div class="user-avatar">ز</div>
+                    <input type="text" class="comment-input" placeholder="أضف تعليقًا...">
+                </div>
+                
+                <div class="comments-list" id="commentsList">
+                    <!-- سيتم إضافة التعليقات هنا ديناميكيًا -->
+                </div>
+            </div>
         </div>
         
-        <div class="video-counter" id="videoCounter"></div>
-        
-        <div class="controls">
-            <button id="muteBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
-                    <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
-                    <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
-                </svg>
-                تشغيل الصوت
-            </button>
-            <button id="randomBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                </svg>
-                فيديو عشوائي
-            </button>
-            <button id="fullscreenBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/>
-                </svg>
-                ملء الشاشة
-            </button>
+        <div class="sidebar">
+            <h3 class="sidebar-title">مقترحة لك</h3>
+            <div class="video-list" id="suggestedVideos">
+                <!-- سيتم إضافة الفيديوهات المقترحة هنا ديناميكيًا -->
+            </div>
         </div>
-        
-        <div class="info">
-            <p>الفيديو يعمل تلقائيًا عند تحميل الصفحة. يمكنك التحكم بالصوت وتغيير الفيديو باستخدام الأزرار أعلاه.</p>
-        </div>
-    </div>
-    
-    <div class="chrome-tips">
-        <h3>إعدادات كروم للتشغيل التلقائي الأمثل</h3>
-        <ul>
-            <li>افتح <strong>chrome://settings/content/sound</strong> في كروم</li>
-            <li>تأكد من أن خيار "السماح للمواقع بتشغيل الصوت" مفعل</li>
-            <li>أضف موقعك إلى قائمة "السماح" إذا كان محظورًا</li>
-            <li>تعطيل أدوات حظر الإعلانات لموقعك لتحسين التشغيل</li>
-            <li>تحديث كروم إلى آخر نسخة لدعم أفضل لميزات التشغيل التلقائي</li>
-        </ul>
-    </div>
-    
-    <div class="browser-check" id="browserCheck">
-        <p>لتحسين تجربة المشاهدة، نوصي باستخدام <strong>متصفح كروم</strong> مع أحدث نسخة.</p>
     </div>
 
     <script>
-        // قائمة معرّفات الفيديوهات
-        const videoIds = [
-            'NmmKzSOugwA',
-            'LFwLfDAnFeY', 
-            '3qCGFxc2yEg',
-            '_JXPY08yg8s',
-            'qcAmkjvVcmI',
-            'G7PenuWlCMA',
-            'EhzybH5CQLI'
+        // قائمة الفيديوهات
+        const videos = [
+            {
+                id: 'NmmKzSOugwA',
+                title: 'فيديو رائع عن البرمجة وتطوير الويب',
+                channel: 'قناة التكنولوجيا',
+                subscribers: '1.2M',
+                views: '245,807',
+                likes: '15,234',
+                dislikes: '321',
+                publishDate: '2023-10-15',
+                description: 'في هذا الفيديو نستعرض أهم تقنيات تطوير الويب الحديثة وأفضل الممارسات في البرمجة. شاهد حتى النهاية لتحصل على نصائح قيمة.',
+                comments: [
+                    { author: 'أحمد محمد', text: 'فيديو رائع جدًا، شكرًا على المعلومات القيمة!', likes: 124, time: 'منذ ساعتين' },
+                    { author: 'تقني محترف', text: 'أتمنى لو تشرح أكثر عن الـ API في الفيديو القادم', likes: 89, time: 'منذ يوم' },
+                    { author: 'مصمم واجهات', text: 'التصميم جميل والشرح واضح، استمر 👍', likes: 67, time: 'منذ يومين' }
+                ]
+            },
+            {
+                id: 'LFwLfDAnFeY',
+                title: 'تعلم JavaScript في ساعة واحدة - دورة مكثفة',
+                channel: 'أكاديمية البرمجة',
+                subscribers: '850K',
+                views: '512,340',
+                likes: '28,901',
+                dislikes: '543',
+                publishDate: '2023-09-22',
+                description: 'دورة مكثفة لتعلم لغة JavaScript من الصفر حتى الاحتراف في ساعة واحدة فقط. مناسب للمبتدئين والمحترفين.',
+                comments: [
+                    { author: 'طالب علوم حاسب', text: 'شرح رائع ومنظم، شكرًا لك!', likes: 210, time: 'منذ أسبوع' },
+                    { author: 'مطور ويب', text: 'أفضل فيديو شاهدته عن JavaScript', likes: 156, time: 'منذ أسبوع' }
+                ]
+            },
+            {
+                id: '3qCGFxc2yEg',
+                title: 'تصميم موقع ويب متكامل باستخدام HTML و CSS',
+                channel: 'مصمم الويب',
+                subscribers: '450K',
+                views: '189,456',
+                likes: '12,345',
+                dislikes: '198',
+                publishDate: '2023-11-05',
+                description: 'في هذا الفيديو نتعلم كيفية تصميم موقع ويب متكامل باستخدام HTML و CSS فقط، مع تطبيق تصميم متجاوب يعمل على جميع الأجهزة.',
+                comments: [
+                    { author: 'مصمم مبتدئ', text: 'التصميم جميل جدًا، أريد معرفة المزيد عن الـ CSS', likes: 78, time: 'منذ 3 أيام' }
+                ]
+            }
         ];
         
-        // عناصر DOM
+        // العناصر
         const player = document.getElementById('player');
-        const muteBtn = document.getElementById('muteBtn');
-        const randomBtn = document.getElementById('randomBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const videoCounter = document.getElementById('videoCounter');
-        const browserCheck = document.getElementById('browserCheck');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoViews = document.getElementById('videoViews');
+        const likeBtn = document.getElementById('likeBtn');
+        const dislikeBtn = document.getElementById('dislikeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const dislikeCount = document.getElementById('dislikeCount');
+        const channelName = document.getElementById('channelName');
+        const subscriberCount = document.getElementById('subscriberCount');
+        const videoStats = document.getElementById('videoStats');
+        const videoDescription = document.getElementById('videoDescription');
+        const commentsCount = document.getElementById('commentsCount');
+        const commentsList = document.getElementById('commentsList');
+        const suggestedVideos = document.getElementById('suggestedVideos');
         
-        let currentVideoIndex;
-        let isMuted = true;
-        let isChrome = false;
-        
-        // التحقق من متصفح كروم
-        function checkBrowser() {
-            const userAgent = navigator.userAgent;
-            isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
-            
-            if (!isChrome) {
-                browserCheck.style.display = 'block';
-            }
-            
-            return isChrome;
-        }
-        
-        // اختيار فيديو عشوائي
-        function getRandomVideo() {
-            return Math.floor(Math.random() * videoIds.length);
-        }
+        let currentVideoIndex = 0;
+        let isLiked = false;
+        let isDisliked = false;
         
         // تحميل فيديو عشوائي
         function loadRandomVideo() {
-            currentVideoIndex = getRandomVideo();
-            const videoId = videoIds[currentVideoIndex];
+            currentVideoIndex = Math.floor(Math.random() * videos.length);
+            const video = videos[currentVideoIndex];
             
-            // إعدادات مختلفة لمتصفح كروم
-            const chromeParams = isChrome ? 
-                "&autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin=" + window.location.origin :
-                "&autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1";
+            // تحميل الفيديو في المشغل
+            player.src = `https://www.youtube.com/embed/${video.id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
             
-            // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
-            player.src = `https://www.youtube.com/embed/${videoId}?${chromeParams}`;
+            // تحديث معلومات الفيديو
+            updateVideoInfo(video);
             
-            updateVideoCounter();
+            // تحديث التعليقات
+            updateComments(video.comments);
             
-            // محاولة تشغيل الصوت بعد تأخير قصير (لتحسين تجربة كروم)
-            if (isChrome) {
-                setTimeout(() => {
-                    console.log("كروم: جاهز لتشغيل الصوت بعد التفاعل");
-                }, 2000);
-            }
+            // تحديث الفيديوهات المقترحة
+            updateSuggestedVideos();
         }
         
-        // تحديث عداد الفيديو
-        function updateVideoCounter() {
-            videoCounter.textContent = `الفيديو ${currentVideoIndex + 1} من ${videoIds.length}`;
+        // تحديث معلومات الفيديو
+        function updateVideoInfo(video) {
+            videoTitle.textContent = video.title;
+            videoViews.textContent = `${video.views} مشاهدة`;
+            channelName.textContent = video.channel;
+            subscriberCount.textContent = `${video.subscribers} مشترك`;
+            
+            // حساب الوقت منذ النشر
+            const publishDate = new Date(video.publishDate);
+            const currentDate = new Date();
+            const diffTime = Math.abs(currentDate - publishDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const timeText = diffDays > 30 ? 
+                `منذ ${Math.floor(diffDays/30)} شهر` : 
+                `منذ ${diffDays} يوم`;
+                
+            videoStats.textContent = `${video.views} مشاهدة • تم النشر ${timeText}`;
+            videoDescription.textContent = video.description;
+            
+            // تحديث الإعجابات
+            likeCount.textContent = formatNumber(video.likes);
+            dislikeCount.textContent = formatNumber(video.dislikes);
+            
+            // تحديث عدد التعليقات
+            commentsCount.textContent = `${video.comments.length} تعليق`;
         }
         
-        // تبديل حالة الصوت
-        function toggleMute() {
-            isMuted = !isMuted;
+        // تحديث التعليقات
+        function updateComments(comments) {
+            commentsList.innerHTML = '';
             
-            if (isMuted) {
-                // إيقاف الصوت
-                player.src = player.src.replace('&mute=0', '&mute=1');
-                muteBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
-                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
-                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
-                    </svg>
-                    تشغيل الصوت
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                
+                commentElement.innerHTML = `
+                    <div class="user-avatar">${comment.author.charAt(0)}</div>
+                    <div class="comment-content">
+                        <div class="comment-author">${comment.author} <span>${comment.time}</span></div>
+                        <div class="comment-text">${comment.text}</div>
+                        <div class="comment-actions">
+                            <button class="comment-action">
+                                <i class="far fa-thumbs-up"></i>
+                                <span>${formatNumber(comment.likes)}</span>
+                            </button>
+                            <button class="comment-action">
+                                <i class="far fa-thumbs-down"></i>
+                            </button>
+                            <button class="comment-action">رد</button>
+                        </div>
+                    </div>
                 `;
-            } else {
-                // تشغيل الصوت
-                player.src = player.src.replace('&mute=1', '&mute=0');
-                muteBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154zm7.137 1.096a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708 0zM8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525zm2.197 2.197A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707zm1.33 1.33A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707a7.476 7.476 0 0 1 2.197 5.303c0 1.956-.79 3.728-2.068 5.01z"/>
-                    </svg>
-                    إيقاف الصوت
+                
+                commentsList.appendChild(commentElement);
+            });
+        }
+        
+        // تحديث الفيديوهات المقترحة
+        function updateSuggestedVideos() {
+            suggestedVideos.innerHTML = '';
+            
+            // إنشاء قائمة بالفيديوهات عشوائية باستثناء الفيديو الحالي
+            const shuffledVideos = [...videos]
+                .filter((_, index) => index !== currentVideoIndex)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 5);
+            
+            shuffledVideos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                
+                // إنشاء صورة مصغرة عشوائية (في التطبيق الحقيقي ستكون الصورة من YouTube)
+                const thumbnailColor = `hsl(${Math.random() * 360}, 70%, 80%)`;
+                
+                videoItem.innerHTML = `
+                    <div class="video-thumbnail" style="background-color: ${thumbnailColor};">
+                        <div class="video-duration">${getRandomDuration()}</div>
+                    </div>
+                    <div class="video-item-info">
+                        <div class="video-item-title">${video.title}</div>
+                        <div class="video-item-channel">${video.channel}</div>
+                        <div class="video-item-meta">${video.views} مشاهدة • ${getRandomTimeAgo()}</div>
+                    </div>
                 `;
-            }
+                
+                // إضافة حدث النقر لتغيير الفيديو
+                videoItem.addEventListener('click', () => {
+                    // في التطبيق الحقيقي، سيتم تحميل الفيديو الجديد
+                    alert(`سيتم تحميل الفيديو: ${video.title}`);
+                });
+                
+                suggestedVideos.appendChild(videoItem);
+            });
         }
         
-        // تشغيل فيديو عشوائي جديد
-        function playRandomVideo() {
-            loadRandomVideo();
-            
-            // إعادة تعيين الصوت إلى حالة الإيقاف
-            if (!isMuted) {
-                toggleMute();
+        // تنسيق الأرقام (إضافة فواصل)
+        function formatNumber(num) {
+            if (typeof num === 'string') {
+                return num;
             }
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         
-        // تفعيل وضع ملء الشاشة
-        function toggleFullscreen() {
-            const playerContainer = document.querySelector('.player-container');
-            
-            if (!document.fullscreenElement) {
-                if (playerContainer.requestFullscreen) {
-                    playerContainer.requestFullscreen();
-                } else if (playerContainer.webkitRequestFullscreen) {
-                    playerContainer.webkitRequestFullscreen();
-                } else if (playerContainer.msRequestFullscreen) {
-                    playerContainer.msRequestFullscreen();
-                }
+        // إنشاء مدة فيديو عشوائية
+        function getRandomDuration() {
+            const minutes = Math.floor(Math.random() * 20) + 1;
+            const seconds = Math.floor(Math.random() * 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // إنشاء وقت عشوائي للنشر
+        function getRandomTimeAgo() {
+            const times = ['منذ ساعة', 'منذ يوم', 'منذ أسبوع', 'منذ شهر', 'منذ سنة'];
+            return times[Math.floor(Math.random() * times.length)];
+        }
+        
+        // إضافة أحداث للأزرار
+        likeBtn.addEventListener('click', () => {
+            if (!isLiked) {
+                isLiked = true;
+                isDisliked = false;
+                likeBtn.classList.add('active');
+                dislikeBtn.classList.remove('active');
+                
+                // زيادة عدد الإعجابات
+                const currentLikes = parseInt(likeCount.textContent.replace(/,/g, ''));
+                likeCount.textContent = formatNumber(currentLikes + 1);
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                isLiked = false;
+                likeBtn.classList.remove('active');
+                
+                // تقليل عدد الإعجابات
+                const currentLikes = parseInt(likeCount.textContent.replace(/,/g, ''));
+                likeCount.textContent = formatNumber(currentLikes - 1);
             }
-        }
+        });
         
-        // إضافة مستمعي الأحداث
-        muteBtn.addEventListener('click', toggleMute);
-        randomBtn.addEventListener('click', playRandomVideo);
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        dislikeBtn.addEventListener('click', () => {
+            if (!isDisliked) {
+                isDisliked = true;
+                isLiked = false;
+                dislikeBtn.classList.add('active');
+                likeBtn.classList.remove('active');
+                
+                // زيادة عدد عدم الإعجاب
+                const currentDislikes = parseInt(dislikeCount.textContent.replace(/,/g, ''));
+                dislikeCount.textContent = formatNumber(currentDislikes + 1);
+            } else {
+                isDisliked = false;
+                dislikeBtn.classList.remove('active');
+                
+                // تقليل عدد عدم الإعجاب
+                const currentDislikes = parseInt(dislikeCount.textContent.replace(/,/g, ''));
+                dislikeCount.textContent = formatNumber(currentDislikes - 1);
+            }
+        });
         
         // تحميل فيديو عشوائي عند بدء الصفحة
-        window.addEventListener('load', function() {
-            checkBrowser();
-            loadRandomVideo();
-            
-            // تحسينات إضافية لكروم
-            if (isChrome) {
-                console.log("تم الكشف عن متصفح كروم - تطبيق تحسينات خاصة");
-                
-                // إضافة مؤشر تفاعل لتحسين تجربة الصوت
-                document.body.addEventListener('click', function() {
-                    console.log("تم التفاعل مع الصفحة - جاهز لتشغيل الصوت في كروم");
-                }, { once: true });
-            }
-        });
-        
-        // تحديث زر الصوت عند تغيير حجم النافذة (للتأكد من أن الحالة صحيحة)
-        window.addEventListener('resize', function() {
-            // قد تحتاج إلى إضافة منطق إضافي هنا إذا لزم الأمر
-        });
+        window.addEventListener('load', loadRandomVideo);
     </script>
 </body>
 </html>
