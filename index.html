@@ -3,358 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل فيديو يوتيوب - تشغيل تلقائي</title>
+    <title>مشغل فيديوهات يوتيوب التلقائي</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         body {
-            background-color: #0f0f0f;
-            color: #ffffff;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        
-        .header {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: #f0f0f0;
             text-align: center;
-            margin-bottom: 30px;
+            padding: 20px;
+            margin: 0;
         }
-        
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            color: #ff0000;
-        }
-        
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-        
         .player-container {
-            position: relative;
-            width: 100%;
-            margin-bottom: 20px;
-            border-radius: 12px;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background: #000;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        
         #player {
             width: 100%;
-            aspect-ratio: 16/9;
+            height: 450px;
+            border: none;
             display: block;
         }
-        
         .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 25px 0;
-            flex-wrap: wrap;
+            margin: 20px 0;
         }
-        
         button {
-            background: linear-gradient(to bottom, #ff0000, #cc0000);
-            border: none;
+            background: #cc0000;
             color: white;
-            padding: 12px 25px;
-            text-align: center;
-            font-size: 16px;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 4px;
             cursor: pointer;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
+            font-size: 16px;
         }
-        
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            background: linear-gradient(to bottom, #ff3333, #cc0000);
+            background: #ff0000;
         }
-        
-        button:active {
-            transform: translateY(1px);
-        }
-        
-        #nextVideo {
-            background: linear-gradient(to bottom, #1e90ff, #0066cc);
-        }
-        
-        #nextVideo:hover {
-            background: linear-gradient(to bottom, #4da6ff, #0066cc);
-        }
-        
-        .tips {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .tips h3 {
-            color: #ffcc00;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .tips ul {
-            list-style-type: none;
-            padding-right: 10px;
-        }
-        
-        .tips li {
-            margin-bottom: 12px;
-            position: relative;
-            padding-right: 25px;
-            font-size: 16px;
-        }
-        
-        .tips li:before {
-            content: "•";
-            color: #ffcc00;
-            position: absolute;
-            right: 0;
-            font-size: 20px;
-        }
-        
-        .video-info {
-            text-align: center;
-            margin: 15px 0;
+        #videoInfo {
             font-size: 18px;
-            color: #ffcc00;
-            font-weight: bold;
+            margin: 15px 0;
+            color: #333;
         }
-        
-        .status {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-            font-size: 16px;
-        }
-        
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(to right, #ff0000, #ffcc00);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 24px;
-            }
-            
-            .subtitle {
-                font-size: 16px;
-            }
-            
-            button {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-            
-            .tips li {
-                font-size: 14px;
-            }
+        .notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 20px auto;
+            max-width: 800px;
+            color: #856404;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>مشغل فيديو يوتيوب تفاعلي</h1>
-            <p class="subtitle">تشغيل تلقائي للفيديو والصوت لزيادة فرص احتساب المشاهدات</p>
-        </div>
-        
-        <div class="player-container">
-            <iframe id="player"
+    <h1>مشغل فيديوهات يوتيوب التلقائي</h1>
+    
+    <div class="notice">
+        💡 ملاحظة: للتشغيل التلقائي مع الصوت، يلزم تفاعل منك مثل النقر على أي مكان في الصفحة.
+    </div>
+    
+    <div class="player-container">
+        <iframe id="player"
                 src=""
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
-            </iframe>
-        </div>
-        
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        
-        <div class="video-info" id="videoInfo">جاري تحميل الفيديو...</div>
-        
-        <div class="status" id="statusMessage">
-            جاري إعداد الفيديو للتشغيل التلقائي مع الصوت...
-        </div>
-        
-        <div class="controls">
-            <button id="nextVideo">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                </svg>
-                فيديو عشوائي
-            </button>
-        </div>
-        
-        <div class="tips">
-            <h3>نصائح لزيادة فرص احتساب المشاهدات</h3>
-            <ul>
-                <li>اترك الفيديو يعمل حتى النهاية لزيادة وقت المشاهدة</li>
-                <li>استخدم زر "فيديو عشوائي" لتغيير الفيديو بعد الانتهاء</li>
-                <li>لا تستخدم أدوات حظر الإعلانات أثناء مشاهدة الفيديوهات</li>
-                <li>يوتيوب تحتسب المشاهدة بعد 30 ثانية من التشغيل</li>
-                <li>المشاهدات المتكررة من نفس المستخدم تُحتسب ولكن بنسبة أقل</li>
-                <li>شارك الفيديو مع أصدقائك لزيادة المشاهدات الحقيقية</li>
-            </ul>
-        </div>
+        </iframe>
+    </div>
+    
+    <div id="videoInfo">جاري التحميل...</div>
+    
+    <div class="controls">
+        <button id="prevBtn">الفيديو السابق</button>
+        <button id="nextBtn">الفيديو التالي</button>
+        <button id="muteBtn">تشغيل الصوت</button>
     </div>
 
     <script>
-        // قائمة الفيديوهات
-        const videos = [
-            { id: 'NmmKzSOugwA', title: 'فيديو مميز ١' },
-            { id: 'LFwLfDAnFeY', title: 'فيديو مميز ٢' },
-            { id: '3qCGFxc2yEg', title: 'فيديو مميز ٣' },
-            { id: '_JXPY08yg8s', title: 'فيديو مميز ٤' },
-            { id: 'qcAmkjvVcmI', title: 'فيديو مميز ٥' },
-            { id: 'G7PenuWlCMA', title: 'فيديو مميز ٦' },
-            { id: 'EhzybH5CQLI', title: 'فيديو مميز ٧' }
+        // قائمة معرّفات الفيديوهات من الروابط التي قدمتها
+        const videoIds = [
+            'NmmKzSOugwA',
+            'LFwLfDAnFeY', 
+            '3qCGFxc2yEg',
+            '_JXPY08yg8s',
+            'qcAmkjvVcmI',
+            'G7PenuWlCMA',
+            'EhzybH5CQLI'
         ];
         
-        // العناصر
         const player = document.getElementById('player');
         const videoInfo = document.getElementById('videoInfo');
-        const statusMessage = document.getElementById('statusMessage');
-        const nextVideoBtn = document.getElementById('nextVideo');
-        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const muteBtn = document.getElementById('muteBtn');
         
         let currentVideoIndex = 0;
-        let playerAPI = null;
-        let isUserInteracted = false;
+        let isMuted = true;
         
-        // اختيار فيديو عشوائي
-        function getRandomVideoIndex() {
-            return Math.floor(Math.random() * videos.length);
-        }
-        
-        // تحميل فيديو
-        function loadVideo(index) {
-            currentVideoIndex = index;
-            const video = videos[index];
+        // تحميل الفيديو الحالي
+        function loadCurrentVideo() {
+            const videoId = videoIds[currentVideoIndex];
             
-            // تحديث معلومات الفيديو
-            videoInfo.textContent = `الفيديو: ${video.title} (${index + 1}/${videos.length})`;
+            // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
+            let videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
             
-            // تحميل الفيديو في المشغل
-            player.src = `https://www.youtube.com/embed/${video.id}?autoplay=1&mute=0&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&controls=1`;
-            
-            // إعادة تعيين شريط التقدم
-            progressBar.style.width = '0%';
-            
-            // تحديث رسالة الحالة
-            statusMessage.textContent = 'جاري تشغيل الفيديو مع الصوت...';
-            statusMessage.style.color = '#4CAF50';
-            
-            // بدء تتبع التقدم
-            startProgressTracking();
-        }
-        
-        // بدء تتبع تقدم الفيديو
-        function startProgressTracking() {
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 0.5;
-                progressBar.style.width = `${progress}%`;
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    statusMessage.textContent = 'تم إكمال الفيديو بنجاح!';
-                    statusMessage.style.color = '#4CAF50';
-                    
-                    // تحميل فيديو جديد بعد 3 ثوانٍ
-                    setTimeout(() => {
-                        loadVideo(getRandomVideoIndex());
-                    }, 3000);
-                }
-            }, 1000);
-        }
-        
-        // محاولة تشغيل الصوت تلقائيًا
-        function attemptAutoplayWithSound() {
-            if (!isUserInteracted) {
-                statusMessage.textContent = 'جاري محاولة تشغيل الصوت تلقائيًا...';
-                
-                // محاكاة تفاعل المستخدم
-                document.body.click();
-                
-                // تحديث حالة التفاعل
-                isUserInteracted = true;
+            // إضافة معلمة كتم الصوت إذا كان الصوت مكتوماً
+            if (isMuted) {
+                videoUrl += '&mute=1';
             }
+            
+            player.src = videoUrl;
+            videoInfo.textContent = `الفيديو ${currentVideoIndex + 1} من ${videoIds.length}`;
+            
+            // تحديث نص زر الصوت
+            muteBtn.textContent = isMuted ? 'تشغيل الصوت' : 'كتم الصوت';
         }
         
-        // إضافة مستمعي الأحداث
-        nextVideoBtn.addEventListener('click', () => {
-            loadVideo(getRandomVideoIndex());
-        });
+        // الانتقال إلى الفيديو التالي
+        function nextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videoIds.length;
+            loadCurrentVideo();
+        }
         
-        document.body.addEventListener('click', () => {
-            isUserInteracted = true;
-            statusMessage.textContent = 'تم تفعيل الصوت - يتم احتساب المشاهدة الآن';
-            statusMessage.style.color = '#4CAF50';
-        });
+        // الانتقال إلى الفيديو السابق
+        function prevVideo() {
+            currentVideoIndex = (currentVideoIndex - 1 + videoIds.length) % videoIds.length;
+            loadCurrentVideo();
+        }
         
-        // تحميل فيديو عشوائي عند بدء الصفحة
-        window.addEventListener('load', () => {
-            // محاولة تشغيل الصوت تلقائيًا بعد تحميل الصفحة
-            setTimeout(attemptAutoplayWithSound, 1000);
-            
-            // تحميل الفيديو الأول
-            loadVideo(getRandomVideoIndex());
-            
-            // محاولة إضافية بعد 3 ثوانٍ
-            setTimeout(attemptAutoplayWithSound, 3000);
-        });
+        // تبديل حالة الصوت
+        function toggleMute() {
+            isMuted = !isMuted;
+            loadCurrentVideo();
+        }
         
-        // محاولة تفعيل الصوت عند تحريك الماوس
-        document.addEventListener('mousemove', () => {
-            if (!isUserInteracted) {
-                isUserInteracted = true;
-                statusMessage.textContent = 'تم اكتشاف تفاعل - جاري تشغيل الصوت';
+        // إضافة مستمعي الأحداث للأزرار
+        nextBtn.addEventListener('click', nextVideo);
+        prevBtn.addEventListener('click', prevVideo);
+        muteBtn.addEventListener('click', toggleMute);
+        
+        // تفعيل الصوت عند تفاعل المستخدم مع الصفحة
+        document.body.addEventListener('click', function() {
+            if (isMuted) {
+                isMuted = false;
+                loadCurrentVideo();
             }
+        }, { once: true }); // مرة واحدة فقط
+        
+        // تحميل الفيديو الأول عند بدء الصفحة
+        window.addEventListener('load', function() {
+            loadCurrentVideo();
+            
+            // الانتقال التلقائي للفيديو التالي عند انتهاء الفيديو الحالي
+            setInterval(nextVideo, 60000); // كل دقيقة (يمكنك تعديل المدة)
         });
     </script>
 </body>
