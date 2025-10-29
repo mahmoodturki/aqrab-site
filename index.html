@@ -1,37 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشغل فيديو عشوائي</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        #player {
+            width: 100%;
+            height: 450px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: linear-gradient(to bottom, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        #muteBtn {
+            background: linear-gradient(to bottom, #2196F3, #0b7dda);
+        }
+        
+        #muteBtn:hover {
+            background: linear-gradient(to bottom, #0b7dda, #2196F3);
+        }
+        
+        #randomBtn {
+            background: linear-gradient(to bottom, #ff9800, #e68900);
+        }
+        
+        #randomBtn:hover {
+            background: linear-gradient(to bottom, #e68900, #ff9800);
+        }
+        
+        .info {
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            #player {
+                height: 300px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #player {
+                height: 250px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <!-- العنصر الذي سيتم استبداله بمشغل الفيديو -->
-    <div id="player"></div>
+    <div class="container">
+        <h1>مشغل فيديو عشوائي</h1>
+        
+        <div id="player"></div>
+        
+        <div class="controls">
+            <button id="muteBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                    <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                    <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
+                </svg>
+                تشغيل الصوت
+            </button>
+            <button id="randomBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                فيديو عشوائي
+            </button>
+        </div>
+        
+        <div class="info">
+            <p>يتم تشغيل الفيديو تلقائيًا لكل زائر مع إمكانية التحكم بالصوت</p>
+            <p id="videoInfo"></p>
+        </div>
+    </div>
 
     <script>
-        // تحميل YouTube IFrame API بشكل غير متزامن
-        var tag = document.createElement('script');
+        // قائمة معرّفات الفيديوهات
+        const videoIds = [
+            'NmmKzSOugwA',
+            'LFwLfDAnFeY', 
+            '3qCGFxc2yEg',
+            '_JXPY08yg8s',
+            'qcAmkjvVcmI',
+            'G7PenuWlCMA',
+            'EhzybH5CQLI'
+        ];
+        
+        // عناصر DOM
+        const playerElement = document.getElementById('player');
+        const muteBtn = document.getElementById('muteBtn');
+        const randomBtn = document.getElementById('randomBtn');
+        const videoInfo = document.getElementById('videoInfo');
+        
+        let player;
+        let currentVideoIndex;
+        let isMuted = true;
+        
+        // تحميل YouTube IFrame API
+        const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
+        const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
+        
+        // اختيار فيديو عشوائي
+        function getRandomVideo() {
+            return Math.floor(Math.random() * videoIds.length);
+        }
+        
+        // تهيئة المشغل
         function onYouTubeIframeAPIReady() {
+            currentVideoIndex = getRandomVideo();
+            
             player = new YT.Player('player', {
-                height: '360',
-                width: '640',
-                videoId: 'NmmKzSOugwA', // معرّف الفيديو من الرابط
+                height: '100%',
+                width: '100%',
+                videoId: videoIds[currentVideoIndex],
                 playerVars: {
-                    'autoplay': 1, // تشغيل تلقائي
-                    'mute': 1, // صامت (مطلوب للتشغيل التلقائي)
-                    'playsinline': 1 // للعب ضمن الصفحة دون ملء الشاشة
+                    'autoplay': 1,
+                    'mute': 1,
+                    'playsinline': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'fs': 1
                 },
                 events: {
-                    'onReady': onPlayerReady
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
                 }
             });
         }
-
+        
+        // عندما يصبح المشغل جاهزًا
         function onPlayerReady(event) {
-            // يمكنك إضافة إجراءات إضافية هنا عند تحميل الفيديو
-            console.log('الفيديو جاهز للتشغيل');
+            updateVideoInfo();
+            console.log('المشغل جاهز، الفيديو يعمل تلقائيًا');
         }
+        
+        // تحديث معلومات الفيديو
+        function updateVideoInfo() {
+            videoInfo.textContent = `الفيديو الحالي: ${currentVideoIndex + 1} من ${videoIds.length}`;
+        }
+        
+        // تغيير حالة الصوت
+        function toggleMute() {
+            if (isMuted) {
+                player.unMute();
+                muteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154zm7.137 1.096a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .708 0zM8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525zm2.197 2.197A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707zm1.33 1.33A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707a7.476 7.476 0 0 1 2.197 5.303c0 1.956-.79 3.728-2.068 5.01z"/>
+                    </svg>
+                    إيقاف الصوت
+                `;
+                isMuted = false;
+            } else {
+                player.mute();
+                muteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
+                    </svg>
+                    تشغيل الصوت
+                `;
+                isMuted = true;
+            }
+        }
+        
+        // تغيير الفيديو
+        function changeVideo() {
+            let newIndex;
+            do {
+                newIndex = getRandomVideo();
+            } while (newIndex === currentVideoIndex && videoIds.length > 1);
+            
+            currentVideoIndex = newIndex;
+            player.loadVideoById(videoIds[currentVideoIndex]);
+            updateVideoInfo();
+            
+            // إعادة تعيين زر الصوت
+            if (!isMuted) {
+                player.mute();
+                muteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11.536 14.01A8.473 8.473 0 0 0 14.026 8a8.473 8.473 0 0 0-2.49-6.01l-.708.707A7.476 7.476 0 0 1 13.025 8c0 2.071-.84 3.946-2.197 5.303l.708.707z"/>
+                        <path d="M10.121 12.596A6.48 6.48 0 0 0 12.025 8a6.48 6.48 0 0 0-1.904-4.596l-.707.707A5.483 5.483 0 0 1 11.025 8a5.483 5.483 0 0 1-1.61 3.89l.706.706z"/>
+                        <path d="M8.707 11.182A4.486 4.486 0 0 0 10.025 8a4.486 4.486 0 0 0-1.318-3.182L8 5.525A3.489 3.489 0 0 1 9.025 8 3.49 3.49 0 0 1 8 10.475l.707.707zM6.717 3.55A.5.5 0 0 1 7.43 4.084l-4 4a.5.5 0 0 1-.708-.708l4-4a.5.5 0 0 1 .995.154z"/>
+                    </svg>
+                    تشغيل الصوت
+                `;
+                isMuted = true;
+            }
+        }
+        
+        // تتبع حالة المشغل
+        function onPlayerStateChange(event) {
+            // يمكنك إضافة ردود فعل إضافية هنا عند تغيير حالة الفيديو
+        }
+        
+        // إضافة مستمعي الأحداث للأزرار
+        muteBtn.addEventListener('click', toggleMute);
+        randomBtn.addEventListener('click', changeVideo);
     </script>
 </body>
 </html>
