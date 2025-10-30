@@ -1,534 +1,72 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube - تشغيل تلقائي</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>مشغل فيديو يوتيوب عشوائي</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             background-color: #0f0f0f;
-            color: #f1f1f1;
-            line-height: 1.4;
-            overflow-x: hidden;
-        }
-        
-        /* شريط التنقل العلوي */
-        .header {
+            color: #ffffff;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            height: 56px;
-            background-color: #0f0f0f;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid #272727;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
         }
         
-        .logo-container {
-            display: flex;
-            align-items: center;
+        .container {
+            max-width: 1200px;
+            width: 100%;
         }
         
-        .logo {
+        h1 {
             color: #ff0000;
-            font-size: 24px;
-            margin-right: 4px;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
         }
         
-        .logo-text {
-            color: white;
-            font-size: 20px;
-            font-weight: 500;
-            letter-spacing: -0.5px;
-        }
-        
-        .points-container {
-            background: linear-gradient(135deg, #ff6b00, #ff0000);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(255, 107, 0, 0.3);
-        }
-        
-        .search-container {
-            display: flex;
-            align-items: center;
-            flex: 0 1 728px;
-            margin: 0 40px;
-        }
-        
-        .search-box {
-            display: flex;
-            flex: 1;
-            height: 40px;
-        }
-        
-        .search-input {
-            flex: 1;
-            background: #121212;
-            border: 1px solid #303030;
-            border-radius: 2px 0 0 2px;
-            padding: 0 12px;
-            color: white;
-            font-size: 16px;
-        }
-        
-        .search-button {
-            width: 64px;
-            height: 40px;
-            background: #303030;
-            border: 1px solid #303030;
-            border-radius: 0 2px 2px 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .user-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .icon-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .icon-button:hover {
-            background: #272727;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #ff0000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        /* المحتوى الرئيسي */
-        .main-content {
-            display: flex;
-            max-width: 100%;
-            min-height: calc(100vh - 56px);
-        }
-        
-        /* شريط الفيديو */
-        .video-container {
-            flex: 1;
-            padding: 24px;
-            max-width: 1100px;
-            margin: 0 auto;
+        .subtitle {
+            color: #aaaaaa;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
         }
         
         .player-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* نسبة 16:9 */
-            height: 0;
-            overflow: hidden;
+            max-width: 854px;
+            margin: 0 auto 30px;
             border-radius: 12px;
-            background: #000;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         
         #player {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
+            height: 480px;
             border: none;
+            display: block;
         }
         
-        /* معلومات الفيديو */
-        .video-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin: 12px 0;
-            line-height: 1.4;
-        }
-        
-        .video-stats {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #272727;
-        }
-        
-        .views-date {
-            color: #aaa;
-            font-size: 14px;
-        }
-        
-        .video-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: #aaa;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 18px;
-            transition: all 0.2s;
-        }
-        
-        .action-btn:hover {
-            background-color: #272727;
-            color: #f1f1f1;
-        }
-        
-        /* معلومات القناة */
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px 0;
-            border-bottom: 1px solid #272727;
-        }
-        
-        .channel-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #ff0000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .channel-details {
-            flex: 1;
-        }
-        
-        .channel-name {
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        
-        .subscribers {
-            color: #aaa;
-            font-size: 13px;
-        }
-        
-        .subscribe-btn {
-            background-color: #cc0000;
-            color: white;
-            border: none;
-            border-radius: 18px;
-            padding: 10px 16px;
-            font-weight: 500;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        
-        .subscribe-btn:hover {
-            background-color: #ff0000;
-        }
-        
-        /* نظام النقاط */
-        .points-system {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f);
-            border-radius: 12px;
-            padding: 16px;
-            margin: 16px 0;
-            border: 1px solid #ff6b00;
-        }
-        
-        .points-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .points-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .points-value {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .points-info {
-            font-size: 14px;
-            color: #ffcc00;
-            margin-bottom: 8px;
-        }
-        
-        .progress-container {
-            width: 100%;
-            height: 8px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(to right, #ffcc00, #ff6b00);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .time-remaining {
-            font-size: 12px;
-            color: #aaa;
-            text-align: center;
-        }
-        
-        /* الوصف */
-        .video-description {
-            background-color: #272727;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
-        .description-text {
-            color: #f1f1f1;
-            white-space: pre-line;
-        }
-        
-        /* التعليقات */
-        .comments-section {
-            margin-top: 24px;
-        }
-        
-        .comments-header {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        
-        .comments-count {
-            font-weight: 500;
-        }
-        
-        .sort-comments {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #aaa;
-            font-size: 14px;
-        }
-        
-        .add-comment {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-        
-        .comment-user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #ff0000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-        
-        .comment-input-container {
-            flex: 1;
-            border-bottom: 1px solid #272727;
-            padding-bottom: 8px;
-        }
-        
-        .comment-input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-        
-        .comment-input::placeholder {
-            color: #aaa;
-        }
-        
-        .comment {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        
-        .comment-content {
-            flex: 1;
-        }
-        
-        .comment-author {
-            font-weight: 500;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-        
-        .comment-text {
-            font-size: 14px;
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        
-        .comment-actions {
-            display: flex;
-            gap: 16px;
-        }
-        
-        .comment-action {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: #aaa;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 4px;
-        }
-        
-        /* الفيديوهات المقترحة */
-        .sidebar {
-            width: 402px;
-            padding: 24px 24px 24px 0;
-            flex-shrink: 0;
-        }
-        
-        .video-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .video-item {
-            display: flex;
-            gap: 8px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .video-item:hover {
-            transform: translateX(-5px);
-        }
-        
-        .video-thumbnail {
-            width: 168px;
-            height: 94px;
-            border-radius: 8px;
-            background: #272727;
-            flex-shrink: 0;
-            position: relative;
-        }
-        
-        .video-duration {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            font-size: 12px;
-            padding: 2px 4px;
-            border-radius: 4px;
-        }
-        
-        .video-item-info {
-            flex: 1;
-        }
-        
-        .video-item-title {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .video-item-channel {
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
-        
-        .video-item-meta {
-            font-size: 13px;
-            color: #aaa;
-        }
-        
-        /* التنبيه */
-        .autoplay-notice {
-            background-color: #1e3a5f;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-            font-size: 14px;
-            color: #8bb2ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        /* مؤشر التحميل */
         .loading {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 200px;
+            height: 480px;
             flex-direction: column;
             gap: 15px;
+            background: #000;
+            color: white;
         }
         
         .spinner {
@@ -545,173 +83,136 @@
             100% { transform: rotate(360deg); }
         }
         
-        @media (max-width: 1300px) {
-            .main-content {
-                flex-direction: column;
+        .video-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 854px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .video-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .video-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            color: #aaaaaa;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+        
+        .notice {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 854px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #ffcc00;
+        }
+        
+        @media (max-width: 900px) {
+            #player {
+                height: 400px;
             }
             
-            .sidebar {
-                width: 100%;
-                padding: 0 24px 24px;
+            .loading {
+                height: 400px;
             }
         }
         
-        @media (max-width: 768px) {
-            .video-stats {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
+        @media (max-width: 600px) {
+            #player {
+                height: 300px;
             }
             
-            .video-actions {
-                width: 100%;
-                justify-content: space-between;
+            .loading {
+                height: 300px;
             }
             
-            .search-container {
-                display: none;
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .video-title {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- شريط التنقل العلوي -->
-    <div class="header">
-        <div class="logo-container">
-            <i class="fab fa-youtube logo"></i>
-            <span class="logo-text">YouTube</span>
+    <div class="container">
+        <h1>مشغل فيديو يوتيوب عشوائي</h1>
+        <p class="subtitle">كل زائر يشاهد فيديو مختلف بشكل تلقائي</p>
+        
+        <div class="player-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>جاري تحميل الفيديو...</div>
+            </div>
+            <iframe id="player"
+                src=""
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                style="display: none;">
+            </iframe>
         </div>
         
-        <div class="points-container">
-            <span id="totalPoints">0</span> نقطة
-        </div>
-        
-        <div class="search-container">
-            <div class="search-box">
-                <input type="text" class="search-input" placeholder="البحث">
-                <button class="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="user-actions">
-            <button class="icon-button">
-                <i class="fas fa-video"></i>
-            </button>
-            <button class="icon-button">
-                <i class="fas fa-bell"></i>
-            </button>
-            <div class="user-avatar">ز</div>
-        </div>
-    </div>
-    
-    <!-- المحتوى الرئيسي -->
-    <div class="main-content">
-        <!-- قسم الفيديو -->
-        <div class="video-container">
-            <div class="player-container">
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <div>جاري تحميل الفيديو...</div>
-                </div>
-                <iframe id="player"
-                    src=""
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    style="display: none;">
-                </iframe>
-            </div>
-            
-            <div class="autoplay-notice">
-                <i class="fas fa-info-circle"></i>
-                <span>الفيديو يعمل تلقائيًا. انقر على زر الصوت في المشغل لتفعيل الصوت.</span>
-            </div>
-            
-            <h1 class="video-title" id="videoTitle">جاري التحميل...</h1>
-            
+        <div class="video-info">
+            <div class="video-title" id="videoTitle">جاري التحميل...</div>
             <div class="video-stats">
-                <div class="views-date" id="videoViews">-- مشاهدة • --</div>
-                <div class="video-actions">
-                    <button class="action-btn">
-                        <i class="fas fa-thumbs-up"></i>
-                        <span id="likeCount">--</span>
-                    </button>
-                    <button class="action-btn">
-                        <i class="fas fa-thumbs-down"></i>
-                        <span id="dislikeCount">--</span>
-                    </button>
-                    <button class="action-btn">
-                        <i class="fas fa-share"></i>
-                        <span>مشاركة</span>
-                    </button>
-                    <button class="action-btn">
-                        <i class="fas fa-download"></i>
-                        <span>تحميل</span>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- نظام النقاط -->
-            <div class="points-system">
-                <div class="points-header">
-                    <div class="points-title">نظام تجميع النقاط</div>
-                    <div class="points-value" id="currentVideoPoints">1,000,000 نقطة</div>
-                </div>
-                <div class="points-info">
-                    <i class="fas fa-gem"></i> شاهد الفيديو لمدة 75 ثانية لتحصل على 5 نقاط
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar" id="watchProgress"></div>
-                </div>
-                <div class="time-remaining" id="timeRemaining">المتبقي: 75 ثانية</div>
-            </div>
-            
-            <div class="channel-info">
-                <div class="channel-avatar">?</div>
-                <div class="channel-details">
-                    <div class="channel-name" id="channelName">جاري التحميل...</div>
-                    <div class="subscribers" id="subscriberCount">-- مشترك</div>
-                </div>
-                <button class="subscribe-btn">اشترك</button>
-            </div>
-            
-            <div class="video-description">
-                <div class="description-text" id="videoDescription">جاري تحميل الوصف...</div>
-            </div>
-            
-            <div class="comments-section">
-                <div class="comments-header">
-                    <div class="comments-count" id="commentsCount">-- تعليقًا</div>
-                    <div class="sort-comments">
-                        <i class="fas fa-sort-amount-down"></i>
-                        <span>ترتيب حسب:</span>
-                        <select id="sortComments">
-                            <option value="newest">الأحدث</option>
-                            <option value="popular">الأكثر تفاعلاً</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="add-comment">
-                    <div class="comment-user-avatar">ز</div>
-                    <div class="comment-input-container">
-                        <input type="text" class="comment-input" placeholder="أضف تعليقًا...">
-                    </div>
-                </div>
-                
-                <div class="comments-list" id="commentsList">
-                    <!-- سيتم إضافة التعليقات هنا ديناميكيًا -->
-                </div>
+                <span id="videoViews">-- مشاهدة</span>
+                <span id="videoChannel">--</span>
             </div>
         </div>
         
-        <!-- الفيديوهات المقترحة -->
-        <div class="sidebar">
-            <div class="video-list" id="suggestedVideos">
-                <!-- سيتم إضافة الفيديوهات المقترحة هنا ديناميكيًا -->
-            </div>
+        <div class="controls">
+            <button id="nextVideo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                فيديو عشوائي
+            </button>
+        </div>
+        
+        <div class="notice">
+            <strong>ملاحظة:</strong> الفيديو يعمل تلقائيًا. إذا لم يتم تشغيل الصوت، انقر على زر الصوت في مشغل يوتيوب.
         </div>
     </div>
 
@@ -722,241 +223,121 @@
                 id: 'NmmKzSOugwA',
                 title: 'The Rotten Bastards - Never Say No',
                 channel: 'The Rotten Bastards',
-                subscribers: '1.78 ألف',
-                views: '92 ألف',
-                likes: '1.78 ألف',
-                dislikes: '1.4 ألف',
-                publishDate: 'قبل 11 شهرًا',
-                description: 'الأغنية الرسمية لفرقة The Rotten Bastards - Never Say No\n\nتابع الفرقة على وسائل التواصل الاجتماعي:\nInstagram: @therottenbastards\nFacebook: /therottenbastards\n\n#TheRottenBastards #NeverSayNo #RockMusic',
-                points: 1000000
+                views: '92 ألف مشاهدة'
             },
             {
                 id: 'jEx_rBcE8Bs',
                 title: 'أفضل الأغاني العربية 2023',
                 channel: 'الموسيقى العربية',
-                subscribers: '2.3M',
-                views: '15M',
-                likes: '450K',
-                dislikes: '12K',
-                publishDate: 'قبل 8 أشهر',
-                description: 'أجمل الأغاني العربية لعام 2023، استمع واستمتع بأفضل الأصوات العربية.',
-                points: 1000000
+                views: '15 مليون مشاهدة'
             },
             {
                 id: 'oYgr1cemxzU',
                 title: 'تعلم البرمجة من الصفر',
                 channel: 'مطور ويب',
-                subscribers: '1.5M',
-                views: '8.7M',
-                likes: '320K',
-                dislikes: '8K',
-                publishDate: 'قبل سنة',
-                description: 'دورة شاملة لتعلم البرمجة من الصفر حتى الاحتراف.',
-                points: 1000000
+                views: '8.7 مليون مشاهدة'
             },
             {
                 id: 'c3VqnXd3IOY',
                 title: 'وصفات طبخ سهلة وسريعة',
                 channel: 'مطبخ سهل',
-                subscribers: '3.2M',
-                views: '25M',
-                likes: '780K',
-                dislikes: '15K',
-                publishDate: 'قبل 6 أشهر',
-                description: 'وصفات طبخ سهلة وسريعة يمكن تحضيرها في أقل من 30 دقيقة.',
-                points: 1000000
+                views: '25 مليون مشاهدة'
             },
             {
                 id: 'RD14ZNRCpYI',
                 title: 'تمارين منزلية بدون معدات',
                 channel: 'لياقتك',
-                subscribers: '4.1M',
-                views: '32M',
-                likes: '1.2M',
-                dislikes: '25K',
-                publishDate: 'قبل 9 أشهر',
-                description: 'تمارين منزلية فعالة للياقة البدنية بدون الحاجة إلى أي معدات.',
-                points: 1000000
+                views: '32 مليون مشاهدة'
             },
             {
                 id: 'Q8r0m5WFpvk',
                 title: 'أسرار التصوير الفوتوغرافي',
                 channel: 'مصور محترف',
-                subscribers: '2.8M',
-                views: '18M',
-                likes: '650K',
-                dislikes: '18K',
-                publishDate: 'قبل سنة',
-                description: 'تعلم أسرار التصوير الفوتوغرافي وكيفية التقاط صور احترافية.',
-                points: 1000000
+                views: '18 مليون مشاهدة'
             },
             {
                 id: 'pxkp9ehbBkA',
                 title: 'أفضل الألعاب الإلكترونية 2023',
                 channel: 'عالم الألعاب',
-                subscribers: '5.2M',
-                views: '45M',
-                likes: '1.8M',
-                dislikes: '42K',
-                publishDate: 'قبل 7 أشهر',
-                description: 'استعرضنا أفضل الألعاب الإلكترونية التي صدرت في عام 2023.',
-                points: 1000000
+                views: '45 مليون مشاهدة'
             },
             {
                 id: 'QK6rysYv1sM',
                 title: 'تعلم اللغة الإنجليزية بسهولة',
                 channel: 'إنجليزي بسهولة',
-                subscribers: '3.7M',
-                views: '28M',
-                likes: '950K',
-                dislikes: '22K',
-                publishDate: 'قبل 10 أشهر',
-                description: 'دورة تعلم اللغة الإنجليزية من الصفر حتى الطلاقة.',
-                points: 1000000
+                views: '28 مليون مشاهدة'
             },
             {
                 id: 'rYmA9pwKTRs',
                 title: 'أسرار النجاح في العمل',
                 channel: 'نجاحك',
-                subscribers: '2.1M',
-                views: '12M',
-                likes: '420K',
-                dislikes: '9K',
-                publishDate: 'قبل سنة',
-                description: 'تعرف على أسرار النجاح في العمل وكيفية التميز في مجال عملك.',
-                points: 1000000
+                views: '12 مليون مشاهدة'
             },
             {
                 id: 'NcG_PwAFQ3w',
                 title: 'تعلم الرسم من الصفر',
                 channel: 'فنان',
-                subscribers: '1.9M',
-                views: '14M',
-                likes: '510K',
-                dislikes: '11K',
-                publishDate: 'قبل 8 أشهر',
-                description: 'دورة تعلم الرسم من الصفر حتى الاحتراف، خطوة بخطوة.',
-                points: 1000000
+                views: '14 مليون مشاهدة'
             },
             {
                 id: 'uQDG65myVSo',
                 title: 'السفر حول العالم',
                 channel: 'مسافر',
-                subscribers: '4.5M',
-                views: '38M',
-                likes: '1.4M',
-                dislikes: '32K',
-                publishDate: 'قبل 6 أشهر',
-                description: 'جولة حول العالم لاستكشاف أجمل الوجهات السياحية.',
-                points: 1000000
+                views: '38 مليون مشاهدة'
             },
             {
                 id: 'ZxdF8dQ2R6k',
                 title: 'تعلم التصميم الجرافيكي',
                 channel: 'مصمم جرافيك',
-                subscribers: '2.6M',
-                views: '16M',
-                likes: '580K',
-                dislikes: '14K',
-                publishDate: 'قبل سنة',
-                description: 'دورة تعلم التصميم الجرافيكي باستخدام برامج Adobe.',
-                points: 1000000
+                views: '16 مليون مشاهدة'
             },
             {
                 id: 'j6B8bhXjCHQ',
                 title: 'العناية بالبشرة والشعر',
                 channel: 'جمالك',
-                subscribers: '3.9M',
-                views: '29M',
-                likes: '870K',
-                dislikes: '19K',
-                publishDate: 'قبل 9 أشهر',
-                description: 'نصائح وطرق العناية بالبشرة والشعر للحصول على مظهر جميل.',
-                points: 1000000
+                views: '29 مليون مشاهدة'
             },
             {
                 id: 'ohLaoKcjY84',
                 title: 'تعلم العزف على الجيتار',
                 channel: 'موسيقي',
-                subscribers: '2.4M',
-                views: '17M',
-                likes: '620K',
-                dislikes: '16K',
-                publishDate: 'قبل سنة',
-                description: 'دورة تعلم العزف على الجيتار من الصفر حتى الاحتراف.',
-                points: 1000000
+                views: '17 مليون مشاهدة'
             },
             {
                 id: 'LFwLfDAnFeY',
                 title: 'تعلم JavaScript في ساعة واحدة',
                 channel: 'أكاديمية البرمجة',
-                subscribers: '850K',
-                views: '512,340',
-                likes: '28,901',
-                dislikes: '543',
-                publishDate: 'قبل 3 أشهر',
-                description: 'دورة مكثفة لتعلم لغة JavaScript من الصفر حتى الاحتراف في ساعة واحدة فقط.',
-                points: 1000000
+                views: '512 ألف مشاهدة'
             },
             {
                 id: '3qCGFxc2yEg',
                 title: 'تصميم موقع ويب متكامل',
                 channel: 'مصمم الويب',
-                subscribers: '450K',
-                views: '189,456',
-                likes: '12,345',
-                dislikes: '198',
-                publishDate: 'قبل أسبوعين',
-                description: 'تصميم موقع ويب متكامل باستخدام HTML و CSS فقط.',
-                points: 1000000
+                views: '189 ألف مشاهدة'
             },
             {
                 id: '_JXPY08yg8s',
                 title: 'أفضل 10 ألعاب 2023',
                 channel: 'عالم الألعاب',
-                subscribers: '1.2M',
-                views: '890,123',
-                likes: '45,678',
-                dislikes: '1,234',
-                publishDate: 'قبل شهر',
-                description: 'استعرضنا أفضل 10 ألعاب تم إصدارها في عام 2023.',
-                points: 1000000
+                views: '890 ألف مشاهدة'
             },
             {
                 id: 'qcAmkjvVcmI',
                 title: 'وصفات سريعة ولذيذة في 10 دقائق',
                 channel: 'مطبخ سريع',
-                subscribers: '320K',
-                views: '156,789',
-                likes: '9,876',
-                dislikes: '321',
-                publishDate: 'قبل 5 أيام',
-                description: 'وصفات سريعة ولذيذة يمكن تحضيرها في 10 دقائق فقط.',
-                points: 1000000
+                views: '156 ألف مشاهدة'
             },
             {
                 id: 'G7PenuWlCMA',
                 title: 'تمارين منزلية للياقة البدنية',
                 channel: 'لياقتك',
-                subscribers: '780K',
-                views: '345,678',
-                likes: '23,456',
-                dislikes: '654',
-                publishDate: 'قبل 3 أسابيع',
-                description: 'تمارين منزلية فعالة لتحسين اللياقة البدنية وبناء العضلات.',
-                points: 1000000
+                views: '345 ألف مشاهدة'
             },
             {
                 id: 'EhzybH5CQLI',
                 title: 'أسرار التصوير الفوتوغرافي للمبتدئين',
                 channel: 'مصور محترف',
-                subscribers: '540K',
-                views: '234,567',
-                likes: '15,432',
-                dislikes: '432',
-                publishDate: 'قبل 4 أشهر',
-                description: 'أسرار التصوير الفوتوغرافي للمبتدئين وكيفية التقاط صور احترافية.',
-                points: 1000000
+                views: '234 ألف مشاهدة'
             }
         ];
         
@@ -965,31 +346,16 @@
         const loading = document.getElementById('loading');
         const videoTitle = document.getElementById('videoTitle');
         const videoViews = document.getElementById('videoViews');
-        const likeCount = document.getElementById('likeCount');
-        const dislikeCount = document.getElementById('dislikeCount');
-        const channelName = document.getElementById('channelName');
-        const subscriberCount = document.getElementById('subscriberCount');
-        const videoDescription = document.getElementById('videoDescription');
-        const commentsCount = document.getElementById('commentsCount');
-        const commentsList = document.getElementById('commentsList');
-        const suggestedVideos = document.getElementById('suggestedVideos');
-        const totalPoints = document.getElementById('totalPoints');
-        const currentVideoPoints = document.getElementById('currentVideoPoints');
-        const watchProgress = document.getElementById('watchProgress');
-        const timeRemaining = document.getElementById('timeRemaining');
+        const videoChannel = document.getElementById('videoChannel');
+        const nextVideoBtn = document.getElementById('nextVideo');
         
         let currentVideoIndex = 0;
-        let userPoints = 0;
-        let watchTimer = null;
-        let secondsWatched = 0;
-        const requiredSeconds = 75;
         
         // توليد رقم عشوائي فريد لكل زائر
         function getRandomVideoIndex() {
             // استخدام الوقت الحالي لإنشاء قيمة عشوائية فريدة لكل زائر
             const now = new Date();
-            const seed = now.getTime() % videos.length;
-            return seed;
+            return now.getTime() % videos.length;
         }
         
         // تحميل فيديو عشوائي
@@ -997,7 +363,7 @@
             currentVideoIndex = getRandomVideoIndex();
             const video = videos[currentVideoIndex];
             
-            // إعدادات التشغيل التلقائي - بدون mute
+            // إعدادات التشغيل التلقائي - مع محاولة تشغيل الصوت
             const autoplayParams = "autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&controls=1";
             
             // بناء رابط يوتيوب مع معلمات التشغيل التلقائي
@@ -1008,198 +374,45 @@
                 setTimeout(() => {
                     loading.style.display = 'none';
                     player.style.display = 'block';
-                }, 1000);
+                    
+                    // محاولة تشغيل الصوت بعد تحميل الفيديو
+                    setTimeout(() => {
+                        // هذه محاولة لتفعيل الصوت تلقائيًا
+                        // لا يمكن ضمان نجاحها بسبب سياسات المتصفحات
+                        console.log("تم تحميل الفيديو، جاري محاولة تشغيل الصوت...");
+                    }, 1000);
+                }, 1500);
             };
             
             // تحديث معلومات الفيديو
             updateVideoInfo(video);
-            
-            // تحديث الفيديوهات المقترحة
-            updateSuggestedVideos();
-            
-            // بدء تتبع وقت المشاهدة
-            startWatchTracking();
         }
         
         // تحديث معلومات الفيديو
         function updateVideoInfo(video) {
             videoTitle.textContent = video.title;
-            videoViews.textContent = `${video.views} مشاهدة • ${video.publishDate}`;
-            likeCount.textContent = video.likes;
-            dislikeCount.textContent = video.dislikes;
-            channelName.textContent = video.channel;
-            subscriberCount.textContent = `${video.subscribers} مشترك`;
-            videoDescription.textContent = video.description;
-            currentVideoPoints.textContent = formatNumber(video.points) + ' نقطة';
-            
-            // تحديث عدد التعليقات
-            const commentCount = Math.floor(Math.random() * 50) + 10;
-            commentsCount.textContent = `${commentCount} تعليقًا`;
-            
-            // إعادة تعيين شريط التقدم
-            watchProgress.style.width = '0%';
-            secondsWatched = 0;
-            timeRemaining.textContent = `المتبقي: ${requiredSeconds} ثانية`;
-            timeRemaining.style.color = '#aaa';
-            
-            // تحديث التعليقات
-            updateComments(commentCount);
-        }
-        
-        // تحديث التعليقات
-        function updateComments(count) {
-            commentsList.innerHTML = '';
-            
-            // تعليقات عشوائية
-            const comments = [
-                "فيديو رائع! شكرًا للمشاركة",
-                "أعجبني الفيديو كثيرًا",
-                "محتوى مفيد جدًا، شكرًا لك",
-                "استمر في هذا العمل الرائع",
-                "توقيت الفيديو ممتاز",
-                "شرح واضح ومفصل",
-                "أنتظر المزيد من هذه الفيديوهات",
-                "معلومات قيمة، شكرًا جزيلاً",
-                "أفضل فيديو شاهدته هذا الأسبوع",
-                "محتوى يستحق المتابعة"
-            ];
-            
-            const names = ["أحمد", "محمد", "فاطمة", "سارة", "يوسف", "خالد", "نور", "ليلى", "عمر", "مريم"];
-            
-            for (let i = 0; i < Math.min(count, 10); i++) {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
-                
-                const randomName = names[Math.floor(Math.random() * names.length)];
-                const randomComment = comments[Math.floor(Math.random() * comments.length)];
-                const randomLikes = Math.floor(Math.random() * 100) + 1;
-                const randomTime = `${Math.floor(Math.random() * 7) + 1} يوم`;
-                
-                commentElement.innerHTML = `
-                    <div class="comment-user-avatar">${randomName.charAt(0)}</div>
-                    <div class="comment-content">
-                        <div class="comment-author">${randomName} • ${randomTime}</div>
-                        <div class="comment-text">${randomComment}</div>
-                        <div class="comment-actions">
-                            <button class="comment-action">
-                                <i class="fas fa-thumbs-up"></i>
-                                <span>${randomLikes}</span>
-                            </button>
-                            <button class="comment-action">
-                                <i class="fas fa-thumbs-down"></i>
-                            </button>
-                            <button class="comment-action">رد</button>
-                        </div>
-                    </div>
-                `;
-                
-                commentsList.appendChild(commentElement);
-            }
-        }
-        
-        // بدء تتبع وقت المشاهدة
-        function startWatchTracking() {
-            // إيقاف المؤقت السابق إذا كان يعمل
-            if (watchTimer) {
-                clearInterval(watchTimer);
-            }
-            
-            // إعادة تعيين العد
-            secondsWatched = 0;
-            
-            // بدء مؤتمر جديد
-            watchTimer = setInterval(() => {
-                secondsWatched++;
-                
-                // تحديث شريط التقدم
-                const progress = (secondsWatched / requiredSeconds) * 100;
-                watchProgress.style.width = `${Math.min(progress, 100)}%`;
-                
-                // تحديث الوقت المتبقي
-                const remaining = Math.max(0, requiredSeconds - secondsWatched);
-                timeRemaining.textContent = `المتبقي: ${remaining} ثانية`;
-                
-                // منح النقاط عند الوصول إلى الوقت المطلوب
-                if (secondsWatched === requiredSeconds) {
-                    awardPoints(5);
-                    timeRemaining.textContent = 'مبروك! حصلت على 5 نقاط';
-                    timeRemaining.style.color = '#4CAF50';
-                }
-            }, 1000);
-        }
-        
-        // منح النقاط للمستخدم
-        function awardPoints(points) {
-            userPoints += points;
-            totalPoints.textContent = formatNumber(userPoints);
-            
-            // تأثير بصري عند الحصول على نقاط
-            totalPoints.parentElement.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                totalPoints.parentElement.style.transform = 'scale(1)';
-            }, 300);
-        }
-        
-        // تنسيق الأرقام بإضافة فواصل
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-        
-        // تحديث الفيديوهات المقترحة
-        function updateSuggestedVideos() {
-            suggestedVideos.innerHTML = '';
-            
-            // إنشاء قائمة بالفيديوهات عشوائية باستثناء الفيديو الحالي
-            const shuffledVideos = [...videos]
-                .filter((_, index) => index !== currentVideoIndex)
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 10);
-            
-            shuffledVideos.forEach(video => {
-                const videoItem = document.createElement('div');
-                videoItem.className = 'video-item';
-                
-                // إنشاء صورة مصغرة عشوائية (في التطبيق الحقيقي ستكون الصورة من YouTube)
-                const thumbnailColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-                
-                videoItem.innerHTML = `
-                    <div class="video-thumbnail" style="background-color: ${thumbnailColor};">
-                        <div class="video-duration">${getRandomDuration()}</div>
-                    </div>
-                    <div class="video-item-info">
-                        <div class="video-item-title">${video.title}</div>
-                        <div class="video-item-channel">${video.channel}</div>
-                        <div class="video-item-meta">${video.views} مشاهدة • ${video.publishDate}</div>
-                    </div>
-                `;
-                
-                // إضافة حدث النقر لتغيير الفيديو
-                videoItem.addEventListener('click', () => {
-                    currentVideoIndex = videos.findIndex(v => v.id === video.id);
-                    loadRandomVideo();
-                });
-                
-                suggestedVideos.appendChild(videoItem);
-            });
-        }
-        
-        // إنشاء مدة فيديو عشوائية
-        function getRandomDuration() {
-            const minutes = Math.floor(Math.random() * 20) + 1;
-            const seconds = Math.floor(Math.random() * 60);
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            videoViews.textContent = video.views;
+            videoChannel.textContent = video.channel;
         }
         
         // تحميل فيديو عشوائي عند بدء الصفحة
         window.addEventListener('load', loadRandomVideo);
         
-        // محاولة تشغيل الصوت تلقائيًا بعد تحميل الصفحة
-        window.addEventListener('click', function() {
+        // زر الفيديو العشوائي
+        nextVideoBtn.addEventListener('click', loadRandomVideo);
+        
+        // محاولة تشغيل الصوت عند التفاعل مع الصفحة
+        document.addEventListener('click', function() {
             // هذه الوظيفة تحاول تشغيل الصوت بعد تفاعل المستخدم
-            if (player.src.includes('mute=1')) {
-                player.src = player.src.replace('mute=1', 'mute=0');
-            }
-        }, { once: true });
+            // لا يمكن ضمان نجاحها بسبب سياسات المتصفحات
+            console.log("تم التفاعل مع الصفحة، جاري محاولة تشغيل الصوت...");
+        });
+        
+        // محاولة إضافية لتحسين التشغيل التلقائي
+        window.addEventListener('DOMContentLoaded', function() {
+            // هذه محاولة إضافية لتحسين تجربة التشغيل التلقائي
+            setTimeout(loadRandomVideo, 500);
+        });
     </script>
 </body>
 </html>
