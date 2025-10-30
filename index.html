@@ -5,50 +5,85 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>مشغل فيديو عشوائي</title>
   <style>
-    :root { --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --text:#e6eef8; }
-    html,body { height:100%; margin:0; font-family:system-ui,Segoe UI,Helvetica,Arial,"Noto Sans Arabic"; background:var(--bg); color:var(--text); }
-    .wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; gap:20px; padding:24px; box-sizing:border-box; }
-    .player-card { width:min(1100px,100%); background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:18px; box-shadow: 0 8px 30px rgba(2,6,23,0.6);}
-    .player { position:relative; padding-top:56.25%; border-radius:8px; overflow:hidden; background:#000; }
-    iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
-    .meta { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:12px; }
-    .btn { background:var(--accent); color:#042027; padding:8px 12px; border-radius:8px; font-weight:600; border:0; cursor:pointer; }
-    .mute-btn { background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; }
-    .notice { font-size:13px; color:#bcd5df; opacity:0.9; }
-    .overlay-play { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-    .overlay-play button { pointer-events:auto; padding:12px 18px; border-radius:999px; border:0; font-weight:700; background:rgba(6,182,212,0.95); color:#002; }
-    .small { font-size:13px; color:#9fb8c3; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: system-ui, "Noto Sans Arabic", sans-serif;
+      color: #fff;
+    }
+    .player {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+    .btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+      transition: 0.2s;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    #autoplay-block {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.6);
+      z-index: 5;
+    }
+    #play-interact {
+      background: #06b6d4;
+      color: #002;
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="player-card">
-      <div id="player-area" class="player">
-        <!-- iframe will be created by YouTube API -->
-        <div id="autoplay-block" class="overlay-play" style="display:none;">
-          <button id="play-interact">تشغيل الفيديو (تم حظر التشغيل التلقائي — اضغط لتشغيل/إلغاء الكتم)</button>
-        </div>
-      </div>
-
-      <div class="meta">
-        <div>
-          <div id="video-title" style="font-weight:700; font-size:16px">جارٍ تحميل الفيديو...</div>
-          <div id="video-id" class="small" style="margin-top:6px"></div>
-        </div>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <button id="muteToggle" class="mute-btn">كتم/إلغاء كتم</button>
-          <button id="nextBtn" class="btn">فيديو آخر</button>
-        </div>
-      </div>
-
-      <div style="margin-top:10px" class="notice">
-        كل زائر سيتم تخصيص فيديو عشوائي له. التشغيل التلقائي يعمل مكتوماً لتوافق سياسات المتصفح. للتشغيل بالصوت اضغط على "تشغيل الفيديو" أو زر كتم/إلغاء كتم.
-      </div>
+  <div class="player" id="player-area">
+    <div id="autoplay-block">
+      <button id="play-interact">تشغيل الفيديو (إلغاء الكتم)</button>
     </div>
   </div>
 
+  <div class="controls">
+    <button id="muteToggle" class="btn">🔇 كتم / 🔊 إلغاء كتم</button>
+    <button id="nextBtn" class="btn">🎞️ فيديو آخر</button>
+  </div>
+
   <script>
-    // قائمة معرفات الفيديو (ID فقط من youtu.be links)
     const videoIds = [
       "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
       "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
@@ -56,37 +91,24 @@
       "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
     ];
 
-    // اختيار فيديو عشوائي لكل زائر (نخزنه في localStorage لكي لا يتغير عند إعادة تحميل الصفحة لنفس الزائر)
     const LS_KEY = "assignedVideoIndex_v1";
     function pickIndex() {
-      // لو مخزن مسبقًا
       const stored = localStorage.getItem(LS_KEY);
       if (stored !== null) {
         const idx = parseInt(stored,10);
         if (!isNaN(idx) && idx >= 0 && idx < videoIds.length) return idx;
       }
-      // جديد: اختَر عشوائيًا
       const idx = Math.floor(Math.random() * videoIds.length);
       localStorage.setItem(LS_KEY, String(idx));
       return idx;
     }
 
     let currentIndex = pickIndex();
-
-    // إذا أردت أن "لكل زائر مختلف" حقًا على مستوى السيرفر (لكي لا يحصل زائران مختلفان على نفس الفيديو في وقت واحد)
-    // فهذه تتطلب منطق على الخادم (DB/queue). هنا طريقة client-side عشوائية كافية.
-
-    // YouTube IFrame API
-    let player;
-    let apiReady = false;
-    let autoplayAllowed = true; // سنكشف لاحقًا إن منع المتصفح التشغيل التلقائي
-    const playerArea = document.getElementById("player-area");
-    const titleEl = document.getElementById("video-title");
-    const idEl = document.getElementById("video-id");
-    const muteToggle = document.getElementById("muteToggle");
-    const nextBtn = document.getElementById("nextBtn");
+    let player, apiReady = false;
     const autoplayBlock = document.getElementById("autoplay-block");
     const playInteract = document.getElementById("play-interact");
+    const muteToggle = document.getElementById("muteToggle");
+    const nextBtn = document.getElementById("nextBtn");
 
     function loadYouTubeAPI() {
       const tag = document.createElement('script');
@@ -94,7 +116,6 @@
       document.head.appendChild(tag);
     }
 
-    // global function required by YT API
     window.onYouTubeIframeAPIReady = function() {
       apiReady = true;
       createPlayerForIndex(currentIndex);
@@ -102,18 +123,11 @@
 
     function createPlayerForIndex(index) {
       const vid = videoIds[index];
-      // إزالة iframe سابق إذا وُجد
       if (player) {
         try { player.destroy(); } catch(e) {}
         player = null;
       }
-      titleEl.textContent = "جارٍ تحميل الفيديو...";
-      idEl.textContent = "معرف الفيديو: " + vid;
-
-      // إنشاء المشغل
-      player = new YT.Player(playerArea, {
-        width: "100%",
-        height: "100%",
+      player = new YT.Player('player-area', {
         videoId: vid,
         playerVars: {
           autoplay: 1,
@@ -121,7 +135,7 @@
           playsinline: 1,
           rel: 0,
           modestbranding: 1,
-          mute: 1 // ابدأ مكتوماً للسماح بالـ autoplay
+          mute: 1
         },
         events: {
           onReady: onPlayerReady,
@@ -131,38 +145,23 @@
     }
 
     function onPlayerReady(event) {
-      // نطلب التشغيل فوراً (مكتوم)
       const p = event.target;
-      // metadata: نطلب عنوان الفيديو عبر API (getVideoData)
-      const data = p.getVideoData() || {};
-      titleEl.textContent = data.title || "فيديو YouTube";
-      idEl.textContent = "معرف الفيديو: " + data.video_id || "";
-
-      // حاول التشغيل
-      const playPromise = p.playVideo && p.playVideo();
-      // بعض متصفحات قد ترمي خطأ/تعيد promise rejected عند منع autoplay مع الصوت؛ لأننا مكتومون غالبًا سينجح.
-      // نتحقق بعد لحظة: إذا لم يلعب، نظهر زر للتفاعل
       setTimeout(() => {
         const state = typeof p.getPlayerState === 'function' ? p.getPlayerState() : -2;
-        // حالة 1 تعني playing
         if (state !== 1) {
-          autoplayAllowed = false;
           autoplayBlock.style.display = "flex";
         } else {
-          autoplayAllowed = true;
           autoplayBlock.style.display = "none";
         }
       }, 700);
     }
 
     function onPlayerStateChange(e) {
-      // إذا انتهى الفيديو، يمكننا الانتقال لواحد آخر إن رغبت:
       if (e.data === YT.PlayerState.ENDED) {
-        // هنا اخترت إبقاءه كما هو؛ لكن نسمح للمستخدم بالضغط "فيديو آخر"
+        // يمكنك تشغيل فيديو جديد تلقائيًا إن أردت هنا
       }
     }
 
-    // زر الكتم/إلغاء الكتم
     muteToggle.addEventListener("click", () => {
       if (!player) return;
       if (player.isMuted && player.isMuted()) {
@@ -172,41 +171,24 @@
       }
     });
 
-    // زر "فيديو آخر": يختار فيديو عشوائي جديد ويخزّنه
     nextBtn.addEventListener("click", () => {
       let newIndex = Math.floor(Math.random() * videoIds.length);
-      // تأكد ليس نفس الفيديو الحالي (جلسة واحدة)
-      if (videoIds.length > 1) {
-        let tries = 0;
-        while (newIndex === currentIndex && tries < 8) {
-          newIndex = Math.floor(Math.random() * videoIds.length);
-          tries++;
-        }
+      while (videoIds.length > 1 && newIndex === currentIndex) {
+        newIndex = Math.floor(Math.random() * videoIds.length);
       }
       currentIndex = newIndex;
       localStorage.setItem(LS_KEY, String(currentIndex));
       createPlayerForIndex(currentIndex);
     });
 
-    // زر التفاعل لإلغاء حظر التشغيل إذا حصل
     playInteract.addEventListener("click", () => {
       autoplayBlock.style.display = "none";
       if (!player) return;
-      // حاول إلغاء الكتم ثم تشغيل
       try { player.unMute(); } catch(e){}
       try { player.playVideo(); } catch(e){}
     });
 
-    // تحميل API الآن
     loadYouTubeAPI();
-
-    // للمراجعة: عند فشل تحميل الـ API (مثلاً منع خارجي)، نعرض رسالة
-    setTimeout(() => {
-      if (!apiReady) {
-        titleEl.textContent = "تعذر تحميل مشغل YouTube (تحقق من اتصال الإنترنت أو سياسات المتصفح).";
-      }
-    }, 3000);
-
   </script>
 </body>
 </html>
