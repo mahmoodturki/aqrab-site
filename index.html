@@ -716,7 +716,7 @@
     </div>
 
     <script>
-        // قائمة الفيديوهات المحدثة مع الفيديوهات الجديدة
+        // قائمة الفيديوهات المحدثة مع جميع الفيديوهات المطلوبة
         const videos = [
             {
                 id: 'NmmKzSOugwA',
@@ -885,6 +885,78 @@
                 publishDate: 'قبل سنة',
                 description: 'دورة تعلم العزف على الجيتار من الصفر حتى الاحتراف.',
                 points: 1000000
+            },
+            {
+                id: 'LFwLfDAnFeY',
+                title: 'تعلم JavaScript في ساعة واحدة',
+                channel: 'أكاديمية البرمجة',
+                subscribers: '850K',
+                views: '512,340',
+                likes: '28,901',
+                dislikes: '543',
+                publishDate: 'قبل 3 أشهر',
+                description: 'دورة مكثفة لتعلم لغة JavaScript من الصفر حتى الاحتراف في ساعة واحدة فقط.',
+                points: 1000000
+            },
+            {
+                id: '3qCGFxc2yEg',
+                title: 'تصميم موقع ويب متكامل',
+                channel: 'مصمم الويب',
+                subscribers: '450K',
+                views: '189,456',
+                likes: '12,345',
+                dislikes: '198',
+                publishDate: 'قبل أسبوعين',
+                description: 'تصميم موقع ويب متكامل باستخدام HTML و CSS فقط.',
+                points: 1000000
+            },
+            {
+                id: '_JXPY08yg8s',
+                title: 'أفضل 10 ألعاب 2023',
+                channel: 'عالم الألعاب',
+                subscribers: '1.2M',
+                views: '890,123',
+                likes: '45,678',
+                dislikes: '1,234',
+                publishDate: 'قبل شهر',
+                description: 'استعرضنا أفضل 10 ألعاب تم إصدارها في عام 2023.',
+                points: 1000000
+            },
+            {
+                id: 'qcAmkjvVcmI',
+                title: 'وصفات سريعة ولذيذة في 10 دقائق',
+                channel: 'مطبخ سريع',
+                subscribers: '320K',
+                views: '156,789',
+                likes: '9,876',
+                dislikes: '321',
+                publishDate: 'قبل 5 أيام',
+                description: 'وصفات سريعة ولذيذة يمكن تحضيرها في 10 دقائق فقط.',
+                points: 1000000
+            },
+            {
+                id: 'G7PenuWlCMA',
+                title: 'تمارين منزلية للياقة البدنية',
+                channel: 'لياقتك',
+                subscribers: '780K',
+                views: '345,678',
+                likes: '23,456',
+                dislikes: '654',
+                publishDate: 'قبل 3 أسابيع',
+                description: 'تمارين منزلية فعالة لتحسين اللياقة البدنية وبناء العضلات.',
+                points: 1000000
+            },
+            {
+                id: 'EhzybH5CQLI',
+                title: 'أسرار التصوير الفوتوغرافي للمبتدئين',
+                channel: 'مصور محترف',
+                subscribers: '540K',
+                views: '234,567',
+                likes: '15,432',
+                dislikes: '432',
+                publishDate: 'قبل 4 أشهر',
+                description: 'أسرار التصوير الفوتوغرافي للمبتدئين وكيفية التقاط صور احترافية.',
+                points: 1000000
             }
         ];
         
@@ -933,8 +1005,10 @@
             
             // إخفاء مؤشر التحميل عند تحميل الفيديو
             player.onload = function() {
-                loading.style.display = 'none';
-                player.style.display = 'block';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    player.style.display = 'block';
+                }, 1000);
             };
             
             // تحديث معلومات الفيديو
