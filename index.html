@@ -1,194 +1,335 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>مشغل فيديو عشوائي</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: system-ui, "Noto Sans Arabic", sans-serif;
-      color: #fff;
-    }
-    .player {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-    }
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-    }
-    .btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      backdrop-filter: blur(4px);
-      transition: 0.2s;
-    }
-    .btn:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    #autoplay-block {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 5;
-    }
-    #play-interact {
-      background: #06b6d4;
-      color: #002;
-      padding: 14px 20px;
-      border: 0;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض فيديوهات يوتيوب عشوائي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            padding: 20px;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .video-section {
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        #video-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        #video-container:hover {
+            transform: scale(1.02);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            display: block;
+        }
+        
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 800px;
+            animation: fadeIn 1.5s ease-out;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .counter {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            iframe {
+                height: 300px;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.7rem;
+            }
+            
+            iframe {
+                height: 250px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 80%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="player" id="player-area">
-    <div id="autoplay-block">
-      <button id="play-interact">تشغيل الفيديو (إلغاء الكتم)</button>
+    <div class="container">
+        <header class="header">
+            <h1>🎬 عارض فيديوهات يوتيوب العشوائي</h1>
+            <p>استمتع بمشاهدة فيديو عشوائي من قنوات يوتيوب متنوعة</p>
+        </header>
+        
+        <section class="video-section">
+            <div id="video-container">
+                <!-- سيتم إدراج الإطار هنا -->
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="new-video-btn">
+                    <span>🔄</span> فيديو جديد
+                </button>
+                <button class="btn" id="mute-toggle">
+                    <span>🔊</span> كتم/إلغاء كتم
+                </button>
+                <button class="btn" id="fullscreen-btn">
+                    <span>⛶</span> ملء الشاشة
+                </button>
+            </div>
+        </section>
+        
+        <footer class="footer">
+            <p>يتم اختيار الفيديوهات عشوائيًا من مجموعة مختارة من قنوات يوتيوب</p>
+            <div class="counter">
+                <span id="video-count">0</span> / <span id="total-videos">0</span> :عدد الفيديوهات المعروضة
+            </div>
+        </footer>
     </div>
-  </div>
 
-  <div class="controls">
-    <button id="muteToggle" class="btn">🔇 كتم / 🔊 إلغاء كتم</button>
-    <button id="nextBtn" class="btn">🎞️ فيديو آخر</button>
-  </div>
+    <script>
+        // قائمة بمعرفات الفيديوهات من الروابط المقدمة
+        const videoIds = [
+            'RD14ZNRCpYI',
+            'Q8r0m5WFpvk',
+            'pxkp9ehbBkA',
+            'QK6rysYv1sM',
+            'rYmA9pwKTRs',
+            'NcG_PwAFQ3w',
+            'uQDG65myVSo',
+            'ZxdF8dQ2R6k',
+            'j6B8bhXjCHQ',
+            'ohLaoKcjY84',
+            'NmmKzSOugwA',
+            'LFwLfDAnFeY',
+            '3qCGFxc2yEg',
+            '_JXPY08yg8s',
+            'qcAmkjvVcmI'
+        ];
 
-  <script>
-    const videoIds = [
-      "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
-      "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
-      "ZxdF8dQ2R6k","j6B8bhXjCHQ","ohLaoKcjY84","NmmKzSOugwA","LFwLfDAnFeY",
-      "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
-    ];
+        // متغيرات حالة
+        let currentVideoIndex = -1;
+        let isMuted = true;
+        let videoCount = 0;
+        let iframe = null;
 
-    const LS_KEY = "assignedVideoIndex_v1";
-    function pickIndex() {
-      const stored = localStorage.getItem(LS_KEY);
-      if (stored !== null) {
-        const idx = parseInt(stored,10);
-        if (!isNaN(idx) && idx >= 0 && idx < videoIds.length) return idx;
-      }
-      const idx = Math.floor(Math.random() * videoIds.length);
-      localStorage.setItem(LS_KEY, String(idx));
-      return idx;
-    }
+        // عناصر DOM
+        const videoContainer = document.getElementById('video-container');
+        const newVideoBtn = document.getElementById('new-video-btn');
+        const muteToggleBtn = document.getElementById('mute-toggle');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const videoCountElement = document.getElementById('video-count');
+        const totalVideosElement = document.getElementById('total-videos');
 
-    let currentIndex = pickIndex();
-    let player, apiReady = false;
-    const autoplayBlock = document.getElementById("autoplay-block");
-    const playInteract = document.getElementById("play-interact");
-    const muteToggle = document.getElementById("muteToggle");
-    const nextBtn = document.getElementById("nextBtn");
+        // تهيئة العداد
+        totalVideosElement.textContent = videoIds.length;
+        videoCountElement.textContent = videoCount;
 
-    function loadYouTubeAPI() {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
-
-    window.onYouTubeIframeAPIReady = function() {
-      apiReady = true;
-      createPlayerForIndex(currentIndex);
-    };
-
-    function createPlayerForIndex(index) {
-      const vid = videoIds[index];
-      if (player) {
-        try { player.destroy(); } catch(e) {}
-        player = null;
-      }
-      player = new YT.Player('player-area', {
-        videoId: vid,
-        playerVars: {
-          autoplay: 1,
-          controls: 1,
-          playsinline: 1,
-          rel: 0,
-          modestbranding: 1,
-          mute: 1
-        },
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
+        // دالة لاختيار فيديو عشوائي
+        function getRandomVideo() {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * videoIds.length);
+            } while (randomIndex === currentVideoIndex && videoIds.length > 1);
+            
+            currentVideoIndex = randomIndex;
+            return videoIds[randomIndex];
         }
-      });
-    }
 
-    function onPlayerReady(event) {
-      const p = event.target;
-      setTimeout(() => {
-        const state = typeof p.getPlayerState === 'function' ? p.getPlayerState() : -2;
-        if (state !== 1) {
-          autoplayBlock.style.display = "flex";
-        } else {
-          autoplayBlock.style.display = "none";
+        // دالة لتحميل فيديو جديد
+        function loadNewVideo() {
+            const selectedVideoId = getRandomVideo();
+            
+            // إنشاء عنصر iframe جديد
+            iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/${selectedVideoId}?autoplay=1&mute=${isMuted ? 1 : 0}`;
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+            iframe.allowFullscreen = true;
+            
+            // مسح الحاوية وإضافة الإطار الجديد
+            videoContainer.innerHTML = '';
+            videoContainer.appendChild(iframe);
+            
+            // تحديث العداد
+            videoCount++;
+            videoCountElement.textContent = videoCount;
         }
-      }, 700);
-    }
 
-    function onPlayerStateChange(e) {
-      if (e.data === YT.PlayerState.ENDED) {
-        // يمكنك تشغيل فيديو جديد تلقائيًا إن أردت هنا
-      }
-    }
+        // دالة للتبديل بين كتم وإلغاء كتم الصوت
+        function toggleMute() {
+            isMuted = !isMuted;
+            muteToggleBtn.innerHTML = isMuted ? '<span>🔇</span> إلغاء كتم' : '<span>🔊</span> كتم';
+            
+            // إعادة تحميل الفيديو مع الإعداد الجديد
+            if (iframe) {
+                const currentSrc = iframe.src;
+                const newSrc = currentSrc.replace(/mute=[01]/, `mute=${isMuted ? 1 : 0}`);
+                iframe.src = newSrc;
+            }
+        }
 
-    muteToggle.addEventListener("click", () => {
-      if (!player) return;
-      if (player.isMuted && player.isMuted()) {
-        player.unMute();
-      } else {
-        player.mute();
-      }
-    });
+        // دالة لتشغيل وضع ملء الشاشة
+        function toggleFullscreen() {
+            if (iframe) {
+                if (iframe.requestFullscreen) {
+                    iframe.requestFullscreen();
+                } else if (iframe.webkitRequestFullscreen) {
+                    iframe.webkitRequestFullscreen();
+                } else if (iframe.mozRequestFullScreen) {
+                    iframe.mozRequestFullScreen();
+                } else if (iframe.msRequestFullscreen) {
+                    iframe.msRequestFullscreen();
+                }
+            }
+        }
 
-    nextBtn.addEventListener("click", () => {
-      let newIndex = Math.floor(Math.random() * videoIds.length);
-      while (videoIds.length > 1 && newIndex === currentIndex) {
-        newIndex = Math.floor(Math.random() * videoIds.length);
-      }
-      currentIndex = newIndex;
-      localStorage.setItem(LS_KEY, String(currentIndex));
-      createPlayerForIndex(currentIndex);
-    });
+        // إضافة مستمعي الأحداث
+        newVideoBtn.addEventListener('click', loadNewVideo);
+        muteToggleBtn.addEventListener('click', toggleMute);
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-    playInteract.addEventListener("click", () => {
-      autoplayBlock.style.display = "none";
-      if (!player) return;
-      try { player.unMute(); } catch(e){}
-      try { player.playVideo(); } catch(e){}
-    });
+        // تحميل أول فيديو عند بدء التشغيل
+        loadNewVideo();
 
-    loadYouTubeAPI();
-  </script>
+        // ملاحظة: المشاهدات ستحتسب بشكل طبيعي على يوتيوب إذا تم مشاهدة الفيديو لفترة كافية، حسب سياسات يوتيوب.
+    </script>
 </body>
 </html>
