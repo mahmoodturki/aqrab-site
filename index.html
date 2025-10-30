@@ -1,186 +1,280 @@
-<!doctype html>
+// server.js (CommonJS)
+// نسخة متكاملة: يخدم صفحة HTML جميلة + API يوزع الفيديوهات بالتتابع.
+// متوافق مع Node.js بدون حاجة لـ "type":"module".
+
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// --- قائمة الفيديوهات (معرفات YouTube فقط) ---
+const videos = [
+  "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
+  "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
+  "ZxdF8dQ2R6k","j6B8bhXjCHQ","ohLaoKcjY84","NmmKzSOugwA","LFwLfDAnFeY",
+  "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
+];
+
+// --- ملف الحالة لتخزين الـ index الحالي ---
+const DATA_FILE = path.join(__dirname, "data.json");
+
+// تحميل الحالة أو بدأ من -1
+let state = { lastIndex: -1 };
+try {
+  if (fs.existsSync(DATA_FILE)) {
+    const raw = fs.readFileSync(DATA_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed.lastIndex === "number") state = parsed;
+  } else {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(state, null, 2));
+  }
+} catch (err) {
+  console.error("خطأ بتحميل/تهيئة data.json:", err);
+}
+
+// --- دالة بسيطة لتحديث الحالة على الملف (متزامنة لضمان الترتيب) ---
+function saveState() {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(state, null, 2));
+  } catch (err) {
+    console.error("خطأ بحفظ data.json:", err);
+  }
+}
+
+// --- خدمة الصفحة الرئيسية (نُرسل HTML مضمن) ---
+app.get("/", (req, res) => {
+  // صفحة HTML مدمجة: التصميم عصري، مظلم، حجم ملء الشاشة.
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html>
 <html lang="ar">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>مشغل فيديو عشوائي</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: system-ui, "Noto Sans Arabic", sans-serif;
-      color: #fff;
+    @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap');
+    :root {
+      --glass: rgba(255,255,255,0.06);
+      --accent: #06b6d4;
+      --bg1: #071020;
+      --bg2: #001219;
+      --text: #e6f7fb;
     }
-    .player {
+    html,body { height:100%; margin:0; padding:0; font-family: 'Tajawal', system-ui, sans-serif; background: linear-gradient(180deg,var(--bg1),var(--bg2)); color:var(--text); overflow:hidden; }
+    .player-wrapper { position: absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    #player { position:relative; width:100%; height:100%; background:#000; }
+    iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .ui {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
+      top: 18px;
+      left: 18px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      z-index: 30;
     }
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
+    .brand {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:8px 12px;
+      border-radius:12px;
+      backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,0.03);
     }
+    .logo {
+      width:42px; height:42px; border-radius:10px; display:grid; place-items:center; background:var(--accent); color:#002;
+      font-weight:800; box-shadow: 0 6px 18px rgba(6,182,212,0.12);
+    }
+    .title { font-weight:700; font-size:15px; }
+    .subtitle { font-size:12px; color:#bfeef6; opacity:0.9; margin-top:3px; }
     .controls {
       position: absolute;
-      bottom: 20px;
+      bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
+      display:flex;
+      gap:12px;
+      z-index:30;
+      align-items:center;
     }
     .btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      backdrop-filter: blur(4px);
-      transition: 0.2s;
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.04);
+      padding:10px 16px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:700;
+      transition: transform .18s ease, background .18s ease;
+      color:var(--text);
+      backdrop-filter: blur(6px);
     }
-    .btn:hover {
-      background: rgba(255,255,255,0.3);
+    .btn:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); }
+    .badge {
+      position: absolute;
+      top: 22px;
+      right: 18px;
+      background: rgba(0,0,0,0.4);
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03);
+      font-weight:700;
+      z-index:30;
+      color:#c6f0f7;
     }
     #autoplay-block {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 5;
+      position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:25;
+      background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.65));
+      padding:20px;
     }
     #play-interact {
-      background: #06b6d4;
-      color: #002;
-      padding: 14px 20px;
-      border: 0;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
+      background:var(--accent); color:#002; border:0; padding:14px 20px; border-radius:999px; font-weight:900; cursor:pointer;
+      box-shadow: 0 12px 30px rgba(6,182,212,0.14);
+    }
+    .small { font-size:13px; color:#bfeef6; opacity:0.95; }
+    @media (max-width:700px) {
+      .brand .title { font-size:13px; }
+      .btn { padding:9px 12px; font-size:14px; }
+      .logo { width:36px;height:36px; font-size:14px; }
     }
   </style>
 </head>
 <body>
-  <div class="player" id="player-area">
+  <div class="player-wrapper">
+    <div id="player"></div>
+
+    <div class="ui">
+      <div class="brand">
+        <div class="logo">V</div>
+        <div>
+          <div class="title">مشغل فديو عشوائي</div>
+          <div class="subtitle">كل زائر يرى فيديو مختلف</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="badge" id="statusBadge">جارٍ التحميل...</div>
+
     <div id="autoplay-block">
-      <button id="play-interact">تشغيل الفيديو (إلغاء الكتم)</button>
+      <div style="text-align:center;">
+        <div style="margin-bottom:12px; font-weight:700; font-size:18px; color:#fff">التشغيل التلقائي محظور — اضغط لتشغيل بالصوت</div>
+        <button id="play-interact">تشغيل + إلغاء الكتم</button>
+        <div style="margin-top:10px; color:#bfeef6; opacity:0.9" class="small">تلميح: المتصفحات تمنع التشغيل التلقائي بالصوت. النقر يسمح بتشغيل الصوت.</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="muteBtn">🔇 كتم / 🔊 إلغاء كتم</button>
+      <button class="btn" id="nextBtn">🎯 فيديو آخر</button>
+      <button class="btn" id="fsBtn">⛶ ملء الشاشة</button>
     </div>
   </div>
 
-  <div class="controls">
-    <button id="muteToggle" class="btn">🔇 كتم / 🔊 إلغاء كتم</button>
-    <button id="nextBtn" class="btn">🎞️ فيديو آخر</button>
-  </div>
-
   <script>
-    const videoIds = [
-      "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
-      "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
-      "ZxdF8dQ2R6k","j6B8bhXjCHQ","ohLaoKcjY84","NmmKzSOugwA","LFwLfDAnFeY",
-      "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
-    ];
-
-    const LS_KEY = "assignedVideoIndex_v1";
-    function pickIndex() {
-      const stored = localStorage.getItem(LS_KEY);
-      if (stored !== null) {
-        const idx = parseInt(stored,10);
-        if (!isNaN(idx) && idx >= 0 && idx < videoIds.length) return idx;
+    // === تواصل مع الخادم للحصول على الفيديو التالي ===
+    async function fetchNextVideo() {
+      try {
+        const res = await fetch("/api/next-video", { cache: "no-store" });
+        if (!res.ok) throw new Error("خطأ من الخادم");
+        const data = await res.json();
+        return data.videoId;
+      } catch (err) {
+        console.error("fetchNextVideo error:", err);
+        return null;
       }
-      const idx = Math.floor(Math.random() * videoIds.length);
-      localStorage.setItem(LS_KEY, String(idx));
-      return idx;
     }
 
-    let currentIndex = pickIndex();
-    let player, apiReady = false;
+    // === تحميل YouTube IFrame API ديناميكياً ===
+    function loadYouTubeApiOnce() {
+      return new Promise((resolve) => {
+        if (window.YT && window.YT.Player) return resolve();
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+        window.onYouTubeIframeAPIReady = () => resolve();
+      });
+    }
+
+    // عناصر الواجهة
+    const statusBadge = document.getElementById("statusBadge");
     const autoplayBlock = document.getElementById("autoplay-block");
     const playInteract = document.getElementById("play-interact");
-    const muteToggle = document.getElementById("muteToggle");
+    const muteBtn = document.getElementById("muteBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const fsBtn = document.getElementById("fsBtn");
 
-    function loadYouTubeAPI() {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
+    let player = null;
+    let currentVideoId = null;
 
-    window.onYouTubeIframeAPIReady = function() {
-      apiReady = true;
-      createPlayerForIndex(currentIndex);
-    };
-
-    function createPlayerForIndex(index) {
-      const vid = videoIds[index];
-      if (player) {
-        try { player.destroy(); } catch(e) {}
-        player = null;
+    async function init() {
+      statusBadge.textContent = "جلب فيديو جديد...";
+      const vid = await fetchNextVideo();
+      if (!vid) {
+        statusBadge.textContent = "تعذر جلب الفيديو — حاول إعادة تحميل الصفحة.";
+        return;
       }
-      player = new YT.Player('player-area', {
-        videoId: vid,
+      currentVideoId = vid;
+      statusBadge.textContent = "تحميل مشغل YouTube...";
+
+      await loadYouTubeApiOnce();
+
+      // إنشاء المشغل مكتوماً للسماح بالـ autoplay
+      player = new YT.Player('player', {
+        videoId: currentVideoId,
         playerVars: {
           autoplay: 1,
           controls: 1,
-          playsinline: 1,
           rel: 0,
           modestbranding: 1,
+          playsinline: 1,
           mute: 1
         },
         events: {
           onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
+          onStateChange: onStateChange
         }
       });
     }
 
     function onPlayerReady(event) {
-      const p = event.target;
+      statusBadge.textContent = "يعرض الآن";
+      // نتحقق بعد قليل إن شغّل المتصفح الفيديو أو منعّه -> نعرض واجهة التفاعل
       setTimeout(() => {
-        const state = typeof p.getPlayerState === 'function' ? p.getPlayerState() : -2;
-        if (state !== 1) {
+        try {
+          const st = event.target.getPlayerState();
+          // حالة 1 = playing
+          if (st !== 1) {
+            autoplayBlock.style.display = "flex";
+          } else {
+            autoplayBlock.style.display = "none";
+          }
+        } catch (e) {
           autoplayBlock.style.display = "flex";
-        } else {
-          autoplayBlock.style.display = "none";
         }
       }, 700);
     }
 
-    function onPlayerStateChange(e) {
+    function onStateChange(e) {
       if (e.data === YT.PlayerState.ENDED) {
-        // يمكنك تشغيل فيديو جديد تلقائيًا إن أردت هنا
+        statusBadge.textContent = "انتهى الفيديو — جلب التالي...";
+        // جلب فيديو تالي تلقائيًا بعد ثانيتين
+        setTimeout(async () => {
+          const nextId = await fetchNextVideo();
+          if (nextId && player) {
+            currentVideoId = nextId;
+            player.loadVideoById(nextId);
+            statusBadge.textContent = "يعرض الآن";
+          } else {
+            statusBadge.textContent = "تعذر جلب التالي.";
+          }
+        }, 1200);
       }
     }
 
-    muteToggle.addEventListener("click", () => {
-      if (!player) return;
-      if (player.isMuted && player.isMuted()) {
-        player.unMute();
-      } else {
-        player.mute();
-      }
-    });
-
-    nextBtn.addEventListener("click", () => {
-      let newIndex = Math.floor(Math.random() * videoIds.length);
-      while (videoIds.length > 1 && newIndex === currentIndex) {
-        newIndex = Math.floor(Math.random() * videoIds.length);
-      }
-      currentIndex = newIndex;
-      localStorage.setItem(LS_KEY, String(currentIndex));
-      createPlayerForIndex(currentIndex);
-    });
-
+    // زر التشغيل التفاعلي لإلغاء الكتم وتشغيل الصوت
     playInteract.addEventListener("click", () => {
       autoplayBlock.style.display = "none";
       if (!player) return;
@@ -188,7 +282,67 @@
       try { player.playVideo(); } catch(e){}
     });
 
-    loadYouTubeAPI();
+    // زر الكتم
+    muteBtn.addEventListener("click", () => {
+      if (!player) return;
+      try {
+        if (player.isMuted && player.isMuted()) { player.unMute(); }
+        else { player.mute(); }
+      } catch (e) { console.error(e); }
+    });
+
+    // زر الفيديو التالي (يطلب من الخادم الفيديو التالي ويحمّله فورًا)
+    nextBtn.addEventListener("click", async () => {
+      statusBadge.textContent = "جلب فيديو جديد...";
+      const nextId = await fetchNextVideo();
+      if (nextId && player) {
+        currentVideoId = nextId;
+        player.loadVideoById(nextId);
+        statusBadge.textContent = "يعرض الآن";
+        window.scrollTo(0,0);
+      } else {
+        statusBadge.textContent = "فشل في جلب الفيديو.";
+      }
+    });
+
+    // زر ملء الشاشة (يدخل iframe في وضع full screen)
+    fsBtn.addEventListener("click", () => {
+      try {
+        const iframe = player && player.getIframe ? player.getIframe() : document.querySelector('#player iframe');
+        if (!iframe) return;
+        if (!document.fullscreenElement) {
+          iframe.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      } catch (e) { console.error(e); }
+    });
+
+    // ابدأ
+    init();
   </script>
 </body>
-</html>
+</html>`);
+});
+
+// --- API يعطي الفيديو التالي لكل زيارة زائره جديدة ---
+// تسجيل بسيط: كل طلب إلى هذا endpoint يعتبر "زائر جديد" ويعطى الفيديو التالي في القائمة.
+// هذا يعالج التوزيع المتسلسل المطلوب.
+app.get("/api/next-video", (req, res) => {
+  try {
+    state.lastIndex = (state.lastIndex + 1) % videos.length;
+    saveState();
+    const vid = videos[state.lastIndex];
+    // نرجع مع بعض الميتادات للمساعدة على الواجهة إن احتجنا
+    res.json({ videoId: vid, index: state.lastIndex, total: videos.length });
+  } catch (err) {
+    console.error("API error:", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// --- بدء الخادم ---
+app.listen(PORT, () => {
+  console.log(\`✅ الخادم يعمل على http://localhost:\${PORT}\`);
+  console.log("كل زيارة جديدة تحصل على الفيديو التالي في القائمة.");
+});
