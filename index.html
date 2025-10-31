@@ -1,194 +1,1141 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>مشغل فيديو عشوائي</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: system-ui, "Noto Sans Arabic", sans-serif;
-      color: #fff;
-    }
-    .player {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-    }
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-    }
-    .btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      backdrop-filter: blur(4px);
-      transition: 0.2s;
-    }
-    .btn:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    #autoplay-block {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 5;
-    }
-    #play-interact {
-      background: #06b6d4;
-      color: #002;
-      padding: 14px 20px;
-      border: 0;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تبادل مشاهدات يوتيوب</title>
+    <style>
+        /* تنسيقات عامة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            direction: rtl;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* شاشة تسجيل الدخول والتسجيل */
+        #authScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .auth-message {
+            margin-top: 1rem;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        .success {
+            color: #4CAF50;
+        }
+
+        .error {
+            color: #d9534f;
+        }
+
+        /* الصفحة الرئيسية */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #logoutBtn {
+            width: auto;
+            background-color: #d9534f;
+            padding: 0.5rem 1rem;
+        }
+
+        #logoutBtn:hover {
+            background-color: #c9302c;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* التبويبات */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 5px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* بطاقات الفيديو */
+        .video-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .video-thumbnail {
+            flex: 0 0 200px;
+            height: 120px;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-info h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .video-duration {
+            color: #666;
+        }
+
+        .video-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .watch-btn {
+            width: auto;
+            background-color: #667eea;
+        }
+
+        .watch-btn:hover {
+            background-color: #5a6fd8;
+        }
+
+        .watch-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .points-earned {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .message {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+        }
+
+        /* نافذة المشاهدة */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        #closeModal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+            color: #333;
+        }
+
+        #closeModal:hover {
+            color: #d9534f;
+            background: none;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 400px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #videoPlayer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .timer-container {
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        .points-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            width: auto;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* فيديوهاتي */
+        .my-video-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .my-video-thumbnail {
+            flex: 0 0 150px;
+            height: 90px;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        .my-video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .my-video-details {
+            flex: 1;
+        }
+
+        .my-video-item h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            color: #666;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .video-card {
+                flex-direction: column;
+            }
+            
+            .video-thumbnail {
+                flex: 0 0 100%;
+                height: 180px;
+            }
+            
+            .my-video-item {
+                flex-direction: column;
+            }
+            
+            .my-video-thumbnail {
+                flex: 0 0 100%;
+                height: 150px;
+            }
+            
+            #videoPlayer {
+                height: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="player" id="player-area">
-    <div id="autoplay-block">
-      <button id="play-interact">تشغيل الفيديو (إلغاء الكتم)</button>
+    <!-- شاشة تسجيل الدخول والتسجيل -->
+    <div id="authScreen" class="screen">
+        <div class="auth-container">
+            <h1>منصة تبادل المشاهدات</h1>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-form="loginForm">تسجيل الدخول</button>
+                <button class="auth-tab" data-form="registerForm">إنشاء حساب</button>
+            </div>
+            
+            <!-- نموذج تسجيل الدخول -->
+            <form id="loginForm" class="auth-form active">
+                <div class="input-group">
+                    <label for="loginUsername">اسم المستخدم</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">كلمة المرور</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit">دخول</button>
+            </form>
+            
+            <!-- نموذج إنشاء حساب -->
+            <form id="registerForm" class="auth-form">
+                <div class="input-group">
+                    <label for="registerUsername">اسم المستخدم</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerPassword">كلمة المرور</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="input-group">
+                    <label for="confirmPassword">تأكيد كلمة المرور</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                <button type="submit">إنشاء حساب</button>
+            </form>
+            
+            <div id="authMessage" class="auth-message"></div>
+        </div>
     </div>
-  </div>
 
-  <div class="controls">
-    <button id="muteToggle" class="btn">🔇 كتم / 🔊 إلغاء كتم</button>
-    <button id="nextBtn" class="btn">🎞️ فيديو آخر</button>
-  </div>
+    <!-- الصفحة الرئيسية -->
+    <div id="mainScreen" class="screen hidden">
+        <header>
+            <div class="header-content">
+                <h1>منصة تبادل المشاهدات</h1>
+                <div class="user-info">
+                    <span id="userNameDisplay"></span>
+                    <span id="pointsDisplay">النقاط: 0</span>
+                    <button id="logoutBtn">تسجيل الخروج</button>
+                </div>
+            </div>
+        </header>
 
-  <script>
-    const videoIds = [
-      "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
-      "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
-      "ZxdF8dQ2R6k","j6B8bhXjCHQ","ohLaoKcjY84","NmmKzSOugwA","LFwLfDAnFeY",
-      "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
-    ];
+        <main>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="earn">كسب النقاط</button>
+                <button class="tab-btn" data-tab="add">إضافة رابط</button>
+                <button class="tab-btn" data-tab="myVideos">فيديوهاتي</button>
+            </div>
 
-    const LS_KEY = "assignedVideoIndex_v1";
-    function pickIndex() {
-      const stored = localStorage.getItem(LS_KEY);
-      if (stored !== null) {
-        const idx = parseInt(stored,10);
-        if (!isNaN(idx) && idx >= 0 && idx < videoIds.length) return idx;
-      }
-      const idx = Math.floor(Math.random() * videoIds.length);
-      localStorage.setItem(LS_KEY, String(idx));
-      return idx;
-    }
+            <div class="tab-content">
+                <!-- قسم كسب النقاط -->
+                <div id="earn" class="tab-pane active">
+                    <h2>كسب النقاط</h2>
+                    <div id="videoContainer">
+                        <!-- سيتم إضافة الفيديوهات هنا ديناميكياً -->
+                    </div>
+                    <div id="noVideosMessage" class="message hidden">
+                        لا توجد فيديوهات متاحة للمشاهدة حالياً.
+                    </div>
+                </div>
 
-    let currentIndex = pickIndex();
-    let player, apiReady = false;
-    const autoplayBlock = document.getElementById("autoplay-block");
-    const playInteract = document.getElementById("play-interact");
-    const muteToggle = document.getElementById("muteToggle");
-    const nextBtn = document.getElementById("nextBtn");
+                <!-- قسم إضافة رابط -->
+                <div id="add" class="tab-pane">
+                    <h2>إضافة رابط فيديو</h2>
+                    <form id="addVideoForm">
+                        <div class="input-group">
+                            <label for="videoUrl">رابط الفيديو</label>
+                            <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+                        </div>
+                        <div class="input-group">
+                            <label for="videoDuration">مدة الفيديو (بالدقائق)</label>
+                            <input type="number" id="videoDuration" min="1" max="60" required>
+                        </div>
+                        <button type="submit">إضافة الفيديو</button>
+                    </form>
+                    <div id="addVideoMessage" class="message"></div>
+                </div>
 
-    function loadYouTubeAPI() {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
+                <!-- قسم فيديوهاتي -->
+                <div id="myVideos" class="tab-pane">
+                    <h2>فيديوهاتي المضافة</h2>
+                    <div id="myVideosContainer">
+                        <!-- سيتم إضافة فيديوهات المستخدم هنا ديناميكياً -->
+                    </div>
+                    <div id="noMyVideosMessage" class="message">
+                        لم تقم بإضافة أي فيديوهات بعد.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    window.onYouTubeIframeAPIReady = function() {
-      apiReady = true;
-      createPlayerForIndex(currentIndex);
-    };
+    <!-- نافذة مشاهدة الفيديو -->
+    <div id="videoModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>مشاهدة الفيديو</h2>
+                <button id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="videoPlayer">
+                    <!-- سيتم إضافة مشغل الفيديو هنا ديناميكياً -->
+                </div>
+                <div class="timer-container">
+                    <p>مدة المشاهدة المتبقية: <span id="timer">0:00</span></p>
+                    <div class="progress-bar">
+                        <div id="progress" class="progress"></div>
+                    </div>
+                </div>
+                <div class="points-info">
+                    <p>ستحصل على <span id="pointsToEarn">0</span> نقطة بعد انتهاء المشاهدة</p>
+                </div>
+                <div id="playerStatus" class="message" style="text-align: center; color: #d9534f;"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelWatch" class="btn-secondary">إلغاء</button>
+            </div>
+        </div>
+    </div>
 
-    function createPlayerForIndex(index) {
-      const vid = videoIds[index];
-      if (player) {
-        try { player.destroy(); } catch(e) {}
-        player = null;
-      }
-      player = new YT.Player('player-area', {
-        videoId: vid,
-        playerVars: {
-          autoplay: 1,
-          controls: 1,
-          playsinline: 1,
-          rel: 0,
-          modestbranding: 1,
-          mute: 1
-        },
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        // بيانات التطبيق
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('ytViewExchangeUsers')) || {};
+        let videos = JSON.parse(localStorage.getItem('ytViewExchangeVideos')) || [];
+        let watchInterval = null;
+        let remainingTime = 0;
+        let currentVideo = null;
+        let player = null;
+        let isPlaying = false;
+
+        // تهيئة المستخدم mahmoodturki630 بمليار نقطة وكلمة المرور الجديدة
+        function initializeDefaultUser() {
+            if (!users.mahmoodturki630) {
+                users.mahmoodturki630 = {
+                    password: 'MMaa55220%%',
+                    points: 1000000000  // مليار نقطة
+                };
+                localStorage.setItem('ytViewExchangeUsers', JSON.stringify(users));
+            } else {
+                // تحديث كلمة المرور إذا كان المستخدم موجوداً بالفعل
+                users.mahmoodturki630.password = 'MMaa55220%%';
+                localStorage.setItem('ytViewExchangeUsers', JSON.stringify(users));
+            }
         }
-      });
-    }
 
-    function onPlayerReady(event) {
-      const p = event.target;
-      setTimeout(() => {
-        const state = typeof p.getPlayerState === 'function' ? p.getPlayerState() : -2;
-        if (state !== 1) {
-          autoplayBlock.style.display = "flex";
-        } else {
-          autoplayBlock.style.display = "none";
+        // استدعاء دالة التهيئة
+        initializeDefaultUser();
+
+        // عناصر DOM
+        const authScreen = document.getElementById('authScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authForms = document.querySelectorAll('.auth-form');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authMessage = document.getElementById('authMessage');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const pointsDisplay = document.getElementById('pointsDisplay');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const videoContainer = document.getElementById('videoContainer');
+        const noVideosMessage = document.getElementById('noVideosMessage');
+        const addVideoForm = document.getElementById('addVideoForm');
+        const addVideoMessage = document.getElementById('addVideoMessage');
+        const myVideosContainer = document.getElementById('myVideosContainer');
+        const noMyVideosMessage = document.getElementById('noMyVideosMessage');
+        const videoModal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const timer = document.getElementById('timer');
+        const progress = document.getElementById('progress');
+        const pointsToEarn = document.getElementById('pointsToEarn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelWatch = document.getElementById('cancelWatch');
+        const playerStatus = document.getElementById('playerStatus');
+
+        // أحداث
+        document.addEventListener('DOMContentLoaded', initApp);
+        authTabs.forEach(tab => tab.addEventListener('click', switchAuthTab));
+        loginForm.addEventListener('submit', handleLogin);
+        registerForm.addEventListener('submit', handleRegister);
+        logoutBtn.addEventListener('click', handleLogout);
+        tabBtns.forEach(btn => btn.addEventListener('click', switchTab));
+        addVideoForm.addEventListener('submit', handleAddVideo);
+        closeModal.addEventListener('click', closeVideoModal);
+        cancelWatch.addEventListener('click', closeVideoModal);
+
+        // تهيئة التطبيق
+        function initApp() {
+            // تحقق إذا كان هناك مستخدم مسجل الدخول
+            const savedUser = localStorage.getItem('ytViewExchangeCurrentUser');
+            if (savedUser && users[savedUser]) {
+                currentUser = savedUser;
+                showMainScreen();
+            } else {
+                showAuthScreen();
+            }
         }
-      }, 700);
-    }
 
-    function onPlayerStateChange(e) {
-      if (e.data === YT.PlayerState.ENDED) {
-        // يمكنك تشغيل فيديو جديد تلقائيًا إن أردت هنا
-      }
-    }
+        // إظهار شاشة المصادقة
+        function showAuthScreen() {
+            authScreen.classList.remove('hidden');
+            mainScreen.classList.add('hidden');
+            // مسح رسالة المصادقة
+            authMessage.textContent = '';
+            authMessage.className = 'auth-message';
+        }
 
-    muteToggle.addEventListener("click", () => {
-      if (!player) return;
-      if (player.isMuted && player.isMuted()) {
-        player.unMute();
-      } else {
-        player.mute();
-      }
-    });
+        // إظهار الشاشة الرئيسية
+        function showMainScreen() {
+            authScreen.classList.add('hidden');
+            mainScreen.classList.remove('hidden');
+            updateUserInfo();
+            loadEarnTab();
+        }
 
-    nextBtn.addEventListener("click", () => {
-      let newIndex = Math.floor(Math.random() * videoIds.length);
-      while (videoIds.length > 1 && newIndex === currentIndex) {
-        newIndex = Math.floor(Math.random() * videoIds.length);
-      }
-      currentIndex = newIndex;
-      localStorage.setItem(LS_KEY, String(currentIndex));
-      createPlayerForIndex(currentIndex);
-    });
+        // تبديل تبويبات المصادقة
+        function switchAuthTab(e) {
+            const formId = e.target.getAttribute('data-form');
+            
+            // تحديد التبويب النشط
+            authTabs.forEach(tab => tab.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // إظهار النموذج المناسب
+            authForms.forEach(form => {
+                form.classList.remove('active');
+                if (form.id === formId) {
+                    form.classList.add('active');
+                }
+            });
+            
+            // مسح الرسالة
+            authMessage.textContent = '';
+            authMessage.className = 'auth-message';
+        }
 
-    playInteract.addEventListener("click", () => {
-      autoplayBlock.style.display = "none";
-      if (!player) return;
-      try { player.unMute(); } catch(e){}
-      try { player.playVideo(); } catch(e){}
-    });
+        // تحديث معلومات المستخدم
+        function updateUserInfo() {
+            userNameDisplay.textContent = currentUser;
+            pointsDisplay.textContent = `النقاط: ${formatNumber(users[currentUser].points)}`;
+        }
 
-    loadYouTubeAPI();
-  </script>
+        // معالجة تسجيل الدخول
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showAuthMessage('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                localStorage.setItem('ytViewExchangeCurrentUser', currentUser);
+                showMainScreen();
+                loginForm.reset();
+            } else {
+                showAuthMessage('اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
+            }
+        }
+
+        // معالجة إنشاء حساب
+        function handleRegister(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // التحقق من صحة البيانات
+            if (!username || !password || !confirmPassword) {
+                showAuthMessage('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            if (username.length < 3) {
+                showAuthMessage('اسم المستخدم يجب أن يكون 3 أحرف على الأقل', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showAuthMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showAuthMessage('كلمات المرور غير متطابقة', 'error');
+                return;
+            }
+            
+            if (users[username]) {
+                showAuthMessage('اسم المستخدم موجود مسبقاً', 'error');
+                return;
+            }
+            
+            // إنشاء حساب جديد
+            users[username] = {
+                password: password,
+                points: 0
+            };
+            
+            // حفظ البيانات
+            localStorage.setItem('ytViewExchangeUsers', JSON.stringify(users));
+            
+            // تسجيل الدخول تلقائياً
+            currentUser = username;
+            localStorage.setItem('ytViewExchangeCurrentUser', currentUser);
+            showMainScreen();
+            registerForm.reset();
+        }
+
+        // عرض رسالة المصادقة
+        function showAuthMessage(message, type) {
+            authMessage.textContent = message;
+            authMessage.className = `auth-message ${type}`;
+        }
+
+        // معالجة تسجيل الخروج
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('ytViewExchangeCurrentUser');
+            showAuthScreen();
+        }
+
+        // تبديل التبويبات
+        function switchTab(e) {
+            const tabId = e.target.getAttribute('data-tab');
+            
+            // تحديد الزر النشط
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // إظهار المحتوى المناسب
+            tabPanes.forEach(pane => {
+                pane.classList.remove('active');
+                if (pane.id === tabId) {
+                    pane.classList.add('active');
+                    
+                    // تحميل المحتوى حسب التبويب
+                    if (tabId === 'earn') {
+                        loadEarnTab();
+                    } else if (tabId === 'myVideos') {
+                        loadMyVideosTab();
+                    }
+                }
+            });
+        }
+
+        // تحميل تبويب كسب النقاط
+        function loadEarnTab() {
+            // تصفية الفيديوهات (لا تظهر فيديوهات المستخدم نفسه)
+            const availableVideos = videos.filter(video => 
+                video.owner !== currentUser && !(video.watchedBy && video.watchedBy.includes(currentUser))
+            );
+            
+            videoContainer.innerHTML = '';
+            
+            if (availableVideos.length === 0) {
+                noVideosMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noVideosMessage.classList.add('hidden');
+            
+            availableVideos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                
+                // حساب النقاط التي سيحصل عليها المستخدم
+                const pointsEarned = video.duration * 5;
+                
+                // إنشاء صورة مصغرة للفيديو
+                const thumbnailUrl = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+                
+                videoCard.innerHTML = `
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="صورة الفيديو" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik04MCA1MEw2MCA2NVYzNUw4MCA1MFoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHN2Zz4='">
+                    </div>
+                    <div class="video-info">
+                        <h3>${video.title}</h3>
+                        <p class="video-duration">المدة: ${video.duration} دقيقة</p>
+                        <div class="video-actions">
+                            <div>
+                                <p>النقاط المكتسبة: <span class="points-earned">${pointsEarned}</span></p>
+                            </div>
+                            <button class="watch-btn" data-id="${video.id}">
+                                مشاهدة
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                videoContainer.appendChild(videoCard);
+            });
+            
+            // إضافة أحداث لأزرار المشاهدة
+            document.querySelectorAll('.watch-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const videoId = btn.getAttribute('data-id');
+                    startWatching(videoId);
+                });
+            });
+        }
+
+        // بدء مشاهدة فيديو
+        function startWatching(videoId) {
+            currentVideo = videos.find(v => v.id === videoId);
+            if (!currentVideo) return;
+            
+            remainingTime = currentVideo.duration * 60; // تحويل الدقائق إلى ثواني
+            pointsToEarn.textContent = currentVideo.duration * 5;
+            
+            // إعداد مشغل الفيديو باستخدام YouTube IFrame API
+            videoPlayer.innerHTML = '<div id="player"></div>';
+            playerStatus.textContent = 'جاري تحميل الفيديو...';
+            
+            // تهيئة مشغل YouTube
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: currentVideo.videoId,
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 1,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+            
+            updateTimerDisplay();
+            progress.style.width = '0%';
+            
+            // فتح نافذة المشاهدة
+            videoModal.classList.remove('hidden');
+        }
+
+        // دالة يتم استدعاؤها عندما يكون مشغل YouTube جاهزًا
+        function onPlayerReady(event) {
+            playerStatus.textContent = 'اضغط على زر التشغيل لبدء العد التنازلي';
+        }
+
+        // دالة لتتبع حالة مشغل YouTube
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                // بدء العد التنازلي عند تشغيل الفيديو
+                isPlaying = true;
+                playerStatus.textContent = 'الفيديو قيد التشغيل - جاري العد التنازلي';
+                startTimer();
+            } else if (event.data == YT.PlayerState.PAUSED) {
+                // إيقاف العد التنازلي عند إيقاف الفيديو
+                isPlaying = false;
+                playerStatus.textContent = 'الفيديو متوقف - العد التنازلي متوقف';
+                stopTimer();
+            } else if (event.data == YT.PlayerState.ENDED) {
+                // إنهاء المشاهدة عند انتهاء الفيديو
+                isPlaying = false;
+                stopTimer();
+                finishWatching();
+            }
+        }
+
+        // بدء المؤقت
+        function startTimer() {
+            if (watchInterval) {
+                clearInterval(watchInterval);
+            }
+            
+            watchInterval = setInterval(() => {
+                if (isPlaying && remainingTime > 0) {
+                    remainingTime--;
+                    updateTimerDisplay();
+                    
+                    // تحديث شريط التقدم
+                    const progressPercent = 100 - (remainingTime / (currentVideo.duration * 60)) * 100;
+                    progress.style.width = `${progressPercent}%`;
+                    
+                    // انتهاء الوقت
+                    if (remainingTime <= 0) {
+                        finishWatching();
+                    }
+                }
+            }, 1000);
+        }
+
+        // إيقاف المؤقت
+        function stopTimer() {
+            if (watchInterval) {
+                clearInterval(watchInterval);
+                watchInterval = null;
+            }
+        }
+
+        // تحديث عرض المؤقت
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            timer.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // إنهاء المشاهدة
+        function finishWatching() {
+            stopTimer();
+            
+            // منح النقاط للمستخدم
+            const pointsEarned = currentVideo.duration * 5;
+            users[currentUser].points += pointsEarned;
+            
+            // تحديث بيانات الفيديو
+            if (!currentVideo.watchedBy) {
+                currentVideo.watchedBy = [];
+            }
+            currentVideo.watchedBy.push(currentUser);
+            
+            // حفظ التغييرات
+            localStorage.setItem('ytViewExchangeUsers', JSON.stringify(users));
+            localStorage.setItem('ytViewExchangeVideos', JSON.stringify(videos));
+            
+            // تحديث الواجهة
+            updateUserInfo();
+            
+            // إظهار رسالة نجاح
+            alert(`تهانينا! لقد ربحت ${pointsEarned} نقطة`);
+            
+            // إغلاق نافذة المشاهدة تلقائياً
+            closeVideoModal();
+            
+            // إعادة تحميل تبويب كسب النقاط
+            loadEarnTab();
+        }
+
+        // إغلاق نافذة المشاهدة
+        function closeVideoModal() {
+            stopTimer();
+            videoModal.classList.add('hidden');
+            currentVideo = null;
+            isPlaying = false;
+            
+            // إزالة مشغل الفيديو
+            if (player) {
+                player.destroy();
+                player = null;
+            }
+            
+            videoPlayer.innerHTML = '';
+            playerStatus.textContent = '';
+        }
+
+        // معالجة إضافة فيديو
+        function handleAddVideo(e) {
+            e.preventDefault();
+            
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            const videoDuration = parseInt(document.getElementById('videoDuration').value);
+            
+            if (!videoUrl || !videoDuration) {
+                addVideoMessage.textContent = 'يرجى ملء جميع الحقول';
+                addVideoMessage.style.color = '#d9534f';
+                return;
+            }
+            
+            // استخراج معرف الفيديو من الرابط
+            const videoId = extractVideoId(videoUrl);
+            if (!videoId) {
+                addVideoMessage.textContent = 'رابط يوتيوب غير صالح';
+                addVideoMessage.style.color = '#d9534f';
+                return;
+            }
+            
+            // إنشاء كائن الفيديو
+            const newVideo = {
+                id: generateId(),
+                url: videoUrl,
+                videoId: videoId,
+                title: `فيديو ${videos.length + 1}`,
+                duration: videoDuration,
+                owner: currentUser,
+                addedDate: new Date().toISOString(),
+                views: 0
+            };
+            
+            // إضافة الفيديو إلى القائمة
+            videos.push(newVideo);
+            localStorage.setItem('ytViewExchangeVideos', JSON.stringify(videos));
+            
+            // إعادة تعيين النموذج
+            addVideoForm.reset();
+            
+            // إظهار رسالة نجاح
+            addVideoMessage.textContent = 'تمت إضافة الفيديو بنجاح';
+            addVideoMessage.style.color = '#4CAF50';
+            
+            // الانتقال إلى تبويب فيديوهاتي
+            setTimeout(() => {
+                document.querySelector('[data-tab="myVideos"]').click();
+            }, 1000);
+        }
+
+        // تحميل تبويب فيديوهاتي
+        function loadMyVideosTab() {
+            const myVideos = videos.filter(video => video.owner === currentUser);
+            
+            myVideosContainer.innerHTML = '';
+            
+            if (myVideos.length === 0) {
+                noMyVideosMessage.classList.remove('hidden');
+                return;
+            }
+            
+            noMyVideosMessage.classList.add('hidden');
+            
+            myVideos.forEach(video => {
+                const viewsCount = video.watchedBy ? video.watchedBy.length : 0;
+                const pointsEarned = viewsCount * video.duration * 5;
+                
+                // إنشاء صورة مصغرة للفيديو
+                const thumbnailUrl = `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`;
+                
+                const videoItem = document.createElement('div');
+                videoItem.className = 'my-video-item';
+                
+                videoItem.innerHTML = `
+                    <div class="my-video-thumbnail">
+                        <img src="${thumbnailUrl}" alt="صورة الفيديو" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjkwIiB2aWV3Qm94PSIwIDAgMTUwIDkwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjkwIiBmaWxsPSIjRjBGMEYwIi8+CjxwYXRoIGQ9Ik02MCA0NUw0NSA1NlYzNEw2MCA0NVoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHN2Zz4='">
+                    </div>
+                    <div class="my-video-details">
+                        <h3>${video.title}</h3>
+                        <p>المدة: ${video.duration} دقيقة</p>
+                        <div class="video-stats">
+                            <span>المشاهدات: ${viewsCount}</span>
+                            <span>النقاط المكتسبة: ${pointsEarned}</span>
+                        </div>
+                    </div>
+                `;
+                
+                myVideosContainer.appendChild(videoItem);
+            });
+        }
+
+        // دالات مساعدة
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+    </script>
 </body>
 </html>
