@@ -1,194 +1,436 @@
-<!doctype html>
-<html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>مشغل فيديو عشوائي</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      font-family: system-ui, "Noto Sans Arabic", sans-serif;
-      color: #fff;
-    }
-    .player {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-    }
-    iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 12px;
-      z-index: 10;
-    }
-    .btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      backdrop-filter: blur(4px);
-      transition: 0.2s;
-    }
-    .btn:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    #autoplay-block {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 5;
-    }
-    #play-interact {
-      background: #06b6d4;
-      color: #002;
-      padding: 14px 20px;
-      border: 0;
-      border-radius: 999px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع الروابط المتناوبة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            z-index: 100;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            color: #ffcc00;
+            margin-bottom: 0;
+        }
+        
+        .global-counter {
+            background: #ffcc00;
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .info {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .link-display {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .btn {
+            background: #ffcc00;
+            color: #222;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0.8;
+        }
+        
+        .btn:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+        
+        .visitor-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        .visitor-info h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .traffic-source {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 204, 0, 0.2);
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .social-stats {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        .social-stats h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .social-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-icon {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .facebook { background: #1877F2; }
+        .instagram { background: #E4405F; }
+        .pinterest { background: #BD081C; }
+        .twitter { background: #1DA1F2; }
+        .tiktok { background: #000000; }
+        .youtube { background: #FF0000; }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .visitor-info, .social-stats {
+                max-width: 200px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="player" id="player-area">
-    <div id="autoplay-block">
-      <button id="play-interact">تشغيل الفيديو (إلغاء الكتم)</button>
+    <div class="header">
+        <h1>مرحباً بك في موقعنا</h1>
+        <div class="global-counter">
+            إجمالي الزيارات: <span id="globalVisits">0</span>
+        </div>
     </div>
-  </div>
 
-  <div class="controls">
-    <button id="muteToggle" class="btn">🔇 كتم / 🔊 إلغاء كتم</button>
-    <button id="nextBtn" class="btn">🎞️ فيديو آخر</button>
-  </div>
+    <iframe class="link-display" id="linkFrame" src=""></iframe>
 
-  <script>
-    const videoIds = [
-      "jEx_rBcE8Bs","oYgr1cemxzU","c3VqnXd3IOY","RD14ZNRCpYI","Q8r0m5WFpvk",
-      "pxkp9ehbBkA","QK6rysYv1sM","rYmA9pwKTRs","NcG_PwAFQ3w","uQDG65myVSo",
-      "ZxdF8dQ2R6k","j6B8bhXjCHQ","ohLaoKcjY84","NmmKzSOugwA","LFwLfDAnFeY",
-      "3qCGFxc2yEg","_JXPY08yg8s","qcAmkjvVcmI"
-    ];
+    <div class="visitor-info">
+        <h3>معلومات الزيارة</h3>
+        <div>الرابط الحالي: <span id="currentLinkNumber">1</span></div>
+        <div>عدد زياراتك: <span id="totalVisits">1</span></div>
+        <div>معرف الزائر: <span id="visitorId">-</span></div>
+        <div class="traffic-source">مصدر الزيارة: <span id="trafficSource">-</span></div>
+    </div>
 
-    const LS_KEY = "assignedVideoIndex_v1";
-    function pickIndex() {
-      const stored = localStorage.getItem(LS_KEY);
-      if (stored !== null) {
-        const idx = parseInt(stored,10);
-        if (!isNaN(idx) && idx >= 0 && idx < videoIds.length) return idx;
-      }
-      const idx = Math.floor(Math.random() * videoIds.length);
-      localStorage.setItem(LS_KEY, String(idx));
-      return idx;
-    }
+    <div class="social-stats">
+        <h3>الزيارات من مواقع التواصل</h3>
+        <div class="social-item">
+            <span><span class="social-icon facebook">f</span> فيسبوك</span>
+            <span id="facebookVisits">0</span>
+        </div>
+        <div class="social-item">
+            <span><span class="social-icon instagram">in</span> انستغرام</span>
+            <span id="instagramVisits">0</span>
+        </div>
+        <div class="social-item">
+            <span><span class="social-icon pinterest">p</span> بنتريست</span>
+            <span id="pinterestVisits">0</span>
+        </div>
+        <div class="social-item">
+            <span><span class="social-icon twitter">t</span> تويتر</span>
+            <span id="twitterVisits">0</span>
+        </div>
+        <div class="social-item">
+            <span><span class="social-icon tiktok">tk</span> تيك توك</span>
+            <span id="tiktokVisits">0</span>
+        </div>
+        <div class="social-item">
+            <span><span class="social-icon youtube">yt</span> يوتيوب</span>
+            <span id="youtubeVisits">0</span>
+        </div>
+    </div>
 
-    let currentIndex = pickIndex();
-    let player, apiReady = false;
-    const autoplayBlock = document.getElementById("autoplay-block");
-    const playInteract = document.getElementById("play-interact");
-    const muteToggle = document.getElementById("muteToggle");
-    const nextBtn = document.getElementById("nextBtn");
+    <div class="controls">
+        <button class="btn" id="newLinkBtn">رابط جديد</button>
+        <button class="btn" id="infoBtn">إظهار/إخفاء المعلومات</button>
+    </div>
 
-    function loadYouTubeAPI() {
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    }
-
-    window.onYouTubeIframeAPIReady = function() {
-      apiReady = true;
-      createPlayerForIndex(currentIndex);
-    };
-
-    function createPlayerForIndex(index) {
-      const vid = videoIds[index];
-      if (player) {
-        try { player.destroy(); } catch(e) {}
-        player = null;
-      }
-      player = new YT.Player('player-area', {
-        videoId: vid,
-        playerVars: {
-          autoplay: 1,
-          controls: 1,
-          playsinline: 1,
-          rel: 0,
-          modestbranding: 1,
-          mute: 1
-        },
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
+    <script>
+        // قائمة الروابط الجديدة
+        const links = [
+            'https://otieu.com/4/10258262',
+            'https://otieu.com/4/10258255',
+            'https://otieu.com/4/10258263',
+            'https://otieu.com/4/10258265',
+            'https://otieu.com/4/10258266'
+        ];
+        
+        // قائمة مصادر الزيارات (مواقع التواصل)
+        const trafficSources = [
+            { name: 'فيسبوك', id: 'facebook' },
+            { name: 'انستغرام', id: 'instagram' },
+            { name: 'بنتريست', id: 'pinterest' },
+            { name: 'تويتر', id: 'twitter' },
+            { name: 'تيك توك', id: 'tiktok' },
+            { name: 'يوتيوب', id: 'youtube' }
+        ];
+        
+        let currentLinkIndex = -1;
+        let totalVisits = 0;
+        let visitorId = '';
+        let currentTrafficSource = '';
+        
+        const linkFrame = document.getElementById('linkFrame');
+        const currentLinkNumberElement = document.getElementById('currentLinkNumber');
+        const totalVisitsElement = document.getElementById('totalVisits');
+        const visitorIdElement = document.getElementById('visitorId');
+        const globalVisitsElement = document.getElementById('globalVisits');
+        const trafficSourceElement = document.getElementById('trafficSource');
+        const newLinkBtn = document.getElementById('newLinkBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const visitorInfo = document.querySelector('.visitor-info');
+        
+        // عناصر إحصائيات مواقع التواصل
+        const socialStats = {
+            facebook: document.getElementById('facebookVisits'),
+            instagram: document.getElementById('instagramVisits'),
+            pinterest: document.getElementById('pinterestVisits'),
+            twitter: document.getElementById('twitterVisits'),
+            tiktok: document.getElementById('tiktokVisits'),
+            youtube: document.getElementById('youtubeVisits')
+        };
+        
+        // تهيئة الموقع
+        function initializeSite() {
+            // إنشاء أو استرجاع معرف الزائر
+            if (!localStorage.getItem('visitorId')) {
+                visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('visitorId', visitorId);
+            } else {
+                visitorId = localStorage.getItem('visitorId');
+            }
+            
+            // تحميل عدد الزيارات الشخصية من localStorage
+            const savedVisits = localStorage.getItem('totalVisits');
+            if (savedVisits) {
+                totalVisits = parseInt(savedVisits);
+            } else {
+                totalVisits = 0;
+            }
+            totalVisits++;
+            localStorage.setItem('totalVisits', totalVisits.toString());
+            
+            // اختيار مصدر عشوائي للزيارة
+            selectRandomTrafficSource();
+            
+            // تحديث العداد العالمي للزيارات
+            updateGlobalCounter();
+            
+            // تحديث إحصائيات مواقع التواصل
+            updateSocialStats();
+            
+            // تحديث واجهة المستخدم
+            visitorIdElement.textContent = visitorId;
+            totalVisitsElement.textContent = totalVisits;
+            
+            // فتح رابط عشوائي فوراً
+            openRandomLink();
         }
-      });
-    }
-
-    function onPlayerReady(event) {
-      const p = event.target;
-      setTimeout(() => {
-        const state = typeof p.getPlayerState === 'function' ? p.getPlayerState() : -2;
-        if (state !== 1) {
-          autoplayBlock.style.display = "flex";
-        } else {
-          autoplayBlock.style.display = "none";
+        
+        // اختيار مصدر عشوائي للزيارة
+        function selectRandomTrafficSource() {
+            const randomSource = trafficSources[Math.floor(Math.random() * trafficSources.length)];
+            currentTrafficSource = randomSource.name;
+            trafficSourceElement.textContent = currentTrafficSource;
         }
-      }, 700);
-    }
-
-    function onPlayerStateChange(e) {
-      if (e.data === YT.PlayerState.ENDED) {
-        // يمكنك تشغيل فيديو جديد تلقائيًا إن أردت هنا
-      }
-    }
-
-    muteToggle.addEventListener("click", () => {
-      if (!player) return;
-      if (player.isMuted && player.isMuted()) {
-        player.unMute();
-      } else {
-        player.mute();
-      }
-    });
-
-    nextBtn.addEventListener("click", () => {
-      let newIndex = Math.floor(Math.random() * videoIds.length);
-      while (videoIds.length > 1 && newIndex === currentIndex) {
-        newIndex = Math.floor(Math.random() * videoIds.length);
-      }
-      currentIndex = newIndex;
-      localStorage.setItem(LS_KEY, String(currentIndex));
-      createPlayerForIndex(currentIndex);
-    });
-
-    playInteract.addEventListener("click", () => {
-      autoplayBlock.style.display = "none";
-      if (!player) return;
-      try { player.unMute(); } catch(e){}
-      try { player.playVideo(); } catch(e){}
-    });
-
-    loadYouTubeAPI();
-  </script>
+        
+        // تحديث العداد العالمي للزيارات
+        function updateGlobalCounter() {
+            let globalVisits = localStorage.getItem('globalVisits');
+            if (!globalVisits) {
+                globalVisits = Math.floor(Math.random() * 500) + 300; // قيمة بداية عشوائية
+            } else {
+                globalVisits = parseInt(globalVisits);
+            }
+            
+            // زيادة العداد العالمي بمقدار 1-5 زيارات (لمحاكاة تحديثات الزوار الآخرين)
+            const randomIncrement = Math.floor(Math.random() * 5) + 1;
+            globalVisits += randomIncrement;
+            
+            localStorage.setItem('globalVisits', globalVisits.toString());
+            globalVisitsElement.textContent = globalVisits;
+            
+            // تحديث العداد كل 2-5 ثوانٍ لمحاكاة تحديثات الزوار الآخرين
+            setTimeout(updateGlobalCounter, Math.floor(Math.random() * 3000) + 2000);
+        }
+        
+        // تحديث إحصائيات مواقع التواصل
+        function updateSocialStats() {
+            // تهيئة إحصائيات مواقع التواصل إذا لم تكن موجودة
+            trafficSources.forEach(source => {
+                if (!localStorage.getItem(`${source.id}Visits`)) {
+                    const baseVisits = Math.floor(Math.random() * 200) + 50;
+                    localStorage.setItem(`${source.id}Visits`, baseVisits.toString());
+                }
+            });
+            
+            // تحديث الإحصائيات بشكل عشوائي
+            trafficSources.forEach(source => {
+                let currentVisits = parseInt(localStorage.getItem(`${source.id}Visits`));
+                
+                // زيادة عشوائية في الإحصائيات
+                const randomIncrease = Math.floor(Math.random() * 3);
+                currentVisits += randomIncrease;
+                
+                localStorage.setItem(`${source.id}Visits`, currentVisits.toString());
+                socialStats[source.id].textContent = currentVisits;
+            });
+            
+            // تحديث الإحصائيات كل 3-6 ثوانٍ
+            setTimeout(updateSocialStats, Math.floor(Math.random() * 3000) + 3000);
+        }
+        
+        // اختيار رابط عشوائي مختلف عن السابق
+        function getRandomLink() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * links.length);
+            } while (newIndex === currentLinkIndex && links.length > 1);
+            
+            currentLinkIndex = newIndex;
+            return {
+                url: links[currentLinkIndex],
+                index: newIndex + 1
+            };
+        }
+        
+        // فتح الرابط في الإطار المدمج
+        function openRandomLink() {
+            const linkData = getRandomLink();
+            
+            // تحديث واجهة المستخدم
+            currentLinkNumberElement.textContent = linkData.index;
+            
+            // زيادة العداد العالمي بمقدار 1 عند فتح رابط جديد
+            let currentGlobal = parseInt(globalVisitsElement.textContent);
+            globalVisitsElement.textContent = currentGlobal + 1;
+            
+            // زيادة إحصائيات مواقع التواصل
+            increaseSocialStats();
+            
+            // فتح الرابط في الإطار
+            linkFrame.src = linkData.url;
+        }
+        
+        // زيادة إحصائيات مواقع التواصل
+        function increaseSocialStats() {
+            // زيادة إحصائيات الموقع الحالي
+            const currentSource = trafficSources.find(source => source.name === currentTrafficSource);
+            if (currentSource) {
+                let currentVisits = parseInt(localStorage.getItem(`${currentSource.id}Visits`));
+                currentVisits++;
+                localStorage.setItem(`${currentSource.id}Visits`, currentVisits.toString());
+                socialStats[currentSource.id].textContent = currentVisits;
+            }
+        }
+        
+        // إضافة أحداث الأزرار
+        newLinkBtn.addEventListener('click', openRandomLink);
+        
+        infoBtn.addEventListener('click', function() {
+            if (visitorInfo.style.display === 'none') {
+                visitorInfo.style.display = 'block';
+            } else {
+                visitorInfo.style.display = 'none';
+            }
+        });
+        
+        // تهيئة الموقع عند التحميل
+        window.addEventListener('load', initializeSite);
+    </script>
 </body>
 </html>
